@@ -1,0 +1,49 @@
+# The required gate. `ci-ok` is the one status check the branch ruleset requires (with `pr-title`), so jobs can
+# change without editing the ruleset. `check` runs the FULL `moon run :check` cold: .moon/cache is never restored
+# and MOON_CACHE=write disables cache reads, so narrowing task inputs cannot skip a check. Every action is pinned by
+# commit SHA (Dependabot bumps them; zizmor, part of the gate, checks); every tool comes from mise.toml with
+# mise.lock checksums, and both upstream libraries from deps.toml with SHA-256 checksums.
+name: ci
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      MOON_CACHE: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # moon compares with the default branch
+          persist-credentials: false
+      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+        with:
+          cache: true
+      - name: gate
+        run: mise exec -- moon run :check
+
+  ci-ok:
+    if: always()
+    needs: [check]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: all required jobs passed
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
+        run: exit 1
+      - name: ok
+        run: echo "moon run :check passed"

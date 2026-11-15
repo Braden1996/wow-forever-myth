@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "check (everything CI runs)",
+      "type": "shell",
+      "command": "mise exec -- moon run :check",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "spec (Lua 5.1 bundle in a fake WoW world)",
+      "type": "shell",
+      "command": "mise exec -- moon run tests:spec",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "fixtures (type errors)",
+      "type": "shell",
+      "command": "mise exec -- moon run tests:fixtures",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "generate and build dist/ForeverMyth.lua",
+      "type": "shell",
+      "command": "mise exec -- moon run generator:generate lib:build",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "format",
+      "type": "shell",
+      "command": "mise exec -- moon run repo:fmt lib:fmt",
+      "problemMatcher": []
+    }
+  ]
+}

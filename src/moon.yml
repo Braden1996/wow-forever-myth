@@ -1,0 +1,108 @@
+$schema: "../.moon/cache/schemas/project.json"
+
+# Project `lib`: the library (src/), its WoW entry point (wow/), and every Luau script and test (one type-check per
+# environment: the library against the WoW: Forever definitions, the tooling against Lune's).
+layer: "library"
+tags: ["luau"]
+
+taskOptions:
+  shell: false
+  runFromWorkspaceRoot: true
+
+tasks:
+  typecheck:
+    description: "src/ and wow/ type-check under --!strict on the new solver, against the pinned WoW: Forever definitions"
+    command: "luau-lsp"
+    args: [
+      "analyze",
+      "--platform=standard",
+      "--flag:LuauSolverV2=true",
+      "--base-luaurc=.luaurc",
+      "--definitions=@wow=.deps/wow-forever-luau-types/wow-forever.d.luau",
+      "--settings=.deps/library.settings.json",
+      "--ignore=.deps/**",
+      "src/",
+      "wow/",
+    ]
+    deps: ["generator:fetch"]
+    options:
+      cache: false
+  typecheck-tools:
+    description: "The generator, overrides, scripts and tests type-check under --!strict against Lune's definitions"
+    command: "luau-lsp"
+    args: [
+      "analyze",
+      "--platform=standard",
+      "--flag:LuauSolverV2=true",
+      "--base-luaurc=.luaurc",
+      "generator/",
+      "overrides/",
+      "scripts/",
+      "tests/spec/",
+      "tests/support/",
+    ]
+    deps: ["generator:lune-types"]
+    inputs: ["/generator/**/*.luau", "/overrides/**/*.luau", "/scripts/**/*.luau", "/tests/**/*.luau", "/.luaurc"]
+  strict-header:
+    description: "scripts/lint: --!strict everywhere, no comments, casts only in unchecked... functions"
+    command: "lune"
+    args: ["run", "scripts/lint"]
+    inputs: [
+      "/src/**/*.luau",
+      "/wow/**/*.luau",
+      "/generator/**/*.luau",
+      "/overrides/**/*.luau",
+      "/scripts/**/*.luau",
+      "/tests/**/*.luau",
+    ]
+  lint:
+    description: "selene (selene.toml)"
+    command: "selene"
+    args: ["src", "wow", "generator", "overrides", "scripts", "tests"]
+    deps: ["generator:fetch"]
+    inputs: [
+      "/src/**/*.luau",
+      "/wow/**/*.luau",
+      "/generator/**/*.luau",
+      "/overrides/**/*.luau",
+      "/scripts/**/*.luau",
+      "/tests/**/*.luau",
+      "/selene.toml",
+      "/*.yml",
+    ]
+  build:
+    description: "Build dist/ForeverMyth.lua, the Lua 5.1 bundle (darklua), and check it"
+    command: "lune"
+    args: ["run", "scripts/build"]
+    deps: ["generator:fetch"]
+    options:
+      cache: false
+  build-fresh:
+    description: "dist/ForeverMyth.lua equals a fresh build, parses as Lua 5.1, and uses only Lua 5.1 globals"
+    command: "lune"
+    args: ["run", "scripts/build", "--", "--check"]
+    deps: ["generator:fetch"]
+    options:
+      cache: false
+  fmt:
+    description: "Format all Luau with StyLua"
+    command: "stylua"
+    args: ["src", "wow", "generator", "overrides", "scripts", "tests"]
+    options:
+      cache: false
+  fmt-check:
+    description: "StyLua check of all Luau (run `moon run lib:fmt` to fix)"
+    command: "stylua"
+    args: ["--check", "src", "wow", "generator", "overrides", "scripts", "tests"]
+    inputs: [
+      "/src/**/*.luau",
+      "/wow/**/*.luau",
+      "/generator/**/*.luau",
+      "/overrides/**/*.luau",
+      "/scripts/**/*.luau",
+      "/tests/**/*.luau",
+      "/stylua.toml",
+    ]
+  check:
+    description: "Aggregator: every library check"
+    deps: ["~:typecheck", "~:typecheck-tools", "~:strict-header", "~:lint", "~:build-fresh", "~:fmt-check"]

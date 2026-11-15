@@ -1,0 +1,26 @@
+$schema: "./cache/schemas/workspace.json"
+
+# moon workspace. `moon run :check` is THE gate: CI runs it cold (MOON_CACHE=write), and so does the pre-push hook
+# (affected projects only). Every task runs on the `system` toolchain (mise puts the pinned binaries on PATH), is
+# `shell: false`, and runs from the workspace root. Each project has a `check` aggregator that only lists deps.
+versionConstraint: "=2.6.5"
+
+projects:
+  repo: "."
+  generator: "generator"
+  lib: "src"
+  tests: "tests"
+
+vcs:
+  client: "git"
+  provider: "github"
+  defaultBranch: "main"
+
+hasher:
+  walkStrategy: "vcs"
+  warnOnMissingInputs: true
+
+pipeline:
+  cacheLifetime: "7 days"
+
+telemetry: false

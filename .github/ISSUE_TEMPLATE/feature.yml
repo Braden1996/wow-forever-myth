@@ -1,0 +1,18 @@
+name: Override request
+description: An API whose boolean-first result means success, whose nil means "not cached yet", or whose callback fires once.
+labels: [enhancement]
+body:
+  - type: input
+    id: api
+    attributes:
+      label: The API (as in api-shapes.json)
+      placeholder: C_Spell.GetSpellInfo
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Why the docs cannot say it, and the evidence it behaves that way
+      description: The event it fires, the error strings it returns, a Blizzard UI call site that relies on it.
+    validations:
+      required: true

@@ -1,0 +1,21 @@
+6:22: TypeError: Expected this to be 'string', but got 'Just<string> | Nothing'; 
+this is because 
+	 * `Just<string>` is not a subtype of `string`
+	 * `Nothing` is not a subtype of `string`
+7:37: TypeError: Expected this to be 'number | string', but got 'boolean'
+9:14: TypeError: Key 'positionW' not found in table 'UnitPositionResults'
+10:37: TypeError: Expected this to be
+	'UnitPositionResults'
+but got
+	'GetActionInfoResults'
+11:50: TypeError: Expected this to be
+	'Err<number> | Ok<true>'
+but got
+	'Err<string> | Ok<true>'; 
+`Err<string>` is not a subtype of `Err<number> | Ok<true>`
+12:49: TypeError: Expected this to be
+	'Task<string, never>'
+but got
+	'Task<nil, never>'; 
+Expected property `state` to be `Pending | Rejected<never> | Resolved<string>`, but got `Resolved<nil>`
+13:24: TypeError: Expected this to be 'number', but got 'string'

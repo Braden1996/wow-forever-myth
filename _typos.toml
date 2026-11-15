@@ -1,0 +1,9 @@
+[files]
+extend-exclude = [
+  "dist/",
+  "tests/fail/*.expected",
+  "src/Api/",
+  "src/Widgets/",
+  "src/ApiIndex.luau",
+  "src/WidgetIndex.luau",
+]

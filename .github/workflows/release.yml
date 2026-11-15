@@ -1,0 +1,77 @@
+# Publishes a release when a `v*.*.*` tag on main is pushed. The tagged commit is re-verified with the full
+# `moon run :check` from a cold start (no tool or moon cache, so nothing a pull request wrote can reach a release),
+# the tag must match the library's `version`, then the Lua 5.1 bundle and a source archive are attached with checksums.
+name: release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the tag must be on main
+          persist-credentials: false
+      - name: tag is on main
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+        with:
+          cache: false
+      - name: gate
+        env:
+          MOON_CACHE: write
+        run: mise exec -- moon run :check
+      - name: version matches tag
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! grep -q "version = \"${TAG#v}\"" src/ForeverMyth.luau; then
+            echo "::error file=src/ForeverMyth.luau::version is not ${TAG#v}"
+            exit 1
+          fi
+
+  publish:
+    needs: [verify]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write # create the release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: release notes
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          awk -v v="${TAG#v}" 'index($0, "## [" v "]") == 1 {on=1; next} /^## / && on {exit} on && !/^\[.*\]: http/' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then echo "::error file=CHANGELOG.md::no section for ${TAG#v}"; exit 1; fi
+          cat notes.md
+      - name: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          name="wow-forever-myth-${TAG#v}"
+          mkdir -p "$name"
+          cp -r src LICENSE README.md CHANGELOG.md deps.toml "$name/"
+          rm -f "$name/src/moon.yml"
+          zip -qr "$name.zip" "$name"
+          cp dist/ForeverMyth.lua ForeverMyth.lua
+          sha256sum ForeverMyth.lua "$name.zip" > SHA256SUMS
+          prerelease=""
+          case "$TAG" in *-*) prerelease="--prerelease" ;; esac
+          # shellcheck disable=SC2086
+          gh release create "$TAG" ForeverMyth.lua "$name.zip" SHA256SUMS $prerelease \
+            --repo "$GITHUB_REPOSITORY" --title "$TAG" --notes-file notes.md --verify-tag

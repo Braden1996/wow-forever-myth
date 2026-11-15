@@ -1,0 +1,28 @@
+$schema: "../.moon/cache/schemas/project.json"
+
+# Project `tests`: the runtime specs (against the Lua 5.1 bundle, in a fake WoW world) and the type fixtures.
+layer: "automation"
+tags: ["luau"]
+
+taskOptions:
+  shell: false
+  runFromWorkspaceRoot: true
+
+tasks:
+  spec:
+    description: "Every tests/spec/*.spec.luau passes against dist/ForeverMyth.lua in a Lua 5.1 + fake WoW world; every override is tested"
+    command: "lune"
+    args: ["run", "scripts/test"]
+    deps: ["lib:build-fresh"]
+    options:
+      cache: false
+  fixtures:
+    description: "tests/pass type-checks clean; tests/fail gets exactly its .expected diagnostics (new solver, WoW definitions)"
+    command: "lune"
+    args: ["run", "scripts/fixtures"]
+    deps: ["generator:fetch"]
+    options:
+      cache: false
+  check:
+    description: "Aggregator: every test"
+    deps: ["~:spec", "~:fixtures"]
