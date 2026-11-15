@@ -1,0 +1,8 @@
+* text=auto eol=lf
+dist/** linguist-generated=true
+.github/banner.svg linguist-generated=true
+*.luau linguist-language=Luau
+src/Api/** linguist-generated=true
+src/Widgets/** linguist-generated=true
+src/ApiIndex.luau linguist-generated=true
+src/WidgetIndex.luau linguist-generated=true
