@@ -4,6 +4,8 @@
 
 # wow-forever-myth
 
+**Documentation: [braden1996.github.io/wow-forever-myth](https://braden1996.github.io/wow-forever-myth/)**
+
 The World of Warcraft: Forever API in [luau-true-myth](https://github.com/Braden1996/luau-true-myth) idioms, for
 strict Luau addons compiled to Lua 5.1 with darklua. Every wrapper is **generated** from the result shapes that
 [wow-forever-luau-types](https://github.com/Braden1996/wow-forever-luau-types) derives from Blizzard's own API

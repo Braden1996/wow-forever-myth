@@ -1,0 +1,34 @@
+---
+title: Overrides
+description: The reviewed table of meanings Blizzard's documentation cannot express, and how an entry is added.
+---
+
+import { facts } from "../../../lib/facts.ts";
+
+The documentation describes types, not intent. Three kinds of intent are added by hand, in
+[`overrides/`](https://github.com/Braden1996/wow-forever-myth/tree/main/overrides):
+
+| File             | Says                                                         | Gives                                   |                     Entries |
+| ---------------- | ------------------------------------------------------------ | --------------------------------------- | --------------------------: |
+| `Results.luau`   | a leading boolean means success; another result is the error | `Fn(...): Result<true or FnSuccess, E>` |   {facts.overrides.results} |
+| `Loads.luau`     | a nil means "not cached yet"; a request fires a load event   | `FnAsync(...): Task<T, LoadFailed>`     |     {facts.overrides.loads} |
+| `Callbacks.luau` | a callback parameter fires exactly once                      | `FnAsync(...): Task<T, never>`          | {facts.overrides.callbacks} |
+
+Every entry has a `why`: the evidence for the meaning, such as the event the game fires or the error strings it
+returns.
+
+## What keeps them honest
+
+- **Checked against the shapes.** The generator refuses an entry that names an unknown or protected function, a
+  `Result` whose first result is not a boolean or whose error result does not exist, a missing fallback for an error
+  that may be nil, a load whose request function returns something, or a callback that is not a parameter.
+- **Tested by name.** Each entry gets tests: success and failure for a `Result`, cached data, a load, a failed load
+  and an unknown key for a load, the callback for a timer. The test run fails if any entry has no passing test.
+
+## Adding one
+
+1. Find the function in `api-shapes.json` from the pinned wow-forever-luau-types release.
+2. Add an entry with its `why` to the right file.
+3. Run `moon run generator:generate lib:build`, then `moon run :check`.
+
+Suggest one with the [override request form](https://github.com/Braden1996/wow-forever-myth/issues/new/choose).

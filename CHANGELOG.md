@@ -5,6 +5,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- A documentation site at [braden1996.github.io/wow-forever-myth](https://braden1996.github.io/wow-forever-myth/): an
+  introduction, guides with examples type-checked at build time (luau-web-checker), and an API reference generated
+  from `src/` by starlight-luau, one page per namespace and widget type. Styled with a self-contained fork of
+  warcraftcn/ui in `docs/src/wow-ui/`.
+
 ## [0.1.0] - 2026-11-15
 
 ### Added

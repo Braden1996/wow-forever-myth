@@ -1,0 +1,105 @@
+---
+title: wow-forever-myth
+description: The World of Warcraft Forever API as Maybe, Result and Task, generated from Blizzard's documentation for strict Luau addons.
+template: splash
+hero:
+  tagline: The World of Warcraft Forever API as Maybe, Result and Task. Every wrapper is generated from Blizzard's own documentation, strictly typed, and compiles to Lua 5.1.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Introduction
+      link: introduction/
+      icon: right-arrow
+    - text: Tour
+      link: getting-started/tour/
+      variant: secondary
+    - text: API reference
+      link: reference/
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/Braden1996/wow-forever-myth
+      icon: external
+      variant: minimal
+---
+
+import { countOf, facts, formatCount } from "../../lib/facts.ts";
+import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../wow-ui/index.ts";
+
+<div class="wow-cards">
+  <Card>
+    <CardHeader>
+      <CardTitle>Maybe instead of nil</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <CardDescription>
+        Where Blizzard documents that a result can be missing, the wrapper returns a `Maybe`, and the type checker makes
+        you handle the empty case.
+      </CardDescription>
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle>Records instead of tuples</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <CardDescription>
+        Calls with several results return a read-only record named the way Blizzard names them: `info.itemLevel`, not
+        the fourth of seventeen returns.
+      </CardDescription>
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle>Result and Task where they fit</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <CardDescription>
+        Reviewed overrides turn success flags into `Result` and "not cached yet" into a `Task` that waits for the game's
+        load event.
+      </CardDescription>
+    </CardContent>
+  </Card>
+  <Card>
+    <CardHeader>
+      <CardTitle>Made for the game</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <CardDescription>
+        Opt-in per call, allocation-free variants for every-frame code, never a protected function, and a Lua 5.1 bundle
+        tested outside the game.
+      </CardDescription>
+    </CardContent>
+  </Card>
+</div>
+
+<div class="wow-shapes">
+  <Badge>{formatCount(facts.wrapped)} APIs wrapped</Badge>
+  <Badge>{formatCount(facts.modules)} modules</Badge>
+  <Badge>{formatCount(facts.reviewed)} reviewed overrides</Badge>
+  <Badge>{countOf("protected")} protected, never wrapped</Badge>
+</div>
+
+## A taste
+
+Hover any name to see the type Luau inferred for it. Every example on this site is type-checked against the library
+and the WoW: Forever definitions when the site is built.
+
+```luau check
+local function questTitle(questID: number): string
+	return Maybe.unwrapOr(Api.C_QuestLog.GetTitleForQuestID(questID), "an unknown quest")
+end
+
+local function playerPosition(): string
+	local position = Api.UnitPosition("player")
+	return string.format("%.1f, %.1f on map %d", position.positionX, position.positionY, position.mapID)
+end
+
+local loaded = Result.match(Api.C_AddOns.LoadAddOn("Speedline_Data"), {
+	Ok = function(_loaded: true): string
+		return "loaded"
+	end,
+	Err = function(reason: string): string
+		return "not loaded: " .. reason
+	end,
+})
+```
