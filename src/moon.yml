@@ -59,6 +59,7 @@ tasks:
     description: "selene (selene.toml)"
     command: "selene"
     args: ["src", "wow", "generator", "overrides", "scripts", "tests"]
+    deps: ["generator:fetch"]
     inputs: [
       "/src/**/*.luau",
       "/wow/**/*.luau",
