@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title desc">
+  <title id="title">wow-forever-myth</title>
+  <desc id="desc">The WoW: Forever API in Maybe, Result and Task idioms, generated for strict Luau</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#1f1530"/></linearGradient>
+  </defs>
+  <rect fill="url(#bg)" height="360" width="1280"/>
+  <text fill="#ffffff" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="64" font-weight="700" x="80" y="120">wow-forever-myth</text>
+  <text fill="#a8b3cf" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="24" x="80" y="165">The WoW: Forever API as Maybe, Result and Task, generated from its documentation</text>
+  <text fill="#d2dcf5" font-family="'JetBrains Mono','Cascadia Code',Consolas,monospace" font-size="22" x="80" y="220">Api.C_Item.GetItemInfoAsync(itemID) : Task&lt;GetItemInfoResults, LoadFailed&gt;</text>
+  <text fill="#7ee2a8" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="40" font-weight="700" x="80" y="300">1,895</text>
+  <text fill="#a8b3cf" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="18" x="80" y="330">APIs wrapped</text>
+  <text fill="#8ab4ff" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="40" font-weight="700" x="370" y="300">224</text>
+  <text fill="#a8b3cf" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="18" x="370" y="330">modules</text>
+  <text fill="#f5c26b" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="40" font-weight="700" x="660" y="300">21</text>
+  <text fill="#a8b3cf" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="18" x="660" y="330">reviewed overrides</text>
+  <text fill="#ff9a8b" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="40" font-weight="700" x="950" y="300">66</text>
+  <text fill="#a8b3cf" font-family="'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif" font-size="18" x="950" y="330">protected, never wrapped</text>
+</svg>

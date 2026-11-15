@@ -1,0 +1,24 @@
+# Git hooks. Install once: `mise exec -- lefthook install`. Pre-commit stays fast; pre-push runs the gate for the
+# projects changed against main. Tools run through `mise exec --` (pinned versions). Never bypass with --no-verify.
+min_version: 2.0.0
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: stylua
+      glob: "*.luau"
+      run: mise exec -- stylua --check --respect-ignores {staged_files}
+    - name: dprint
+      glob: "*.{md,json,yml,yaml,toml}"
+      run: mise exec -- dprint check --allow-no-files {staged_files}
+    - name: typos
+      run: mise exec -- typos --force-exclude {staged_files}
+    - name: actionlint
+      glob: ".github/workflows/*.yml"
+      run: mise exec -- actionlint {staged_files}
+
+pre-push:
+  jobs:
+    - name: check
+      # `--affected remote` = changed against the default branch.
+      run: mise exec -- moon run :check --affected remote

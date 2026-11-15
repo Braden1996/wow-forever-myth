@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "A wrong type in the WoW: Forever API itself"
+    url: https://github.com/Braden1996/wow-forever-luau-types/issues
+    about: Parameter and result types come from wow-forever-luau-types; report wrong ones there.

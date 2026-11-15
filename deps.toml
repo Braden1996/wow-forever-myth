@@ -1,0 +1,20 @@
+# The two libraries this one is generated from and built with, pinned by release tag and the SHA-256 of every asset.
+# `moon run generator:fetch` downloads them into .deps/ and fails on a checksum mismatch. To bump one: change the tag,
+# copy the new hashes from that release's SHA256SUMS, run `moon run generator:generate`, and commit the result.
+
+[luau-true-myth]
+repository = "Braden1996/luau-true-myth"
+tag = "v0.1.0"
+unzip = "luau-true-myth-0.1.0.zip"
+
+[luau-true-myth.assets]
+"luau-true-myth-0.1.0.zip" = "65ea1196c1a3019e20403c54355230d08ebde511790e38e1cec149835ad26d68"
+
+[wow-forever-luau-types]
+repository = "Braden1996/wow-forever-luau-types"
+tag = "v0.3.0"
+
+[wow-forever-luau-types.assets]
+"api-shapes.json" = "3a2894950320a1da44b92e2a34f66cf6fd1d7cded007afea93317afe87be01f7"
+"luau-lsp.settings.json" = "a01803dbf6778c18251a1993ccdd1a77d24970d5159413662f2378844d856f3d"
+"wow-forever.d.luau" = "1e4cef6ff9b85b4daed6c2d3b82d8dbcffd8efdd7dd981fd4aec53111edd6828"
