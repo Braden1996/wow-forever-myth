@@ -40,6 +40,9 @@ local function newWorld()
 		function frame:RegisterEvent(event)
 			self.events[event] = true
 		end
+		function frame:UnregisterEvent(event)
+			self.events[event] = nil
+		end
 		frames[#frames + 1] = frame
 		return frame
 	end
@@ -163,6 +166,34 @@ test("maybe, record, Into and Result wrappers run", function()
 	assert(lib.Api.C_AddOns.LoadAddOn("Present").kind == "Ok", "LoadAddOn succeeds")
 	local missing = lib.Api.C_AddOns.LoadAddOn("Missing")
 	assert(missing.kind == "Err" and missing.error == "UNKNOWN", "LoadAddOn fails with the fallback reason")
+end)
+
+test("combat, events and timing run on Lua 5.1", function()
+	local world = newWorld()
+	local lib = load(world)
+	local inCombat = true
+	world.env.InCombatLockdown = function()
+		return inCombat
+	end
+	local afterCombat = lib.Combat.run(function()
+		return "after"
+	end)
+	local burst = lib.Events.nextBurst("BAG_UPDATE", 1, function(bagIndex)
+		return bagIndex
+	end)
+	world.fire("BAG_UPDATE", 4)
+	world.fire("BAG_UPDATE", 5)
+	inCombat = false
+	world.fire("PLAYER_REGEN_ENABLED")
+	expectOk(lib, afterCombat, "after")
+	local throttled = lib.Timing.throttle(1, function(a, b, c)
+		return tostring(a) .. tostring(b) .. tostring(c)
+	end)
+	expectOk(lib, throttled(nil, 2, nil), "nil2nil")
+	assert(#world.timers == 2, "the burst window and the throttle cooldown are scheduled")
+	world.timers[1].callback()
+	local bags = lib.Task.peek(burst).value
+	assert(bags[1] == 4 and bags[2] == 5 and #bags == 2, "the burst holds both firings")
 end)
 
 print(
