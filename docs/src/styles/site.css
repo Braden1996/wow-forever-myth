@@ -1,42 +1,6 @@
-.wow-cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-  margin-block: 1.5rem;
-}
-
-@media (min-width: 50rem) {
-  .wow-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.wow-cards [data-slot="card-content"] {
-  padding-bottom: 1.25rem;
-}
-
-.wow-cards [data-slot="card-title"] {
-  color: var(--wc-gold-200);
-  font-size: var(--sl-text-lg);
-}
-
-.wow-cards [data-slot="card-description"] {
-  font-family: var(--sl-font);
-  letter-spacing: normal;
-  line-height: 1.6;
-  font-size: var(--sl-text-sm);
-  color: var(--wc-stone-200);
-}
-
 .wow-shapes {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-block: 1rem;
-}
-
-.site-disclaimer {
-  margin-top: 1.5rem;
-  color: var(--sl-color-gray-3);
-  font-size: var(--sl-text-xs);
 }

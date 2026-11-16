@@ -12,8 +12,8 @@
         "react": "19.3.1",
         "react-dom": "19.3.1",
         "sharp": "0.35.5",
-        "starlight-luau": "0.2.0",
-        "starlight-warcraft": "0.1.0",
+        "starlight-luau": "0.3.0",
+        "starlight-warcraft": "0.2.0",
       },
       "devDependencies": {
         "@astrojs/check": "0.9.12",
@@ -884,9 +884,9 @@
 
     "space-separated-tokens": ["space-separated-tokens@2.0.2", "", {}, "sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q=="],
 
-    "starlight-luau": ["starlight-luau@0.2.0", "", { "peerDependencies": { "@astrojs/starlight": ">=0.43.0" } }, "sha512-rc2Z7u1YK68TB2VjVApxXfdgYJo0ROu7AIm2QUI6+LeNFRUPSKoBU7tsk4Cda4WtDAeWwKr4/rzYcJnz684yPw=="],
+    "starlight-luau": ["starlight-luau@0.3.0", "", { "peerDependencies": { "@astrojs/starlight": ">=0.43.0" } }, "sha512-8ULVM5mGpIL1U74c0z/w4OAJkDJRajswORYRdP8TPMvyKU10jvt6OaUG0SoXgX4fVWBvV+W2eWbJoOh+4vxKUA=="],
 
-    "starlight-warcraft": ["starlight-warcraft@0.1.0", "", { "dependencies": { "@fontsource/cinzel": "5.3.0", "@radix-ui/react-slot": "1.5.0" }, "peerDependencies": { "@astrojs/starlight": ">=0.43.0", "react": ">=19.0.0" }, "optionalPeers": ["@astrojs/starlight", "react"] }, "sha512-ZGx3N7JxZF0KGS1ofI2muzaWnwPb7UNdAKR8+XJTjuMM7kIUidNLdLTDw9zNGXzSBnrO7RX9fEGAe7LETSA/0Q=="],
+    "starlight-warcraft": ["starlight-warcraft@0.2.0", "", { "dependencies": { "@fontsource/cinzel": "5.3.0", "@radix-ui/react-slot": "1.5.0" }, "peerDependencies": { "@astrojs/starlight": ">=0.43.0", "react": ">=19.0.0" }, "optionalPeers": ["@astrojs/starlight", "react"] }, "sha512-fUiCmqTyJDExXJfSKZ4yOIA/71O22qZQn5xGU0gYmYjUY14Zm0GI+/18P+ele8HsVTMzYI4C618pqhHppU7LRw=="],
 
     "std-env": ["std-env@4.3.0", "", {}, "sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag=="],
 

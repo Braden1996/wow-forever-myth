@@ -26,8 +26,8 @@
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "sharp": "0.35.5",
-    "starlight-luau": "0.2.0",
-    "starlight-warcraft": "0.1.0"
+    "starlight-luau": "0.3.0",
+    "starlight-warcraft": "0.2.0"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
