@@ -16,7 +16,7 @@ export type Task<T, E> = Task.Task<T, E>
 export type EventReader<E, T> = Events.Reader<E, T>
 
 return {
-	version = "0.2.1",
+	version = "0.3.0",
 	Api = Api,
 	Widgets = Widgets,
 	Combat = Combat,
