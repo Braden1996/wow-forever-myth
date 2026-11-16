@@ -21,20 +21,13 @@
   "dependencies": {
     "@astrojs/react": "7.1.9",
     "@astrojs/starlight": "0.43.1",
-    "@astrojs/starlight-tailwind": "5.0.0",
-    "@fontsource/cinzel": "5.3.0",
-    "@radix-ui/react-slot": "1.5.0",
-    "@tailwindcss/vite": "4.3.5",
     "astro": "7.4.12",
-    "class-variance-authority": "0.7.1",
-    "clsx": "2.1.1",
     "luau-web-checker": "https://github.com/Braden1996/luau-web-checker/releases/download/v0.4.0/luau-web-checker-0.4.0.tgz",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "sharp": "0.35.5",
     "starlight-luau": "0.1.0",
-    "tailwind-merge": "3.7.0",
-    "tailwindcss": "4.3.5"
+    "starlight-warcraft": "0.1.0"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
