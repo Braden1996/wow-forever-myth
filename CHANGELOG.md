@@ -5,6 +5,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-16
+
+### Fixed
+
+- `Async` load wrappers (`C_Item.GetItemInfoAsync`, `C_Item.GetItemNameByIDAsync`,
+  `C_QuestLog.GetTitleForQuestIDAsync`) failed in the game with "attempt to call a table value" when their load
+  event fired: the runtime used Luau's generalised iteration, which Lua 5.1 lacks and darklua does not lower.
+
+### Added
+
+- Gates against Luau-only iteration: the lint rejects it in `src/` and `wow/`, the build rejects it in the bundle,
+  and `tests:lua51` runs the bundle under LuaJIT (pinned in mise) through a load event, a timer, records, `Into` and
+  `Result`.
+
 ## [0.2.0] - 2026-11-16
 
 ### Changed
@@ -34,6 +48,7 @@ All notable changes to this project are documented here. The format follows
 - `dist/ForeverMyth.lua`, the Lua 5.1 bundle (darklua, luau-true-myth v0.1.0 included), tested in a Lua 5.1-only
   environment with a fake WoW API.
 
-[Unreleased]: https://github.com/Braden1996/wow-forever-myth/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Braden1996/wow-forever-myth/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Braden1996/wow-forever-myth/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Braden1996/wow-forever-myth/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Braden1996/wow-forever-myth/releases/tag/v0.1.0

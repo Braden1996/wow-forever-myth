@@ -22,3 +22,4 @@ experimental = true
 "bun" = "1.4.4" # docs site package manager, script and test runner (docs/)
 "node" = "26.13.1" # runs Astro for the docs site (active LTS)
 "github:luau-lang/luau" = "0.747" # luau-ast, which starlight-luau reads the API reference from (docs/)
+"conda:luajit" = "2.1.1744318430" # Lua 5.1 semantics, as in WoW: runs the bundle in tests/lua51

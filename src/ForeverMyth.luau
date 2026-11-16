@@ -12,7 +12,7 @@ export type Result<T, E> = Result.Result<T, E>
 export type Task<T, E> = Task.Task<T, E>
 
 return {
-	version = "0.2.0",
+	version = "0.2.1",
 	Api = Api,
 	Widgets = Widgets,
 	Maybe = Maybe,

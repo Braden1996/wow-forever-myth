@@ -1,2 +1,3 @@
 # Lints all Luau in the repository. `types` is the type-function library (luau-type-functions.yml).
 std = "luau+luau-type-functions+wow-forever"
+exclude = ["tests/lua51/*"]

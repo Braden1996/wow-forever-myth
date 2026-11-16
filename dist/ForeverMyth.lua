@@ -1,4 +1,4 @@
--- wow-forever-myth 0.2.0: the WoW: Forever API in Maybe, Result and Task idioms (Lua 5.1).
+-- wow-forever-myth 0.2.1: the WoW: Forever API in Maybe, Result and Task idioms (Lua 5.1).
 -- https://github.com/Braden1996/wow-forever-myth - generated from the Luau sources by darklua; do not edit.
 -- Listed in a .toc it stores the library as `ns.ForeverMyth`; loaded any other way it returns it.
 -- It bundles luau-true-myth (https://github.com/Braden1996/luau-true-myth).
@@ -10017,7 +10017,7 @@ do
 
                 byKey[key] = nil
 
-                for _, settle in settles do
+                for _, settle in ipairs(settles)do
                     settle(success == true)
                 end
             end
@@ -33463,7 +33463,7 @@ do
             local Widgets = __DARKLUA_BUNDLE_MODULES.c0()
 
             return {
-                version = '0.2.0',
+                version = '0.2.1',
                 Api = Api,
                 Widgets = Widgets,
                 Maybe = Maybe,
