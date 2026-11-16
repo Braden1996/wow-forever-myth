@@ -16,7 +16,7 @@
 }
 
 .wow-cards [data-slot="card-title"] {
-  color: var(--color-amber-200);
+  color: var(--wc-gold-200);
   font-size: var(--sl-text-lg);
 }
 
@@ -25,7 +25,7 @@
   letter-spacing: normal;
   line-height: 1.6;
   font-size: var(--sl-text-sm);
-  color: var(--color-stone-200);
+  color: var(--wc-stone-200);
 }
 
 .wow-shapes {

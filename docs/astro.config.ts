@@ -1,8 +1,8 @@
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
-import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import starlightLuau from "starlight-luau";
+import starlightWarcraft from "starlight-warcraft";
 
 import { BASE } from "./src/lib/base.ts";
 
@@ -77,6 +77,7 @@ export default defineConfig({
         },
       ],
       plugins: [
+        starlightWarcraft(),
         starlightLuau({
           source: "../src",
           exclude: ["ApiIndex.luau", "WidgetIndex.luau"],
@@ -89,7 +90,4 @@ export default defineConfig({
     }),
     react(),
   ],
-  vite: {
-    plugins: [tailwindcss()],
-  },
 });

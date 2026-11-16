@@ -19,8 +19,8 @@ description: Set up the repository, run the gate, and work on the library or thi
 ## The site
 
 The site lives in `docs/`: Astro and Starlight on Bun, TypeScript 7 for the type check, oxlint and oxfmt. Its
-fantasy-styled components are a self-contained kit in `docs/src/wow-ui/`, forked from
-[warcraftcn/ui](https://github.com/TheOrcDev/warcraftcn-ui). Import them from `docs/src/wow-ui/index.ts` only.
+theme and fantasy-styled components come from
+[starlight-warcraft](https://github.com/Braden1996/starlight-warcraft): import them from `starlight-warcraft/react`.
 
 Mark an example ` ```luau check ` to type-check it at build time. These lines are in front of every checked block,
 hidden:

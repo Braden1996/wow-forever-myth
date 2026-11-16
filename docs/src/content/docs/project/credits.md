@@ -20,14 +20,14 @@ The shapes come from Blizzard's `Blizzard_APIDocumentationGenerated` by way of w
 
 ## This site
 
-| Software                                                                                                  | Licence | Used for                                                                                    |
-| --------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------- |
-| [Astro](https://astro.build) and [Starlight](https://starlight.astro.build)                               | MIT     | Static site generator and documentation theme                                               |
-| [starlight-luau](https://github.com/Braden1996/starlight-luau)                                            | MIT     | The API reference, generated from the Luau types                                            |
-| [luau-web-checker](https://github.com/Braden1996/luau-web-checker)                                        | MIT     | Type-checking the examples at build time, with hover types                                  |
-| [warcraftcn/ui](https://github.com/TheOrcDev/warcraftcn-ui) by TheOrcDev                                  | MIT     | Fantasy-styled components and frame textures, forked into `docs/src/wow-ui` as listed there |
-| [React](https://react.dev), [Tailwind CSS](https://tailwindcss.com), [Radix UI](https://www.radix-ui.com) | MIT     | Rendering and styling the WoW UI components                                                 |
-| [Cinzel](https://fonts.google.com/specimen/Cinzel) by Natanael Gama, via Fontsource                       | OFL-1.1 | Display typeface                                                                            |
+| Software                                                                            | Licence | Used for                                                                                                                                |
+| ----------------------------------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| [Astro](https://astro.build) and [Starlight](https://starlight.astro.build)         | MIT     | Static site generator and documentation theme                                                                                           |
+| [starlight-luau](https://github.com/Braden1996/starlight-luau)                      | MIT     | The API reference, generated from the Luau types                                                                                        |
+| [luau-web-checker](https://github.com/Braden1996/luau-web-checker)                  | MIT     | Type-checking the examples at build time, with hover types                                                                              |
+| [starlight-warcraft](https://github.com/Braden1996/starlight-warcraft)              | MIT     | The theme and the fantasy-styled components, forked from [warcraftcn/ui](https://github.com/TheOrcDev/warcraftcn-ui) by TheOrcDev (MIT) |
+| [React](https://react.dev)                                                          | MIT     | Rendering the components                                                                                                                |
+| [Cinzel](https://fonts.google.com/specimen/Cinzel) by Natanael Gama, via Fontsource | OFL-1.1 | Display typeface                                                                                                                        |
 
 ## Trademarks
 
