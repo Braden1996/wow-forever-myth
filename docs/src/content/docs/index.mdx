@@ -22,55 +22,31 @@ hero:
       variant: minimal
 ---
 
-import { countOf, facts, formatCount } from "../../lib/facts.ts";
-import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from "starlight-warcraft/react";
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import { Badge } from "starlight-warcraft/react";
 
-<div class="wow-cards">
-  <Card>
-    <CardHeader>
-      <CardTitle>Maybe instead of nil</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <CardDescription>
-        Where Blizzard documents that a result can be missing, the wrapper returns a `Maybe`, and the type checker makes
-        you handle the empty case.
-      </CardDescription>
-    </CardContent>
+import { countOf, facts, formatCount } from "../../lib/facts.ts";
+
+## What it gives you
+
+<CardGrid>
+  <Card title="Maybe instead of nil" icon="approve-check">
+    Where Blizzard documents that a result can be missing, the wrapper returns a `Maybe`, and the type checker makes you
+    handle the empty case.
   </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>Records instead of tuples</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <CardDescription>
-        Calls with several results return a read-only record named the way Blizzard names them: `info.itemLevel`, not
-        the fourth of seventeen returns.
-      </CardDescription>
-    </CardContent>
+  <Card title="Records instead of tuples" icon="list-format">
+    Calls with several results return a read-only record named the way Blizzard names them: `info.itemLevel`, not the
+    fourth of seventeen returns.
   </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>Result and Task where they fit</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <CardDescription>
-        Reviewed overrides turn success flags into `Result` and "not cached yet" into a `Task` that waits for the game's
-        load event.
-      </CardDescription>
-    </CardContent>
+  <Card title="Result and Task where they fit" icon="rocket">
+    Reviewed overrides turn success flags into `Result` and "not cached yet" into a `Task` that waits for the game's
+    load event.
   </Card>
-  <Card>
-    <CardHeader>
-      <CardTitle>Made for the game</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <CardDescription>
-        Opt-in per call, allocation-free variants for every-frame code, never a protected function, and a Lua 5.1 bundle
-        tested outside the game.
-      </CardDescription>
-    </CardContent>
+  <Card title="Made for the game" icon="puzzle">
+    Opt-in per call, allocation-free variants for every-frame code, never a protected function, and a Lua 5.1 bundle
+    tested outside the game.
   </Card>
-</div>
+</CardGrid>
 
 <div class="wow-shapes">
   <Badge>{formatCount(facts.wrapped)} APIs wrapped</Badge>
@@ -103,3 +79,28 @@ local loaded = Result.match(Api.C_AddOns.LoadAddOn("Speedline_Data"), {
 	end,
 })
 ```
+
+## Next steps
+
+<CardGrid>
+  <LinkCard
+    title="Introduction"
+    description="What the wrappers are, why they are generated, and what they are careful about."
+    href="/wow-forever-myth/introduction/"
+  />
+  <LinkCard
+    title="Install"
+    description="Add the library to an addon and build it to Lua 5.1."
+    href="/wow-forever-myth/getting-started/install/"
+  />
+  <LinkCard
+    title="Tour"
+    description="One example of each kind of wrapper: Maybe, records, Result, Task and the hot paths."
+    href="/wow-forever-myth/getting-started/tour/"
+  />
+  <LinkCard
+    title="API reference"
+    description="Every wrapped namespace, global and widget, generated from the library's own types."
+    href="/wow-forever-myth/reference/"
+  />
+</CardGrid>

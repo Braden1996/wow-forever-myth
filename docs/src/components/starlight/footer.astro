@@ -1,9 +1,9 @@
 ---
+// Starlight's footer plus the theme's trademark notice and its hover cards for the checked Luau examples.
 import Default from "@astrojs/starlight/components/Footer.astro";
+import { Disclaimer, HoverCards } from "starlight-warcraft/react";
 ---
 
 <Default />
-<p class="site-disclaimer">
-  An unofficial community project. World of Warcraft and Blizzard Entertainment are trademarks of Blizzard
-  Entertainment, Inc.; this site is not affiliated with or endorsed by Blizzard. Code under the MIT licence.
-</p>
+<Disclaimer licence="Code under the MIT licence." />
+<HoverCards client:idle />
