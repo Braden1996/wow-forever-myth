@@ -5,6 +5,7 @@ export type Frame = {
 	events: { [string]: boolean },
 	SetScript: (self: Frame, script: string, handler: (...any) -> ()) -> (),
 	RegisterEvent: (self: Frame, event: string) -> (),
+	UnregisterEvent: (self: Frame, event: string) -> (),
 }
 
 export type World = {
@@ -14,6 +15,7 @@ export type World = {
 	fire: (event: string, ...any) -> (),
 	advance: (seconds: number) -> (),
 	pendingTimers: () -> number,
+	registered: (event: string) -> boolean,
 }
 
 type Timer = { at: number, callback: () -> () }
@@ -74,6 +76,9 @@ local function newFrame(frames: { Frame }): Frame
 		RegisterEvent = function(self: Frame, event: string)
 			self.events[event] = true
 		end,
+		UnregisterEvent = function(self: Frame, event: string)
+			self.events[event] = nil
+		end,
 	}
 	table.insert(frames, frame)
 	return frame
@@ -129,6 +134,14 @@ function World.new(): World
 		advance = advance,
 		pendingTimers = function(): number
 			return #timers
+		end,
+		registered = function(event: string): boolean
+			for _, frame in frames do
+				if frame.events[event] then
+					return true
+				end
+			end
+			return false
 		end,
 	}
 end

@@ -1,0 +1,8 @@
+18:30: TypeError: Expected this to be
+	'(number, number, number, number, number, number, number, number, number, number) -> string'
+but got
+	'(string) -> string'; 
+Expected the 1st parameter to be a supertype of `number`, but got `string`
+19:20: TypeError: Expected this to be 'Bags', but got 'Task<{number}, never>'; 
+Expected property `state` to be `Pending | Rejected<never> | Resolved<{string}>`, but got `Resolved<{number}>`
+21:11: TypeError: Expected this to be 'string', but got 'number'

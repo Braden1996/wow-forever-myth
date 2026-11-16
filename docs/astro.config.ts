@@ -46,6 +46,7 @@ export default defineConfig({
             { slug: "understanding/hot-paths" },
             { slug: "understanding/results" },
             { slug: "understanding/loads-and-timers" },
+            { slug: "understanding/combat-timing-events" },
           ],
         },
         {

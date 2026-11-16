@@ -5,6 +5,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `Combat.run` and `Combat.outOfCombat`: tasks that wait for `PLAYER_REGEN_ENABLED` when `InCombatLockdown()` is true.
+- `Timing.debounce` and `Timing.throttle`: wrap a function so that each call returns a task of the run that covered it.
+- `Events.next` and `Events.nextBurst`: the next firing, or every firing in a window, of an event as a task.
+  `ForeverMyth.EventReader<E, T>` checks a reader against the event's payload in the definitions.
+
 ### Changed
 
 - Built against wow-forever-luau-types v0.4.1, which types unit tokens as strings. The generated wrappers and the

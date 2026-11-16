@@ -29762,6 +29762,357 @@ do
     end
     do
         local function __modImpl()
+            local Listener = {}
+            local subscriptionsByEvent = {}
+            local listener = nil
+
+            local function dispatch(event, ...)
+                local subscriptions = subscriptionsByEvent[event]
+
+                if subscriptions == nil then
+                    return
+                end
+
+                local count = #subscriptions
+                local snapshot = {}
+
+                for index = 1, count do
+                    snapshot[index] = subscriptions[index]
+                end
+                for index = 1, count do
+                    local subscription = snapshot[index]
+
+                    if subscription.active then
+                        subscription.handler(...)
+                    end
+                end
+            end
+            local function ensureListener()
+                local existing = listener
+
+                if existing then
+                    return existing
+                end
+
+                local frame = CreateFrame('Frame')
+
+                frame:SetScript('OnEvent', function(_self, event, ...)
+                    if type(event) == 'string' then
+                        dispatch(event, ...)
+                    end
+                end)
+
+                listener = frame
+
+                return frame
+            end
+            local function remove(event, subscription)
+                subscription.active = false
+
+                local subscriptions = subscriptionsByEvent[event]
+
+                if subscriptions == nil then
+                    return
+                end
+
+                for index, candidate in ipairs(subscriptions)do
+                    if candidate == subscription then
+                        table.remove(subscriptions, index)
+
+                        break
+                    end
+                end
+
+                if #subscriptions == 0 then
+                    subscriptionsByEvent[event] = nil
+
+                    ensureListener():UnregisterEvent(event)
+                end
+            end
+
+            function Listener.subscribe(event, handler)
+                local subscriptions = subscriptionsByEvent[event]
+
+                if subscriptions == nil then
+                    subscriptions = {}
+                    subscriptionsByEvent[event] = subscriptions
+
+                    ensureListener():RegisterEvent(event)
+                end
+
+                local subscription = {
+                    handler = handler,
+                    active = true,
+                }
+
+                table.insert(subscriptions, subscription)
+
+                return function()
+                    if subscription.active then
+                        remove(event, subscription)
+                    end
+                end
+            end
+
+            return Listener
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.cj()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cj
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.cj = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Listener = __DARKLUA_BUNDLE_MODULES.cj()
+            local Task = __DARKLUA_BUNDLE_MODULES.aN()
+            local Combat = {}
+
+            local function uncheckedDeferred(deferred)
+                return deferred
+            end
+
+            function Combat.outOfCombat()
+                if not InCombatLockdown() then
+                    return Task.resolve(nil)
+                end
+
+                local deferred = uncheckedDeferred(Task.withResolvers())
+                local unsubscribe
+
+                unsubscribe = Listener.subscribe('PLAYER_REGEN_ENABLED', function(
+                )
+                    unsubscribe()
+                    deferred.resolve(nil)
+                end)
+
+                return deferred.task
+            end
+            function Combat.run(work)
+                return Task.map(Combat.outOfCombat(), function(_)
+                    return work()
+                end)
+            end
+
+            return Combat
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.ck()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ck
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.ck = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Listener = __DARKLUA_BUNDLE_MODULES.cj()
+            local Task = __DARKLUA_BUNDLE_MODULES.aN()
+            local Events = {}
+
+            local function uncheckedRead(read)
+                return read
+            end
+            local function uncheckedDeferred(deferred)
+                return deferred
+            end
+            local function uncheckedBurstTask(task)
+                return task
+            end
+            local function uncheckedTask(task)
+                return task
+            end
+            local function nextAny(event, read)
+                local deferred = uncheckedDeferred(Task.withResolvers())
+                local unsubscribe
+
+                unsubscribe = Listener.subscribe(event, function(...)
+                    unsubscribe()
+                    deferred.resolve(read(...))
+                end)
+
+                return deferred.task
+            end
+            local function nextBurstAny(event, seconds, read)
+                local deferred = uncheckedDeferred(Task.withResolvers())
+                local burst = {}
+                local count = 0
+                local unsubscribe
+
+                unsubscribe = Listener.subscribe(event, function(...)
+                    if count == 0 then
+                        C_Timer.After(seconds, function()
+                            unsubscribe()
+                            deferred.resolve(burst)
+                        end)
+                    end
+
+                    count = count + 1
+                    burst[count] = read(...)
+                end)
+
+                return deferred.task
+            end
+
+            function Events.next(event, read)
+                return uncheckedTask(nextAny(event, uncheckedRead(read)))
+            end
+            function Events.nextBurst(event, seconds, read)
+                return uncheckedBurstTask(nextBurstAny(event, seconds, uncheckedRead(read)))
+            end
+
+            return Events
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.cl()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cl
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.cl = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Task = __DARKLUA_BUNDLE_MODULES.aN()
+            local Timing = {}
+
+            local function uncheckedRun(run)
+                return run
+            end
+            local function uncheckedCaller(caller)
+                return caller
+            end
+            local function uncheckedDeferred(deferred)
+                return deferred
+            end
+            local function capture(...)
+                return {
+                    count = select('#', ...),
+                    values = {...},
+                }
+            end
+            local function settle(waiters, run, arguments)
+                local value = run(unpack(arguments.values, 1, arguments.count))
+
+                for _, waiter in ipairs(waiters)do
+                    waiter.resolve(value)
+                end
+            end
+            local function debounceAny(seconds, run)
+                local generation = 0
+                local waiters = {}
+                local latest = capture()
+
+                return function(...)
+                    generation = generation + 1
+
+                    local scheduled = generation
+
+                    latest = capture(...)
+
+                    local deferred = uncheckedDeferred(Task.withResolvers())
+
+                    table.insert(waiters, deferred)
+                    C_Timer.After(seconds, function()
+                        if scheduled ~= generation then
+                            return
+                        end
+
+                        local settling = waiters
+
+                        waiters = {}
+
+                        settle(settling, run, latest)
+                    end)
+
+                    return deferred.task
+                end
+            end
+            local function throttleAny(seconds, run)
+                local cooling = false
+                local waiters = {}
+                local latest = capture()
+
+                local function cooled()
+                    if #waiters == 0 then
+                        cooling = false
+
+                        return
+                    end
+
+                    local settling = waiters
+
+                    waiters = {}
+
+                    C_Timer.After(seconds, cooled)
+                    settle(settling, run, latest)
+                end
+
+                return function(...)
+                    local deferred = uncheckedDeferred(Task.withResolvers())
+
+                    if cooling then
+                        latest = capture(...)
+
+                        table.insert(waiters, deferred)
+
+                        return deferred.task
+                    end
+
+                    cooling = true
+
+                    C_Timer.After(seconds, cooled)
+                    settle({deferred}, run, capture(...))
+
+                    return deferred.task
+                end
+            end
+
+            function Timing.debounce(seconds, run)
+                return uncheckedCaller(debounceAny(seconds, uncheckedRun(run)))
+            end
+            function Timing.throttle(seconds, run)
+                return uncheckedCaller(throttleAny(seconds, uncheckedRun(run)))
+            end
+
+            return Timing
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.cm()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cm
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.cm = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
             local Reuse = __DARKLUA_BUNDLE_MODULES.c()
             local Wrappers = {}
@@ -29787,14 +30138,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cj()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cj
+        function __DARKLUA_BUNDLE_MODULES.cn()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cn
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cj = v
+                __DARKLUA_BUNDLE_MODULES.cache.cn = v
             end
 
             return v.c
@@ -29816,14 +30167,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ck()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ck
+        function __DARKLUA_BUNDLE_MODULES.co()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.co
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ck = v
+                __DARKLUA_BUNDLE_MODULES.cache.co = v
             end
 
             return v.c
@@ -29877,14 +30228,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cl()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cl
+        function __DARKLUA_BUNDLE_MODULES.cp()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cp
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cl = v
+                __DARKLUA_BUNDLE_MODULES.cache.cp = v
             end
 
             return v.c
@@ -29917,14 +30268,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cm()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cm
+        function __DARKLUA_BUNDLE_MODULES.cq()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cq
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cm = v
+                __DARKLUA_BUNDLE_MODULES.cache.cq = v
             end
 
             return v.c
@@ -29963,14 +30314,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cn()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cn
+        function __DARKLUA_BUNDLE_MODULES.cr()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cr
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cn = v
+                __DARKLUA_BUNDLE_MODULES.cache.cr = v
             end
 
             return v.c
@@ -30013,14 +30364,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.co()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.co
+        function __DARKLUA_BUNDLE_MODULES.cs()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cs
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.co = v
+                __DARKLUA_BUNDLE_MODULES.cache.cs = v
             end
 
             return v.c
@@ -30092,14 +30443,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cp()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cp
+        function __DARKLUA_BUNDLE_MODULES.ct()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ct
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cp = v
+                __DARKLUA_BUNDLE_MODULES.cache.ct = v
             end
 
             return v.c
@@ -30253,14 +30604,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cq()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cq
+        function __DARKLUA_BUNDLE_MODULES.cu()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cu
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cq = v
+                __DARKLUA_BUNDLE_MODULES.cache.cu = v
             end
 
             return v.c
@@ -30288,14 +30639,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cr()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cr
+        function __DARKLUA_BUNDLE_MODULES.cv()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cv
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cr = v
+                __DARKLUA_BUNDLE_MODULES.cache.cv = v
             end
 
             return v.c
@@ -30389,14 +30740,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cs()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cs
+        function __DARKLUA_BUNDLE_MODULES.cw()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cw
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cs = v
+                __DARKLUA_BUNDLE_MODULES.cache.cw = v
             end
 
             return v.c
@@ -30490,14 +30841,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ct()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ct
+        function __DARKLUA_BUNDLE_MODULES.cx()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cx
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ct = v
+                __DARKLUA_BUNDLE_MODULES.cache.cx = v
             end
 
             return v.c
@@ -30663,14 +31014,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cu()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cu
+        function __DARKLUA_BUNDLE_MODULES.cy()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cy
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cu = v
+                __DARKLUA_BUNDLE_MODULES.cache.cy = v
             end
 
             return v.c
@@ -30770,14 +31121,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cv()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cv
+        function __DARKLUA_BUNDLE_MODULES.cz()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cz
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cv = v
+                __DARKLUA_BUNDLE_MODULES.cache.cz = v
             end
 
             return v.c
@@ -30831,14 +31182,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cw()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cw
+        function __DARKLUA_BUNDLE_MODULES.cA()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cA
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cw = v
+                __DARKLUA_BUNDLE_MODULES.cache.cA = v
             end
 
             return v.c
@@ -30878,14 +31229,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cx()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cx
+        function __DARKLUA_BUNDLE_MODULES.cB()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cB
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cx = v
+                __DARKLUA_BUNDLE_MODULES.cache.cB = v
             end
 
             return v.c
@@ -30943,14 +31294,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cy()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cy
+        function __DARKLUA_BUNDLE_MODULES.cC()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cC
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cy = v
+                __DARKLUA_BUNDLE_MODULES.cache.cC = v
             end
 
             return v.c
@@ -31036,14 +31387,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cz()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cz
+        function __DARKLUA_BUNDLE_MODULES.cD()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cD
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cz = v
+                __DARKLUA_BUNDLE_MODULES.cache.cD = v
             end
 
             return v.c
@@ -31076,14 +31427,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cA()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cA
+        function __DARKLUA_BUNDLE_MODULES.cE()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cE
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cA = v
+                __DARKLUA_BUNDLE_MODULES.cache.cE = v
             end
 
             return v.c
@@ -31126,14 +31477,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cB()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cB
+        function __DARKLUA_BUNDLE_MODULES.cF()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cF
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cB = v
+                __DARKLUA_BUNDLE_MODULES.cache.cF = v
             end
 
             return v.c
@@ -31155,14 +31506,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cC()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cC
+        function __DARKLUA_BUNDLE_MODULES.cG()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cG
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cC = v
+                __DARKLUA_BUNDLE_MODULES.cache.cG = v
             end
 
             return v.c
@@ -31184,14 +31535,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cD()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cD
+        function __DARKLUA_BUNDLE_MODULES.cH()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cH
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cD = v
+                __DARKLUA_BUNDLE_MODULES.cache.cH = v
             end
 
             return v.c
@@ -31394,14 +31745,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cE()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cE
+        function __DARKLUA_BUNDLE_MODULES.cI()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cI
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cE = v
+                __DARKLUA_BUNDLE_MODULES.cache.cI = v
             end
 
             return v.c
@@ -31495,14 +31846,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cF()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cF
+        function __DARKLUA_BUNDLE_MODULES.cJ()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cJ
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cF = v
+                __DARKLUA_BUNDLE_MODULES.cache.cJ = v
             end
 
             return v.c
@@ -31535,14 +31886,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cG()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cG
+        function __DARKLUA_BUNDLE_MODULES.cK()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cK
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cG = v
+                __DARKLUA_BUNDLE_MODULES.cache.cK = v
             end
 
             return v.c
@@ -31708,14 +32059,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cH()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cH
+        function __DARKLUA_BUNDLE_MODULES.cL()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cL
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cH = v
+                __DARKLUA_BUNDLE_MODULES.cache.cL = v
             end
 
             return v.c
@@ -31981,14 +32332,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cI()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cI
+        function __DARKLUA_BUNDLE_MODULES.cM()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cM
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cI = v
+                __DARKLUA_BUNDLE_MODULES.cache.cM = v
             end
 
             return v.c
@@ -32126,14 +32477,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cJ()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cJ
+        function __DARKLUA_BUNDLE_MODULES.cN()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cN
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cJ = v
+                __DARKLUA_BUNDLE_MODULES.cache.cN = v
             end
 
             return v.c
@@ -32194,14 +32545,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cK()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cK
+        function __DARKLUA_BUNDLE_MODULES.cO()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cO
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cK = v
+                __DARKLUA_BUNDLE_MODULES.cache.cO = v
             end
 
             return v.c
@@ -32229,14 +32580,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cL()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cL
+        function __DARKLUA_BUNDLE_MODULES.cP()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cP
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cL = v
+                __DARKLUA_BUNDLE_MODULES.cache.cP = v
             end
 
             return v.c
@@ -32269,14 +32620,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cM()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cM
+        function __DARKLUA_BUNDLE_MODULES.cQ()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cQ
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cM = v
+                __DARKLUA_BUNDLE_MODULES.cache.cQ = v
             end
 
             return v.c
@@ -32339,14 +32690,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cN()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cN
+        function __DARKLUA_BUNDLE_MODULES.cR()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cR
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cN = v
+                __DARKLUA_BUNDLE_MODULES.cache.cR = v
             end
 
             return v.c
@@ -32381,14 +32732,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cO()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cO
+        function __DARKLUA_BUNDLE_MODULES.cS()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cS
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cO = v
+                __DARKLUA_BUNDLE_MODULES.cache.cS = v
             end
 
             return v.c
@@ -32474,14 +32825,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cP()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cP
+        function __DARKLUA_BUNDLE_MODULES.cT()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cT
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cP = v
+                __DARKLUA_BUNDLE_MODULES.cache.cT = v
             end
 
             return v.c
@@ -32503,14 +32854,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cQ()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cQ
+        function __DARKLUA_BUNDLE_MODULES.cU()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cU
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cQ = v
+                __DARKLUA_BUNDLE_MODULES.cache.cU = v
             end
 
             return v.c
@@ -32744,14 +33095,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cR()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cR
+        function __DARKLUA_BUNDLE_MODULES.cV()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cV
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cR = v
+                __DARKLUA_BUNDLE_MODULES.cache.cV = v
             end
 
             return v.c
@@ -32809,14 +33160,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cS()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cS
+        function __DARKLUA_BUNDLE_MODULES.cW()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cW
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cS = v
+                __DARKLUA_BUNDLE_MODULES.cache.cW = v
             end
 
             return v.c
@@ -32910,14 +33261,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cT()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cT
+        function __DARKLUA_BUNDLE_MODULES.cX()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cX
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cT = v
+                __DARKLUA_BUNDLE_MODULES.cache.cX = v
             end
 
             return v.c
@@ -32950,14 +33301,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cU()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cU
+        function __DARKLUA_BUNDLE_MODULES.cY()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cY
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cU = v
+                __DARKLUA_BUNDLE_MODULES.cache.cY = v
             end
 
             return v.c
@@ -33011,14 +33362,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cV()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cV
+        function __DARKLUA_BUNDLE_MODULES.cZ()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.cZ
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cV = v
+                __DARKLUA_BUNDLE_MODULES.cache.cZ = v
             end
 
             return v.c
@@ -33128,14 +33479,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cW()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cW
+        function __DARKLUA_BUNDLE_MODULES.c_()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c_
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cW = v
+                __DARKLUA_BUNDLE_MODULES.cache.c_ = v
             end
 
             return v.c
@@ -33168,14 +33519,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cX()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cX
+        function __DARKLUA_BUNDLE_MODULES.c0()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c0
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cX = v
+                __DARKLUA_BUNDLE_MODULES.cache.c0 = v
             end
 
             return v.c
@@ -33214,14 +33565,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cY()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cY
+        function __DARKLUA_BUNDLE_MODULES.c1()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c1
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cY = v
+                __DARKLUA_BUNDLE_MODULES.cache.c1 = v
             end
 
             return v.c
@@ -33254,14 +33605,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.cZ()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.cZ
+        function __DARKLUA_BUNDLE_MODULES.c2()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c2
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.cZ = v
+                __DARKLUA_BUNDLE_MODULES.cache.c2 = v
             end
 
             return v.c
@@ -33332,14 +33683,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.c_()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.c_
+        function __DARKLUA_BUNDLE_MODULES.c3()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c3
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.c_ = v
+                __DARKLUA_BUNDLE_MODULES.cache.c3 = v
             end
 
             return v.c
@@ -33347,50 +33698,50 @@ do
     end
     do
         local function __modImpl()
-            local Button = __DARKLUA_BUNDLE_MODULES.cj()
-            local Checkout = __DARKLUA_BUNDLE_MODULES.ck()
-            local ColorSelect = __DARKLUA_BUNDLE_MODULES.cl()
-            local ControlPoint = __DARKLUA_BUNDLE_MODULES.cm()
-            local Cooldown = __DARKLUA_BUNDLE_MODULES.cn()
-            local DressUpModel = __DARKLUA_BUNDLE_MODULES.co()
-            local DurationTextBindingObject = __DARKLUA_BUNDLE_MODULES.cp()
-            local EditBox = __DARKLUA_BUNDLE_MODULES.cq()
-            local FogOfWarFrame = __DARKLUA_BUNDLE_MODULES.cr()
-            local Font = __DARKLUA_BUNDLE_MODULES.cs()
-            local FontInstance = __DARKLUA_BUNDLE_MODULES.ct()
-            local FontString = __DARKLUA_BUNDLE_MODULES.cu()
-            local Frame = __DARKLUA_BUNDLE_MODULES.cv()
-            local GameTooltip = __DARKLUA_BUNDLE_MODULES.cw()
-            local HousingCatalogSearcher = __DARKLUA_BUNDLE_MODULES.cx()
-            local Line = __DARKLUA_BUNDLE_MODULES.cy()
-            local LineScale = __DARKLUA_BUNDLE_MODULES.cz()
-            local LineTranslation = __DARKLUA_BUNDLE_MODULES.cA()
-            local LuaColorCurveObject = __DARKLUA_BUNDLE_MODULES.cB()
-            local LuaCurveObject = __DARKLUA_BUNDLE_MODULES.cC()
-            local LuaDurationObject = __DARKLUA_BUNDLE_MODULES.cD()
-            local LuaLocaleContext = __DARKLUA_BUNDLE_MODULES.cE()
-            local MessageFrame = __DARKLUA_BUNDLE_MODULES.cF()
-            local Minimap = __DARKLUA_BUNDLE_MODULES.cG()
-            local Model = __DARKLUA_BUNDLE_MODULES.cH()
-            local ModelScene = __DARKLUA_BUNDLE_MODULES.cI()
-            local ModelSceneActor = __DARKLUA_BUNDLE_MODULES.cJ()
-            local MovieFrame = __DARKLUA_BUNDLE_MODULES.cK()
-            local OffScreenFrame = __DARKLUA_BUNDLE_MODULES.cL()
-            local QuestPOIFrame = __DARKLUA_BUNDLE_MODULES.cM()
-            local Region = __DARKLUA_BUNDLE_MODULES.cN()
-            local Rotation = __DARKLUA_BUNDLE_MODULES.cO()
-            local Scale = __DARKLUA_BUNDLE_MODULES.cP()
-            local ScenarioPOIFrame = __DARKLUA_BUNDLE_MODULES.cQ()
-            local ScriptRegion = __DARKLUA_BUNDLE_MODULES.cR()
-            local SecondsFormatter = __DARKLUA_BUNDLE_MODULES.cS()
-            local SimpleHTML = __DARKLUA_BUNDLE_MODULES.cT()
-            local Slider = __DARKLUA_BUNDLE_MODULES.cU()
-            local StatusBar = __DARKLUA_BUNDLE_MODULES.cV()
-            local TextureBase = __DARKLUA_BUNDLE_MODULES.cW()
-            local TextureCoordTranslation = __DARKLUA_BUNDLE_MODULES.cX()
-            local TimedSignalMap = __DARKLUA_BUNDLE_MODULES.cY()
-            local Translation = __DARKLUA_BUNDLE_MODULES.cZ()
-            local UnitHealPredictionCalculator = __DARKLUA_BUNDLE_MODULES.c_()
+            local Button = __DARKLUA_BUNDLE_MODULES.cn()
+            local Checkout = __DARKLUA_BUNDLE_MODULES.co()
+            local ColorSelect = __DARKLUA_BUNDLE_MODULES.cp()
+            local ControlPoint = __DARKLUA_BUNDLE_MODULES.cq()
+            local Cooldown = __DARKLUA_BUNDLE_MODULES.cr()
+            local DressUpModel = __DARKLUA_BUNDLE_MODULES.cs()
+            local DurationTextBindingObject = __DARKLUA_BUNDLE_MODULES.ct()
+            local EditBox = __DARKLUA_BUNDLE_MODULES.cu()
+            local FogOfWarFrame = __DARKLUA_BUNDLE_MODULES.cv()
+            local Font = __DARKLUA_BUNDLE_MODULES.cw()
+            local FontInstance = __DARKLUA_BUNDLE_MODULES.cx()
+            local FontString = __DARKLUA_BUNDLE_MODULES.cy()
+            local Frame = __DARKLUA_BUNDLE_MODULES.cz()
+            local GameTooltip = __DARKLUA_BUNDLE_MODULES.cA()
+            local HousingCatalogSearcher = __DARKLUA_BUNDLE_MODULES.cB()
+            local Line = __DARKLUA_BUNDLE_MODULES.cC()
+            local LineScale = __DARKLUA_BUNDLE_MODULES.cD()
+            local LineTranslation = __DARKLUA_BUNDLE_MODULES.cE()
+            local LuaColorCurveObject = __DARKLUA_BUNDLE_MODULES.cF()
+            local LuaCurveObject = __DARKLUA_BUNDLE_MODULES.cG()
+            local LuaDurationObject = __DARKLUA_BUNDLE_MODULES.cH()
+            local LuaLocaleContext = __DARKLUA_BUNDLE_MODULES.cI()
+            local MessageFrame = __DARKLUA_BUNDLE_MODULES.cJ()
+            local Minimap = __DARKLUA_BUNDLE_MODULES.cK()
+            local Model = __DARKLUA_BUNDLE_MODULES.cL()
+            local ModelScene = __DARKLUA_BUNDLE_MODULES.cM()
+            local ModelSceneActor = __DARKLUA_BUNDLE_MODULES.cN()
+            local MovieFrame = __DARKLUA_BUNDLE_MODULES.cO()
+            local OffScreenFrame = __DARKLUA_BUNDLE_MODULES.cP()
+            local QuestPOIFrame = __DARKLUA_BUNDLE_MODULES.cQ()
+            local Region = __DARKLUA_BUNDLE_MODULES.cR()
+            local Rotation = __DARKLUA_BUNDLE_MODULES.cS()
+            local Scale = __DARKLUA_BUNDLE_MODULES.cT()
+            local ScenarioPOIFrame = __DARKLUA_BUNDLE_MODULES.cU()
+            local ScriptRegion = __DARKLUA_BUNDLE_MODULES.cV()
+            local SecondsFormatter = __DARKLUA_BUNDLE_MODULES.cW()
+            local SimpleHTML = __DARKLUA_BUNDLE_MODULES.cX()
+            local Slider = __DARKLUA_BUNDLE_MODULES.cY()
+            local StatusBar = __DARKLUA_BUNDLE_MODULES.cZ()
+            local TextureBase = __DARKLUA_BUNDLE_MODULES.c_()
+            local TextureCoordTranslation = __DARKLUA_BUNDLE_MODULES.c0()
+            local TimedSignalMap = __DARKLUA_BUNDLE_MODULES.c1()
+            local Translation = __DARKLUA_BUNDLE_MODULES.c2()
+            local UnitHealPredictionCalculator = __DARKLUA_BUNDLE_MODULES.c3()
 
             return {
                 Button = Button,
@@ -33440,14 +33791,14 @@ do
             }
         end
 
-        function __DARKLUA_BUNDLE_MODULES.c0()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.c0
+        function __DARKLUA_BUNDLE_MODULES.c4()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c4
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.c0 = v
+                __DARKLUA_BUNDLE_MODULES.cache.c4 = v
             end
 
             return v.c
@@ -33456,30 +33807,36 @@ do
     do
         local function __modImpl()
             local Api = __DARKLUA_BUNDLE_MODULES.ci()
+            local Combat = __DARKLUA_BUNDLE_MODULES.ck()
+            local Events = __DARKLUA_BUNDLE_MODULES.cl()
             local Loads = __DARKLUA_BUNDLE_MODULES.aO()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
             local Result = __DARKLUA_BUNDLE_MODULES.h()
             local Task = __DARKLUA_BUNDLE_MODULES.aN()
-            local Widgets = __DARKLUA_BUNDLE_MODULES.c0()
+            local Timing = __DARKLUA_BUNDLE_MODULES.cm()
+            local Widgets = __DARKLUA_BUNDLE_MODULES.c4()
 
             return {
                 version = '0.2.1',
                 Api = Api,
                 Widgets = Widgets,
+                Combat = Combat,
+                Events = Events,
+                Timing = Timing,
                 Maybe = Maybe,
                 Result = Result,
                 Task = Task,
             }
         end
 
-        function __DARKLUA_BUNDLE_MODULES.c1()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.c1
+        function __DARKLUA_BUNDLE_MODULES.c5()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c5
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.c1 = v
+                __DARKLUA_BUNDLE_MODULES.cache.c5 = v
             end
 
             return v.c
@@ -33487,7 +33844,7 @@ do
     end
 end
 
-local ForeverMyth = __DARKLUA_BUNDLE_MODULES.c1()
+local ForeverMyth = __DARKLUA_BUNDLE_MODULES.c5()
 local _, namespace = ...
 
 if type(namespace) == 'table' then

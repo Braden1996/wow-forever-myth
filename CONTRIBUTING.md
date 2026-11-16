@@ -18,7 +18,7 @@ what changed.
 | `deps.toml`                                                           | luau-true-myth and wow-forever-luau-types, pinned by tag and the SHA-256 of every asset    |
 | `generator/`                                                          | reads `api-shapes.json`, validates `overrides/` against it, plans and renders the wrappers |
 | `overrides/`                                                          | the reviewed semantics the documentation cannot express, each with a `why`                 |
-| `src/Runtime/`                                                        | `Reuse` (the allocation-free `Into` variants) and `Loads` (event-driven Tasks)             |
+| `src/Runtime/`                                                        | hand-written Tasks: `Loads`, `Combat`, `Timing`, `Events`; `Reuse` for the `Into` variants |
 | `src/Api`, `src/Widgets`, `src/ApiIndex.luau`, `src/WidgetIndex.luau` | generated; never edit by hand                                                              |
 | `dist/ForeverMyth.lua`                                                | the darklua bundle; never edit by hand                                                     |
 | `tests/spec/`                                                         | runtime specs, run against the bundle in a fake WoW world (`tests/support/World.luau`)     |
