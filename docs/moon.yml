@@ -1,0 +1,86 @@
+$schema: "../.moon/cache/schemas/project.json"
+
+# Project `docs`: the documentation site (Astro + Starlight on Bun, both pinned in mise.toml). Its API reference is
+# generated from src/ by starlight-luau, its checked examples run against src/ and the pinned definitions, and its
+# numbers come from the pinned api-shapes.json, so the site needs `generator:fetch` first.
+layer: "application"
+tags: ["typescript", "docs"]
+
+taskOptions:
+  shell: false
+  runFromWorkspaceRoot: true
+
+fileGroups:
+  sources:
+    [
+      "src/**/*",
+      "public/**/*",
+      "scripts/**/*",
+      "*.config.ts",
+      "*.config.mjs",
+      "tsconfig*.json",
+      "package.json",
+      "bun.lock",
+    ]
+
+tasks:
+  install:
+    description: "bun install from docs/bun.lock (frozen)"
+    command: "bun"
+    args: ["install", "--cwd", "docs", "--frozen-lockfile"]
+    inputs: ["package.json", "bun.lock"]
+    options:
+      cache: false
+  lint:
+    description: "oxlint, type-aware, warnings are errors (oxlint.config.ts)"
+    command: "bun"
+    args: ["run", "--cwd", "docs", "lint"]
+    deps: ["~:install"]
+    inputs: ["@group(sources)", "oxlint.config.ts"]
+  typecheck:
+    description: "TypeScript 7 over every tsconfig project, then astro check (after the build: both regenerate the API pages)"
+    command: "bun"
+    args: ["run", "--cwd", "docs", "typecheck"]
+    deps: ["~:install", "generator:fetch", "~:build"]
+    inputs: ["@group(sources)"]
+  fmt:
+    description: "Format TypeScript, TSX, Astro and MDX with oxfmt"
+    command: "bun"
+    args: ["run", "--cwd", "docs", "fmt"]
+    deps: ["~:install"]
+    options:
+      cache: false
+  fmt-check:
+    description: "oxfmt check (run `moon run docs:fmt` to fix)"
+    command: "bun"
+    args: ["run", "--cwd", "docs", "fmt:check"]
+    deps: ["~:install"]
+    inputs: ["@group(sources)", "oxfmt.config.ts"]
+  test:
+    description: "bun test: the site's numbers agree with api-shapes.json, overrides/ and the generated wrappers"
+    command: "bun"
+    args: ["run", "--cwd", "docs", "test"]
+    deps: ["~:install", "generator:fetch"]
+    inputs: ["@group(sources)", "/src/**/*", "/overrides/**/*", "/deps.toml"]
+  build:
+    description: "Static build into docs/dist: the API reference from src/, every checked example type-checked"
+    command: "bun"
+    args: ["run", "--cwd", "docs", "build"]
+    deps: ["~:install", "generator:fetch"]
+    inputs: ["@group(sources)", "/src/**/*", "/overrides/**/*", "/deps.toml"]
+    outputs: ["dist"]
+  links:
+    description: "Every internal link and anchor in docs/dist resolves"
+    command: "bun"
+    args: ["run", "--cwd", "docs", "links"]
+    deps: ["~:build"]
+    inputs: ["scripts/check-links.ts"]
+  dev:
+    description: "Local dev server"
+    command: "bun"
+    args: ["run", "--cwd", "docs", "dev"]
+    deps: ["~:install", "generator:fetch"]
+    preset: "server"
+  check:
+    description: "Aggregator: every docs check, and the site builds with no broken links"
+    deps: ["~:lint", "~:typecheck", "~:fmt-check", "~:test", "~:links"]

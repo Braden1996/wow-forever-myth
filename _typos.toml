@@ -6,4 +6,6 @@ extend-exclude = [
   "src/Widgets/",
   "src/ApiIndex.luau",
   "src/WidgetIndex.luau",
+  "docs/bun.lock",
+  "docs/src/wow-ui/assets/",
 ]

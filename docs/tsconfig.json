@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Editor entry point; CI checks each project with TypeScript 7 (package.json typecheck:ts)",
+  "files": [],
+  "include": [],
+  "references": [
+    { "path": "./tsconfig.src.json" },
+    { "path": "./tsconfig.test.json" },
+    { "path": "./tsconfig.aux.json" }
+  ]
+}

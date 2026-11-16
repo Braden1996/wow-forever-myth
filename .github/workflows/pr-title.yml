@@ -18,12 +18,12 @@ jobs:
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
-          pattern='^(feat|fix|perf|refactor|test|docs|build|ci|chore|style|revert)(\((api|widgets|runtime|overrides|generator|bundle|tests|ci|docs|deps|repo)\))?!?: [a-z0-9`].{0,98}[^.]$'
+          pattern='^(feat|fix|perf|refactor|test|docs|build|ci|chore|style|revert)(\((api|widgets|runtime|overrides|generator|bundle|tests|site|ci|docs|deps|repo)\))?!?: [a-z0-9`].{0,98}[^.]$'
           if printf '%s' "$TITLE" | grep -Eq "$pattern"; then
             echo "ok: $TITLE"
           else
             echo "::error::Title must look like 'type(scope): summary' (lower-case start, no trailing period)."
             echo "Types: feat fix perf refactor test docs build ci chore style revert."
-            echo "Scopes: api widgets runtime overrides generator bundle tests ci docs deps repo."
+            echo "Scopes: api widgets runtime overrides generator bundle tests site ci docs deps repo."
             exit 1
           fi

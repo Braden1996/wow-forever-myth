@@ -10,6 +10,7 @@ projects:
   generator: "generator"
   lib: "src"
   tests: "tests"
+  docs: "docs"
 
 vcs:
   client: "git"

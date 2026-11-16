@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Aux (config files and scripts, Node)",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    // astro.config.ts imports Astro's and Starlight's declarations, which do not pass skipLibCheck: false
+    // (see tsconfig.src.json). Only .d.ts files are skipped; every config file is still checked.
+    "skipLibCheck": true,
+    "rootDir": "."
+  },
+  "include": ["*.config.ts", "*.config.js", "*.config.mjs", "scripts/**/*.ts"]
+}

@@ -1,0 +1,58 @@
+---
+title: Shapes
+description: How each function's documented results decide which wrapper it gets, and which functions get none.
+---
+
+import { countOf } from "../../../lib/facts.ts";
+import { Badge } from "../../../wow-ui/index.ts";
+
+Every function and widget method in the WoW: Forever client has a _shape_: what its results look like, according to
+Blizzard's documentation. [wow-forever-luau-types](https://braden1996.github.io/wow-forever-luau-types/) publishes the
+shapes in `api-shapes.json`, and this library's generator turns each shape into a wrapper.
+
+## Shapes that get a wrapper
+
+<div class="wow-shapes">
+  <Badge>maybe: {countOf("maybe")}</Badge>
+  <Badge>record: {countOf("record")}</Badge>
+</div>
+
+| Shape                       | Means                              | Wrapper                                        |
+| --------------------------- | ---------------------------------- | ---------------------------------------------- |
+| `maybe`                     | one result, which may be nil       | `Fn(...): Maybe<T>` and `FnInto(reuse, ...)`   |
+| `record`                    | two or more results                | `Fn(...): FnResults` and `FnInto(record, ...)` |
+| `record` that may be absent | the call may return nothing at all | `Fn(...): Maybe<FnResults>`                    |
+
+A call "may be absent" when Blizzard marks it `MayReturnNothing`, or when it has a precondition whose documented
+failure is to return nothing. Inside a record, a result the documentation marks nilable becomes a `Maybe` field.
+
+```luau check
+local name = Api.C_Item.GetItemNameByID(6948)
+local cooldown = Api.C_Item.GetItemCooldown(6948)
+local info = Api.C_Item.GetItemInfo(6948)
+```
+
+## Shapes that get no wrapper
+
+<div class="wow-shapes">
+  <Badge variant="outline">value</Badge>
+  <Badge variant="outline">void</Badge>
+  <Badge variant="outline">variadic</Badge>
+  <Badge variant="outline">protected</Badge>
+</div>
+
+| Shape                                                    | Why there is no wrapper                                                                      |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `value`                                                  | one result that is never nil: the raw call is already safe (`UnitLevel("player")`)           |
+| `void`                                                   | no results                                                                                   |
+| `variadic`                                               | a list of results of any length                                                              |
+| `protected`                                              | Blizzard flags it `IsProtectedFunction`; wrapping could break the secure code paths using it |
+| `generic`, `overloaded`, `untyped`, `excluded`, `opaque` | the documentation does not give one clear shape                                              |
+
+Call those functions directly. The raw API is untouched.
+
+## When the documentation is not enough
+
+Some meaning is not in the documentation: that a leading boolean means "it worked", that a nil means "not cached yet",
+or that a callback fires exactly once. Those are [reviewed overrides](../../project/overrides/), each with a reason
+and its own tests. They give [Result](../results/) and [Task](../loads-and-timers/) wrappers.
