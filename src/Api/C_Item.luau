@@ -634,23 +634,19 @@ function Wrappers.GetItemSpellInto(reuse: GetItemSpellResults, itemInfo: ItemInf
 	return Reuse.just(reuse)
 end
 
-function Wrappers.GetItemStatDelta(itemLink1: string, itemLink2: string): Maybe<LuaValueVariant>
+function Wrappers.GetItemStatDelta(itemLink1: string, itemLink2: string): Maybe<unknown>
 	return Maybe.of(C_Item.GetItemStatDelta(itemLink1, itemLink2))
 end
 
-function Wrappers.GetItemStatDeltaInto(
-	reuse: Maybe<LuaValueVariant>,
-	itemLink1: string,
-	itemLink2: string
-): Maybe<LuaValueVariant>
+function Wrappers.GetItemStatDeltaInto(reuse: Maybe<unknown>, itemLink1: string, itemLink2: string): Maybe<unknown>
 	return Reuse.maybe(reuse, C_Item.GetItemStatDelta(itemLink1, itemLink2))
 end
 
-function Wrappers.GetItemStats(itemLink: string): Maybe<LuaValueVariant>
+function Wrappers.GetItemStats(itemLink: string): Maybe<unknown>
 	return Maybe.of(C_Item.GetItemStats(itemLink))
 end
 
-function Wrappers.GetItemStatsInto(reuse: Maybe<LuaValueVariant>, itemLink: string): Maybe<LuaValueVariant>
+function Wrappers.GetItemStatsInto(reuse: Maybe<unknown>, itemLink: string): Maybe<unknown>
 	return Reuse.maybe(reuse, C_Item.GetItemStats(itemLink))
 end
 

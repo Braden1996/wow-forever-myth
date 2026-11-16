@@ -5,6 +5,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-16
+
+### Changed
+
+- Built against wow-forever-luau-types v0.5.0. The bundle is unchanged; some wrapper types follow the new
+  definitions:
+  - Now typed where they were `unknown`: `C_Club` member IDs (`GetAssignableRoles`, `GetClubMembers`,
+    `GetMemberInfo`), `C_Intl.GetCharacterProperties`, `C_Intl.ParseCurrency` and `LuaLocaleContext:ParseCurrency`,
+    `C_UnitAuras.AddAuraSound`'s `sound`, `C_VoiceChat.GetActiveChannelID`, and `castBarID` in `UnitCastingInfo`
+    and `UnitChannelInfo`.
+  - Now `unknown` where they were `LuaValueVariant`: `C_EncodingUtil.DeserializeCBOR`/`DeserializeJSON` and
+    `C_Item.GetItemStats`/`GetItemStatDelta`. Narrow the result before use.
+
 ## [0.3.0] - 2026-11-16
 
 ### Added
@@ -63,7 +76,8 @@ All notable changes to this project are documented here. The format follows
 - `dist/ForeverMyth.lua`, the Lua 5.1 bundle (darklua, luau-true-myth v0.1.0 included), tested in a Lua 5.1-only
   environment with a fake WoW API.
 
-[Unreleased]: https://github.com/Braden1996/wow-forever-myth/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Braden1996/wow-forever-myth/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Braden1996/wow-forever-myth/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Braden1996/wow-forever-myth/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Braden1996/wow-forever-myth/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Braden1996/wow-forever-myth/compare/v0.1.0...v0.2.0

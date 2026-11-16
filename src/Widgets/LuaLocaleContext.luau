@@ -200,11 +200,15 @@ function Wrappers.LengthInto(reuse: Maybe<number>, object: LuaLocaleContext, tex
 	return Reuse.maybe(reuse, object:Length(text))
 end
 
-function Wrappers.ParseCurrency(object: LuaLocaleContext, text: string): Maybe<unknown>
+function Wrappers.ParseCurrency(object: LuaLocaleContext, text: string): Maybe<CurrencyParseResult>
 	return Maybe.of(object:ParseCurrency(text))
 end
 
-function Wrappers.ParseCurrencyInto(reuse: Maybe<unknown>, object: LuaLocaleContext, text: string): Maybe<unknown>
+function Wrappers.ParseCurrencyInto(
+	reuse: Maybe<CurrencyParseResult>,
+	object: LuaLocaleContext,
+	text: string
+): Maybe<CurrencyParseResult>
 	return Reuse.maybe(reuse, object:ParseCurrency(text))
 end
 

@@ -55,19 +55,19 @@ function Wrappers.DecompressStringInto(
 	return Reuse.maybe(reuse, C_EncodingUtil.DecompressString(source, method))
 end
 
-function Wrappers.DeserializeCBOR(source: stringView): Maybe<LuaValueVariant>
+function Wrappers.DeserializeCBOR(source: stringView): Maybe<unknown>
 	return Maybe.of(C_EncodingUtil.DeserializeCBOR(source))
 end
 
-function Wrappers.DeserializeCBORInto(reuse: Maybe<LuaValueVariant>, source: stringView): Maybe<LuaValueVariant>
+function Wrappers.DeserializeCBORInto(reuse: Maybe<unknown>, source: stringView): Maybe<unknown>
 	return Reuse.maybe(reuse, C_EncodingUtil.DeserializeCBOR(source))
 end
 
-function Wrappers.DeserializeJSON(source: string): Maybe<LuaValueVariant>
+function Wrappers.DeserializeJSON(source: string): Maybe<unknown>
 	return Maybe.of(C_EncodingUtil.DeserializeJSON(source))
 end
 
-function Wrappers.DeserializeJSONInto(reuse: Maybe<LuaValueVariant>, source: string): Maybe<LuaValueVariant>
+function Wrappers.DeserializeJSONInto(reuse: Maybe<unknown>, source: string): Maybe<unknown>
 	return Reuse.maybe(reuse, C_EncodingUtil.DeserializeJSON(source))
 end
 

@@ -109,11 +109,14 @@ function Wrappers.FormatTimeInto(
 	return Reuse.maybe(reuse, C_Intl.FormatTime(unixTimeSeconds, style, timeZone))
 end
 
-function Wrappers.GetCharacterProperties(text: string): Maybe<unknown>
+function Wrappers.GetCharacterProperties(text: string): Maybe<CharacterProperties>
 	return Maybe.of(C_Intl.GetCharacterProperties(text))
 end
 
-function Wrappers.GetCharacterPropertiesInto(reuse: Maybe<unknown>, text: string): Maybe<unknown>
+function Wrappers.GetCharacterPropertiesInto(
+	reuse: Maybe<CharacterProperties>,
+	text: string
+): Maybe<CharacterProperties>
 	return Reuse.maybe(reuse, C_Intl.GetCharacterProperties(text))
 end
 
@@ -169,11 +172,11 @@ function Wrappers.NormalizeInto(reuse: Maybe<string>, text: string, form: Enum_N
 	return Reuse.maybe(reuse, C_Intl.Normalize(text, form))
 end
 
-function Wrappers.ParseCurrency(text: string): Maybe<unknown>
+function Wrappers.ParseCurrency(text: string): Maybe<CurrencyParseResult>
 	return Maybe.of(C_Intl.ParseCurrency(text))
 end
 
-function Wrappers.ParseCurrencyInto(reuse: Maybe<unknown>, text: string): Maybe<unknown>
+function Wrappers.ParseCurrencyInto(reuse: Maybe<CurrencyParseResult>, text: string): Maybe<CurrencyParseResult>
 	return Reuse.maybe(reuse, C_Intl.ParseCurrency(text))
 end
 

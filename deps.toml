@@ -12,9 +12,9 @@ unzip = "luau-true-myth-0.1.0.zip"
 
 [wow-forever-luau-types]
 repository = "Braden1996/wow-forever-luau-types"
-tag = "v0.4.1"
+tag = "v0.5.0"
 
 [wow-forever-luau-types.assets]
-"api-shapes.json" = "a27b83e3965906d8ac25fb0c46ef945e887ffecd04433b70a3b6c238e63c46ae"
+"api-shapes.json" = "478180b9deac4efaa9c7e35a4044351a11c22be19ea8ad7683f060437f4698f8"
 "luau-lsp.settings.json" = "a01803dbf6778c18251a1993ccdd1a77d24970d5159413662f2378844d856f3d"
-"wow-forever.d.luau" = "ac0f067970ae83c32963b1eb6a80d5f606004ba6c86bfd1462dda027961ef0e3"
+"wow-forever.d.luau" = "021782e63feb9ce1d045506c5af9be24caba890c54b66aa43a117773148eb990"

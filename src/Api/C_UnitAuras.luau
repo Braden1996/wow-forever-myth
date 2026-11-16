@@ -6,14 +6,14 @@ type Maybe<T> = Maybe.Maybe<T>
 
 local Wrappers = {}
 
-function Wrappers.AddAuraSound(trigger: Enum_UnitAuraSoundTrigger, sound: unknown): Maybe<number>
+function Wrappers.AddAuraSound(trigger: Enum_UnitAuraSoundTrigger, sound: UnitAuraSoundInfo): Maybe<number>
 	return Maybe.of(C_UnitAuras.AddAuraSound(trigger, sound))
 end
 
 function Wrappers.AddAuraSoundInto(
 	reuse: Maybe<number>,
 	trigger: Enum_UnitAuraSoundTrigger,
-	sound: unknown
+	sound: UnitAuraSoundInfo
 ): Maybe<number>
 	return Reuse.maybe(reuse, C_UnitAuras.AddAuraSound(trigger, sound))
 end

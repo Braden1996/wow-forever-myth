@@ -86,14 +86,14 @@ function Wrappers.FocusStreamInto(reuse: Maybe<boolean>, clubId: ClubId, streamI
 	return Reuse.maybe(reuse, C_Club.FocusStream(clubId, streamId))
 end
 
-function Wrappers.GetAssignableRoles(clubId: ClubId, memberId: unknown): Maybe<{ Enum_ClubRoleIdentifier }>
+function Wrappers.GetAssignableRoles(clubId: ClubId, memberId: number): Maybe<{ Enum_ClubRoleIdentifier }>
 	return Maybe.of(C_Club.GetAssignableRoles(clubId, memberId))
 end
 
 function Wrappers.GetAssignableRolesInto(
 	reuse: Maybe<{ Enum_ClubRoleIdentifier }>,
 	clubId: ClubId,
-	memberId: unknown
+	memberId: number
 ): Maybe<{ Enum_ClubRoleIdentifier }>
 	return Reuse.maybe(reuse, C_Club.GetAssignableRoles(clubId, memberId))
 end
@@ -130,15 +130,15 @@ function Wrappers.GetClubLimitsInto(reuse: Maybe<ClubLimits>, clubType: Enum_Clu
 	return Reuse.maybe(reuse, C_Club.GetClubLimits(clubType))
 end
 
-function Wrappers.GetClubMembers(clubId: ClubId, streamId: ClubStreamId?): Maybe<{ unknown }>
+function Wrappers.GetClubMembers(clubId: ClubId, streamId: ClubStreamId?): Maybe<{ number }>
 	return Maybe.of(C_Club.GetClubMembers(clubId, streamId))
 end
 
 function Wrappers.GetClubMembersInto(
-	reuse: Maybe<{ unknown }>,
+	reuse: Maybe<{ number }>,
 	clubId: ClubId,
 	streamId: ClubStreamId?
-): Maybe<{ unknown }>
+): Maybe<{ number }>
 	return Reuse.maybe(reuse, C_Club.GetClubMembers(clubId, streamId))
 end
 
@@ -286,14 +286,14 @@ function Wrappers.GetLastTicketResponseInto(
 	return Reuse.just(reuse)
 end
 
-function Wrappers.GetMemberInfo(clubId: ClubId, memberId: unknown): Maybe<ClubMemberInfo>
+function Wrappers.GetMemberInfo(clubId: ClubId, memberId: number): Maybe<ClubMemberInfo>
 	return Maybe.of(C_Club.GetMemberInfo(clubId, memberId))
 end
 
 function Wrappers.GetMemberInfoInto(
 	reuse: Maybe<ClubMemberInfo>,
 	clubId: ClubId,
-	memberId: unknown
+	memberId: number
 ): Maybe<ClubMemberInfo>
 	return Reuse.maybe(reuse, C_Club.GetMemberInfo(clubId, memberId))
 end

@@ -6,11 +6,11 @@ type Maybe<T> = Maybe.Maybe<T>
 
 local Wrappers = {}
 
-function Wrappers.GetActiveChannelID(): Maybe<unknown>
+function Wrappers.GetActiveChannelID(): Maybe<number>
 	return Maybe.of(C_VoiceChat.GetActiveChannelID())
 end
 
-function Wrappers.GetActiveChannelIDInto(reuse: Maybe<unknown>): Maybe<unknown>
+function Wrappers.GetActiveChannelIDInto(reuse: Maybe<number>): Maybe<number>
 	return Reuse.maybe(reuse, C_VoiceChat.GetActiveChannelID())
 end
 
@@ -38,11 +38,11 @@ function Wrappers.GetAvailableOutputDevicesInto(reuse: Maybe<{ VoiceAudioDevice 
 	return Reuse.maybe(reuse, C_VoiceChat.GetAvailableOutputDevices())
 end
 
-function Wrappers.GetChannel(channelID: unknown): Maybe<VoiceChatChannel>
+function Wrappers.GetChannel(channelID: number): Maybe<VoiceChatChannel>
 	return Maybe.of(C_VoiceChat.GetChannel(channelID))
 end
 
-function Wrappers.GetChannelInto(reuse: Maybe<VoiceChatChannel>, channelID: unknown): Maybe<VoiceChatChannel>
+function Wrappers.GetChannelInto(reuse: Maybe<VoiceChatChannel>, channelID: number): Maybe<VoiceChatChannel>
 	return Reuse.maybe(reuse, C_VoiceChat.GetChannel(channelID))
 end
 
@@ -114,39 +114,39 @@ function Wrappers.GetLocalPlayerActiveChannelMemberInfoInto(reuse: Maybe<VoiceCh
 	return Reuse.maybe(reuse, C_VoiceChat.GetLocalPlayerActiveChannelMemberInfo())
 end
 
-function Wrappers.GetLocalPlayerMemberID(channelID: unknown): Maybe<unknown>
+function Wrappers.GetLocalPlayerMemberID(channelID: number): Maybe<number>
 	return Maybe.of(C_VoiceChat.GetLocalPlayerMemberID(channelID))
 end
 
-function Wrappers.GetLocalPlayerMemberIDInto(reuse: Maybe<unknown>, channelID: unknown): Maybe<unknown>
+function Wrappers.GetLocalPlayerMemberIDInto(reuse: Maybe<number>, channelID: number): Maybe<number>
 	return Reuse.maybe(reuse, C_VoiceChat.GetLocalPlayerMemberID(channelID))
 end
 
-function Wrappers.GetMemberID(channelID: unknown, memberGUID: WOWGUID): Maybe<unknown>
+function Wrappers.GetMemberID(channelID: number, memberGUID: WOWGUID): Maybe<number>
 	return Maybe.of(C_VoiceChat.GetMemberID(channelID, memberGUID))
 end
 
-function Wrappers.GetMemberIDInto(reuse: Maybe<unknown>, channelID: unknown, memberGUID: WOWGUID): Maybe<unknown>
+function Wrappers.GetMemberIDInto(reuse: Maybe<number>, channelID: number, memberGUID: WOWGUID): Maybe<number>
 	return Reuse.maybe(reuse, C_VoiceChat.GetMemberID(channelID, memberGUID))
 end
 
-function Wrappers.GetMemberInfo(memberID: unknown, channelID: unknown): Maybe<VoiceChatMember>
+function Wrappers.GetMemberInfo(memberID: number, channelID: number): Maybe<VoiceChatMember>
 	return Maybe.of(C_VoiceChat.GetMemberInfo(memberID, channelID))
 end
 
 function Wrappers.GetMemberInfoInto(
 	reuse: Maybe<VoiceChatMember>,
-	memberID: unknown,
-	channelID: unknown
+	memberID: number,
+	channelID: number
 ): Maybe<VoiceChatMember>
 	return Reuse.maybe(reuse, C_VoiceChat.GetMemberInfo(memberID, channelID))
 end
 
-function Wrappers.GetMemberName(memberID: unknown, channelID: unknown): Maybe<string>
+function Wrappers.GetMemberName(memberID: number, channelID: number): Maybe<string>
 	return Maybe.of(C_VoiceChat.GetMemberName(memberID, channelID))
 end
 
-function Wrappers.GetMemberNameInto(reuse: Maybe<string>, memberID: unknown, channelID: unknown): Maybe<string>
+function Wrappers.GetMemberNameInto(reuse: Maybe<string>, memberID: number, channelID: number): Maybe<string>
 	return Reuse.maybe(reuse, C_VoiceChat.GetMemberName(memberID, channelID))
 end
 
@@ -214,19 +214,19 @@ function Wrappers.IsMemberMutedInto(reuse: Maybe<boolean>, playerLocation: Playe
 	return Reuse.maybe(reuse, C_VoiceChat.IsMemberMuted(playerLocation))
 end
 
-function Wrappers.IsMemberMutedForAll(memberID: unknown, channelID: unknown): Maybe<boolean>
+function Wrappers.IsMemberMutedForAll(memberID: number, channelID: number): Maybe<boolean>
 	return Maybe.of(C_VoiceChat.IsMemberMutedForAll(memberID, channelID))
 end
 
-function Wrappers.IsMemberMutedForAllInto(reuse: Maybe<boolean>, memberID: unknown, channelID: unknown): Maybe<boolean>
+function Wrappers.IsMemberMutedForAllInto(reuse: Maybe<boolean>, memberID: number, channelID: number): Maybe<boolean>
 	return Reuse.maybe(reuse, C_VoiceChat.IsMemberMutedForAll(memberID, channelID))
 end
 
-function Wrappers.IsMemberSilenced(memberID: unknown, channelID: unknown): Maybe<boolean>
+function Wrappers.IsMemberSilenced(memberID: number, channelID: number): Maybe<boolean>
 	return Maybe.of(C_VoiceChat.IsMemberSilenced(memberID, channelID))
 end
 
-function Wrappers.IsMemberSilencedInto(reuse: Maybe<boolean>, memberID: unknown, channelID: unknown): Maybe<boolean>
+function Wrappers.IsMemberSilencedInto(reuse: Maybe<boolean>, memberID: number, channelID: number): Maybe<boolean>
 	return Reuse.maybe(reuse, C_VoiceChat.IsMemberSilenced(memberID, channelID))
 end
 

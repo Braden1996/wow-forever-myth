@@ -1730,7 +1730,7 @@ export type UnitCastingInfoResults = {
 	read castID: WOWGUID,
 	read notInterruptible: Maybe<boolean>,
 	read castingSpellID: number,
-	read castBarID: Maybe<unknown>,
+	read castBarID: Maybe<number>,
 	read delayTimeMs: number,
 }
 
@@ -1745,7 +1745,7 @@ export type UnitChannelInfoResults = {
 	read spellID: number,
 	read isEmpowered: boolean,
 	read numEmpowerStages: number,
-	read castBarID: Maybe<unknown>,
+	read castBarID: Maybe<number>,
 }
 
 export type UnitClassResults = {
