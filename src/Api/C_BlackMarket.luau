@@ -21,7 +21,7 @@ export type GetHotItemResults = {
 	read timeLeft: number,
 	read link: string,
 	read marketID: number,
-	read quality: number,
+	read quality: Enum_ItemQuality,
 }
 
 export type GetItemInfoByIDResults = {
@@ -41,7 +41,7 @@ export type GetItemInfoByIDResults = {
 	read timeLeft: number,
 	read link: string,
 	read marketID: number,
-	read quality: number,
+	read quality: Enum_ItemQuality,
 }
 
 export type GetItemInfoByIndexResults = {
@@ -61,7 +61,7 @@ export type GetItemInfoByIndexResults = {
 	read timeLeft: number,
 	read link: string,
 	read marketID: number,
-	read quality: number,
+	read quality: Enum_ItemQuality,
 }
 
 local Wrappers = {}

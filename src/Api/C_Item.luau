@@ -208,14 +208,14 @@ function Wrappers.GetDetailedItemLevelInfoInto(
 	return Reuse.just(reuse)
 end
 
-function Wrappers.GetFirstTriggeredSpellForItem(itemID: number, itemQuality: number): Maybe<number>
+function Wrappers.GetFirstTriggeredSpellForItem(itemID: number, itemQuality: Enum_ItemQuality): Maybe<number>
 	return Maybe.of(C_Item.GetFirstTriggeredSpellForItem(itemID, itemQuality))
 end
 
 function Wrappers.GetFirstTriggeredSpellForItemInto(
 	reuse: Maybe<number>,
 	itemID: number,
-	itemQuality: number
+	itemQuality: Enum_ItemQuality
 ): Maybe<number>
 	return Reuse.maybe(reuse, C_Item.GetFirstTriggeredSpellForItem(itemID, itemQuality))
 end

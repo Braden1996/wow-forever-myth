@@ -59,7 +59,7 @@ export type GetLandingPageShipmentInfoResults = {
 	read timeleftString: string,
 	read itemName: string,
 	read itemIcon: number,
-	read itemQuality: number,
+	read itemQuality: Enum_ItemQuality,
 	read itemID: number,
 }
 

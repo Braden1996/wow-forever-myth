@@ -233,13 +233,15 @@ function Wrappers.GetSourceIDsForSlotInto(
 	return Reuse.maybe(reuse, C_TransmogOutfitInfo.GetSourceIDsForSlot(transmogSetID, slot))
 end
 
-function Wrappers.GetTransmogOutfitSlotForInventoryType(inventoryType: number): Maybe<Enum_TransmogOutfitSlot>
+function Wrappers.GetTransmogOutfitSlotForInventoryType(
+	inventoryType: Enum_InventoryType
+): Maybe<Enum_TransmogOutfitSlot>
 	return Maybe.of(C_TransmogOutfitInfo.GetTransmogOutfitSlotForInventoryType(inventoryType))
 end
 
 function Wrappers.GetTransmogOutfitSlotForInventoryTypeInto(
 	reuse: Maybe<Enum_TransmogOutfitSlot>,
-	inventoryType: number
+	inventoryType: Enum_InventoryType
 ): Maybe<Enum_TransmogOutfitSlot>
 	return Reuse.maybe(reuse, C_TransmogOutfitInfo.GetTransmogOutfitSlotForInventoryType(inventoryType))
 end

@@ -5,6 +5,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-16
+
+### Changed
+
+- Built against wow-forever-luau-types v0.6.0, which types non-flag enums as opaque `Enum_*` types. The bundle is
+  unchanged; wrappers that take or return those enums follow, so pass and compare `Enum` values instead of numbers:
+  item quality (`Enum_ItemQuality`) in `C_ArtifactUI`, `C_BlackMarket`, `C_Garrison`, `C_Item`, `C_TooltipInfo` and
+  the global results, `Enum_ItemRedundancySlot` in `C_ItemUpgrade`, `Enum_InventoryType` in
+  `C_Transmog` and `C_TransmogOutfitInfo`, and `Enum_PowerType` in `GetPowerRegenForPowerType`.
+
 ## [0.4.0] - 2026-11-16
 
 ### Changed
@@ -76,7 +86,8 @@ All notable changes to this project are documented here. The format follows
 - `dist/ForeverMyth.lua`, the Lua 5.1 bundle (darklua, luau-true-myth v0.1.0 included), tested in a Lua 5.1-only
   environment with a fake WoW API.
 
-[Unreleased]: https://github.com/Braden1996/wow-forever-myth/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Braden1996/wow-forever-myth/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Braden1996/wow-forever-myth/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Braden1996/wow-forever-myth/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Braden1996/wow-forever-myth/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Braden1996/wow-forever-myth/compare/v0.2.0...v0.2.1

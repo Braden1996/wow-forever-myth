@@ -513,7 +513,7 @@ export type GetGuildBankItemInfoResults = {
 	read itemCount: number,
 	read locked: boolean,
 	read isFiltered: boolean,
-	read quality: number,
+	read quality: Enum_ItemQuality,
 }
 
 export type GetGuildBankMoneyTransactionResults = {
@@ -675,7 +675,7 @@ export type GetInboxItemResults = {
 	read itemID: number,
 	read texture: string,
 	read count: number,
-	read quality: number,
+	read quality: Enum_ItemQuality,
 	read canUse: boolean,
 }
 
@@ -938,7 +938,7 @@ export type GetLootRollItemInfoResults = {
 	read texture: string,
 	read name: string,
 	read count: number,
-	read quality: number,
+	read quality: Enum_ItemQuality,
 	read bindOnPickUp: boolean,
 	read canNeed: boolean,
 	read canGreed: boolean,
@@ -955,7 +955,7 @@ export type GetLootSlotInfoResults = {
 	read lootName: string,
 	read lootQuantity: number,
 	read currencyID: number,
-	read lootQuality: number,
+	read lootQuality: Enum_ItemQuality,
 	read locked: boolean,
 	read isQuestItem: boolean,
 	read questID: number,
@@ -1223,7 +1223,7 @@ export type GetQuestLogRewardInfoResults = {
 	read itemName: string,
 	read itemTexture: string,
 	read numItems: number,
-	read quality: number,
+	read quality: Enum_ItemQuality,
 	read isUsable: boolean,
 	read itemID: number,
 	read itemLevel: number,
@@ -1499,7 +1499,7 @@ export type GetTradeTargetItemInfoResults = {
 	read name: string,
 	read texture: string,
 	read quantity: number,
-	read quality: number,
+	read quality: Enum_ItemQuality,
 	read isUsable: number,
 	read enchant: string,
 }
@@ -5609,7 +5609,7 @@ function Wrappers.GetPowerRegenInto(reuse: GetPowerRegenResults): GetPowerRegenR
 	return reuse
 end
 
-function Wrappers.GetPowerRegenForPowerType(powerType: number): GetPowerRegenForPowerTypeResults
+function Wrappers.GetPowerRegenForPowerType(powerType: Enum_PowerType): GetPowerRegenForPowerTypeResults
 	local r1, r2 = GetPowerRegenForPowerType(powerType)
 	return {
 		basePowerRegen = r1,
@@ -5619,7 +5619,7 @@ end
 
 function Wrappers.GetPowerRegenForPowerTypeInto(
 	reuse: GetPowerRegenForPowerTypeResults,
-	powerType: number
+	powerType: Enum_PowerType
 ): GetPowerRegenForPowerTypeResults
 	local r1, r2 = GetPowerRegenForPowerType(powerType)
 	local fields = Reuse.fields(reuse)
