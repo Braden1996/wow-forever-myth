@@ -55,6 +55,11 @@ tasks:
       "/scripts/**/*.luau",
       "/tests/**/*.luau",
     ]
+  lint-lua51:
+    description: "selene over tests/lua51 with Lua 5.1 and LuaJIT's globals (tests/lua51/selene.toml)"
+    command: "selene"
+    args: ["--config", "tests/lua51/selene.toml", "tests/lua51"]
+    inputs: ["/tests/lua51/**/*"]
   lint:
     description: "selene (selene.toml)"
     command: "selene"
@@ -105,4 +110,12 @@ tasks:
     ]
   check:
     description: "Aggregator: every library check"
-    deps: ["~:typecheck", "~:typecheck-tools", "~:strict-header", "~:lint", "~:build-fresh", "~:fmt-check"]
+    deps: [
+      "~:typecheck",
+      "~:typecheck-tools",
+      "~:strict-header",
+      "~:lint",
+      "~:lint-lua51",
+      "~:build-fresh",
+      "~:fmt-check",
+    ]

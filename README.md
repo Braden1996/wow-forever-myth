@@ -110,6 +110,7 @@ modules you use: `require("wow-forever-myth/src/Api/C_Item")`.
 | `mise exec -- moon run generator:generate`           | regenerate `src/Api`, `src/Widgets` and their indexes                        |
 | `mise exec -- moon run lib:build`                    | build `dist/ForeverMyth.lua`                                                 |
 | `mise exec -- moon run tests:spec`                   | run every spec against the bundle                                            |
+| `mise exec -- moon run tests:lua51`                  | run the bundle under LuaJIT (Lua 5.1, as in WoW) through its runtime paths   |
 | `mise exec -- lune run scripts/fixtures -- --update` | rewrite the negative fixtures' `.expected` files                             |
 | `mise exec -- lune run scripts/banner`               | redraw the banner                                                            |
 

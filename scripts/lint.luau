@@ -2,6 +2,8 @@
 local fs = require("@lune/fs")
 local process = require("@lune/process")
 
+local Lua51 = require("./Lua51")
+
 local ROOTS = { "src", "wow", "generator", "overrides", "scripts", "tests" }
 local EXPECT_ERROR = "^%-%- expect%-error: "
 local CAST_TO_ANY = ":: " .. "any"
@@ -71,9 +73,22 @@ local function isUncheckedName(name: string?): boolean
 	return string.sub(short, 1, 9) == "unchecked"
 end
 
+local function runsInTheGame(file: string): boolean
+	return string.match(file, "^src/") ~= nil or string.match(file, "^wow/") ~= nil
+end
+
 local function lintFile(file: string, problems: { Problem })
 	local text = string.gsub(fs.readFile(file), "\r", "")
 	local lines = string.split(text, "\n")
+	if runsInTheGame(file) then
+		for _, lineNo in Lua51.generalisedIterations(text) do
+			table.insert(problems, {
+				file = file,
+				line = lineNo,
+				message = "generalised iteration does not exist in Lua 5.1; use pairs, ipairs or next",
+			})
+		end
+	end
 	if lines[1] ~= "--!strict" then
 		table.insert(problems, { file = file, line = 1, message = "the first line must be --!strict" })
 	end

@@ -2,6 +2,8 @@
 local fs = require("@lune/fs")
 local process = require("@lune/process")
 
+local Lua51 = require("./Lua51")
+
 local ENTRY = "src/ForeverMyth.luau"
 
 local OUTPUT = "dist/ForeverMyth.lua"
@@ -69,6 +71,13 @@ local built = SCRATCH .. "/ForeverMyth.lua"
 fs.writeFile(built, bundle)
 
 run("stylua", { "--syntax", "Lua51", "--check", "-" }, bundle)
+local iterations = Lua51.generalisedIterations(bundle)
+if #iterations > 0 then
+	error(
+		"the bundle uses generalised iteration, which Lua 5.1 lacks, on line(s) " .. table.concat(iterations, ", "),
+		0
+	)
+end
 run("selene", { "--config", writeSeleneConfig(), "--display-style", "quiet", built })
 
 if check then
@@ -77,7 +86,7 @@ if check then
 		print("FAIL " .. OUTPUT .. " is stale: run `moon run lib:build` and commit the result")
 		process.exit(1)
 	end
-	print("ok   " .. OUTPUT .. " is up to date, valid Lua 5.1, and uses only Lua 5.1 globals")
+	print("ok   " .. OUTPUT .. " is up to date, valid Lua 5.1, with only Lua 5.1 iteration and globals")
 else
 	ensureDir("dist")
 	fs.writeFile(OUTPUT, bundle)

@@ -16,6 +16,13 @@ tasks:
     deps: ["lib:build-fresh"]
     options:
       cache: false
+  lua51:
+    description: "The bundle runs under LuaJIT (Lua 5.1 semantics, as in WoW): load events, timers, records, Into and Result"
+    command: "luajit"
+    args: ["tests/lua51/run.lua", "dist/ForeverMyth.lua"]
+    deps: ["lib:build-fresh"]
+    options:
+      cache: false
   fixtures:
     description: "tests/pass type-checks clean; tests/fail gets exactly its .expected diagnostics (new solver, WoW definitions)"
     command: "lune"
@@ -25,4 +32,4 @@ tasks:
       cache: false
   check:
     description: "Aggregator: every test"
-    deps: ["~:spec", "~:fixtures"]
+    deps: ["~:spec", "~:lua51", "~:fixtures"]

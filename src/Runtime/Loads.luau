@@ -45,7 +45,7 @@ local function settleAll(event: string, key: unknown, success: unknown)
 		return
 	end
 	byKey[key] = nil
-	for _, settle in settles do
+	for _, settle in ipairs(settles) do
 		settle(success == true)
 	end
 end
