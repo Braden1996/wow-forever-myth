@@ -21,7 +21,7 @@ Install the **Luau Language Server** extension, then in `.vscode/settings.json`:
 
 `types/wow-forever.d.luau` is the definitions file from the
 [wow-forever-luau-types release](https://github.com/Braden1996/wow-forever-luau-types/releases) that the library's
-`deps.toml` pins (v0.3.0 for wow-forever-myth 0.1.0).
+`deps.toml` pins (v0.4.0 for wow-forever-myth 0.2.0).
 
 The same release ships `luau-lsp.settings.json`, which disables the Luau globals the game lacks, such as
 `table.clone` and `require`. Copy its `luau-lsp.types.disabledGlobals` list into your settings, but leave out

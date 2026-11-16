@@ -5,6 +5,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-16
+
+### Changed
+
+- Built and tested against wow-forever-luau-types v0.4.0, whose definitions type about 150 results of calls that
+  may return nothing as `T?`. The wrappers are unchanged: those calls already returned `Maybe` here. Code that calls
+  the raw API with the new definitions may get new nil-check errors; the wrapped calls do not.
+
 ### Added
 
 - A documentation site at [braden1996.github.io/wow-forever-myth](https://braden1996.github.io/wow-forever-myth/): an
@@ -26,5 +34,6 @@ All notable changes to this project are documented here. The format follows
 - `dist/ForeverMyth.lua`, the Lua 5.1 bundle (darklua, luau-true-myth v0.1.0 included), tested in a Lua 5.1-only
   environment with a fake WoW API.
 
-[Unreleased]: https://github.com/Braden1996/wow-forever-myth/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Braden1996/wow-forever-myth/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Braden1996/wow-forever-myth/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Braden1996/wow-forever-myth/releases/tag/v0.1.0
