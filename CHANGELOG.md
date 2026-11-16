@@ -5,6 +5,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Built against wow-forever-luau-types v0.4.1, which types unit tokens as strings. The generated wrappers and the
+  bundle are unchanged.
+- The documentation site takes its theme and components from the `starlight-warcraft` package.
+
 ## [0.2.1] - 2026-11-16
 
 ### Fixed
