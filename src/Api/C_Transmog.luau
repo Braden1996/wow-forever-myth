@@ -25,11 +25,11 @@ function Wrappers.GetItemIDForSourceInto(reuse: Maybe<number>, itemModifiedAppea
 	return Reuse.maybe(reuse, C_Transmog.GetItemIDForSource(itemModifiedAppearanceID))
 end
 
-function Wrappers.GetSlotForInventoryType(inventoryType: number): Maybe<number>
+function Wrappers.GetSlotForInventoryType(inventoryType: Enum_InventoryType): Maybe<number>
 	return Maybe.of(C_Transmog.GetSlotForInventoryType(inventoryType))
 end
 
-function Wrappers.GetSlotForInventoryTypeInto(reuse: Maybe<number>, inventoryType: number): Maybe<number>
+function Wrappers.GetSlotForInventoryTypeInto(reuse: Maybe<number>, inventoryType: Enum_InventoryType): Maybe<number>
 	return Reuse.maybe(reuse, C_Transmog.GetSlotForInventoryType(inventoryType))
 end
 

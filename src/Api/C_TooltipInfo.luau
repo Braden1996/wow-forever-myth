@@ -271,7 +271,7 @@ end
 
 function Wrappers.GetItemByID(
 	itemID: number,
-	quality: number?,
+	quality: Enum_ItemQuality?,
 	itemContext: number?,
 	treasureContextLevel: number?
 ): Maybe<TooltipData>
@@ -281,7 +281,7 @@ end
 function Wrappers.GetItemByIDInto(
 	reuse: Maybe<TooltipData>,
 	itemID: number,
-	quality: number?,
+	quality: Enum_ItemQuality?,
 	itemContext: number?,
 	treasureContextLevel: number?
 ): Maybe<TooltipData>

@@ -56,7 +56,9 @@ function Wrappers.GetHighWatermarkForItemInto(
 	return Reuse.just(reuse)
 end
 
-function Wrappers.GetHighWatermarkForSlot(itemRedundancySlot: number): Maybe<GetHighWatermarkForSlotResults>
+function Wrappers.GetHighWatermarkForSlot(
+	itemRedundancySlot: Enum_ItemRedundancySlot
+): Maybe<GetHighWatermarkForSlotResults>
 	local r1, r2 = C_ItemUpgrade.GetHighWatermarkForSlot(itemRedundancySlot)
 	if r1 == nil or r2 == nil then
 		return Maybe.nothing()
@@ -69,7 +71,7 @@ end
 
 function Wrappers.GetHighWatermarkForSlotInto(
 	reuse: GetHighWatermarkForSlotResults,
-	itemRedundancySlot: number
+	itemRedundancySlot: Enum_ItemRedundancySlot
 ): Maybe<GetHighWatermarkForSlotResults>
 	local r1, r2 = C_ItemUpgrade.GetHighWatermarkForSlot(itemRedundancySlot)
 	if r1 == nil or r2 == nil then
@@ -81,11 +83,14 @@ function Wrappers.GetHighWatermarkForSlotInto(
 	return Reuse.just(reuse)
 end
 
-function Wrappers.GetHighWatermarkSlotForItem(itemInfo: ItemInfo): Maybe<number>
+function Wrappers.GetHighWatermarkSlotForItem(itemInfo: ItemInfo): Maybe<Enum_ItemRedundancySlot>
 	return Maybe.of(C_ItemUpgrade.GetHighWatermarkSlotForItem(itemInfo))
 end
 
-function Wrappers.GetHighWatermarkSlotForItemInto(reuse: Maybe<number>, itemInfo: ItemInfo): Maybe<number>
+function Wrappers.GetHighWatermarkSlotForItemInto(
+	reuse: Maybe<Enum_ItemRedundancySlot>,
+	itemInfo: ItemInfo
+): Maybe<Enum_ItemRedundancySlot>
 	return Reuse.maybe(reuse, C_ItemUpgrade.GetHighWatermarkSlotForItem(itemInfo))
 end
 
