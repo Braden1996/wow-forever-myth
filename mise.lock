@@ -820,41 +820,16 @@ url = "https://github.com/seaofvoices/darklua/releases/download/v0.19.0/darklua-
 url_api = "https://api.github.com/repos/seaofvoices/darklua/releases/assets/444056755"
 
 [[tools."http:sgt"]]
-version = "0.14.0"
-backend = "http:sgt"
-specifiers = ["0.14.0"]
-
-[tools."http:sgt"."platforms.linux-arm64-musl"]
-checksum = "sha256:0afb44d1d30afd9c5f29b3c6b516fe3d6ec658efd94c5efa5699e396fe0dcbc7"
-url = "https://github.com/Braden1996/sergeant-releases/releases/download/v0.14.0/sgt-aarch64-unknown-linux-musl.tar.gz"
-
-[tools."http:sgt"."platforms.linux-x64-baseline"]
-checksum = "sha256:9195e5f5e70fa5a455751631964dc56a8b0742b5559e56ee26cd05db937335c5"
-url = "https://github.com/Braden1996/sergeant-releases/releases/download/v0.14.0/sgt-x86_64-unknown-linux-musl.tar.gz"
-
-[tools."http:sgt"."platforms.linux-x64-musl"]
-checksum = "sha256:9195e5f5e70fa5a455751631964dc56a8b0742b5559e56ee26cd05db937335c5"
-url = "https://github.com/Braden1996/sergeant-releases/releases/download/v0.14.0/sgt-x86_64-unknown-linux-musl.tar.gz"
-
-[tools."http:sgt"."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:9195e5f5e70fa5a455751631964dc56a8b0742b5559e56ee26cd05db937335c5"
-url = "https://github.com/Braden1996/sergeant-releases/releases/download/v0.14.0/sgt-x86_64-unknown-linux-musl.tar.gz"
-
-[tools."http:sgt"."platforms.windows-x64-baseline"]
-checksum = "sha256:04d1366802150b2b55626708776e8a3d74535ab4ad6a76c30b7638815f47088f"
-url = "https://github.com/Braden1996/sergeant-releases/releases/download/v0.14.0/sgt-x86_64-pc-windows-msvc.tar.gz"
-
-[[tools."http:sgt"]]
 version = "0.14.3"
 backend = "http:sgt"
 specifiers = ["0.14.3"]
 
 [tools."http:sgt"."platforms.linux-arm64"]
-checksum = "sha256:1ee80fe9160ba5ab0ef27afe546a903578487e76251fa51e6c38e93c523e636b"
+checksum = "sha256:6336fb929a9531cfa493339d8193502ee4d2c812bd020a07e3081e64443395dd"
 url = "https://github.com/Braden1996/sergeant-releases/releases/download/v0.14.3/sgt-aarch64-unknown-linux-musl.tar.gz"
 
 [tools."http:sgt"."platforms.linux-x64"]
-checksum = "sha256:dca849f57c0b44258f8687e23068ba96408d38021a3ce88066ee474b7db4bd94"
+checksum = "sha256:34aa95cfa6fef779920d9b1509b277d3f6c1cb2867d4b42370bcdd91913fb43b"
 url = "https://github.com/Braden1996/sergeant-releases/releases/download/v0.14.3/sgt-x86_64-unknown-linux-musl.tar.gz"
 
 [tools."http:sgt"."platforms.windows-x64"]
