@@ -4,7 +4,7 @@
     "require_mode": {
       "name": "path",
       "sources": {
-        "@truemyth": "./.deps/luau-true-myth/src"
+        "@truemyth": "./luau_packages/truemyth/src"
       }
     }
   },

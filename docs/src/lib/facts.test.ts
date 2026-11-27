@@ -33,7 +33,9 @@ describe("the site's facts", () => {
   test("agree with the generated wrappers", () => {
     const plain = ["Api", "Widgets"]
       .flatMap((folder) =>
-        readdirSync(join("..", "src", folder)).map((file) => readFileSync(join("..", "src", folder, file), "utf8")),
+        readdirSync(join("..", "packages", "forever-myth", "src", folder)).map((file) =>
+          readFileSync(join("..", "packages", "forever-myth", "src", folder, file), "utf8"),
+        ),
       )
       .flatMap((source) => Array.from(source.matchAll(/^function Wrappers\.(\w+)\(/gmu), (match) => match[1] ?? ""))
       .filter((name) => !/(?:Into|Async)$/u.test(name));

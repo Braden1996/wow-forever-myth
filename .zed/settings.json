@@ -1,5 +1,4 @@
 {
-  // Zed with the "Luau" extension: the same luau-lsp settings as .vscode/settings.json.
   "lsp": {
     "luau-lsp": {
       "settings": {
@@ -8,8 +7,8 @@
         "luau-lsp": {
           "platform": { "type": "standard" },
           "sourcemap": { "enabled": false },
-          "types": { "definitionFiles": { "@wow": ".deps/wow-forever-luau-types/wow-forever.d.luau" } },
-          "ignoreGlobs": ["dist/**", "tests/fail/**", ".deps/**"]
+          "types": { "definitionFiles": { "@wow": "luau_packages/wow-types/wow-forever.d.luau" } },
+          "ignoreGlobs": ["dist/**", "tests/fail/**", "luau_packages/**"]
         }
       }
     }

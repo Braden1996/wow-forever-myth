@@ -1,0 +1,12 @@
+{
+  "ignorePatterns": [
+    ".build/**",
+    ".sergeant/**",
+    "luau_packages/**",
+    "dist/**",
+    "mise.lock",
+    "wow-forever.yml",
+    "wow-forever.toml",
+    "docs/**",
+  ],
+}

@@ -4,11 +4,11 @@ local process = require("@lune/process")
 
 local Lua51 = require("./Lua51")
 
-local ENTRY = "src/ForeverMyth.luau"
+local ENTRY = "packages/forever-myth/src/ForeverMyth.luau"
 
 local OUTPUT = "dist/ForeverMyth.lua"
 local SCRATCH = ".build"
-local NOTICES = { "LICENSE", ".deps/luau-true-myth/LICENSE" }
+local NOTICES = { "LICENSE", "luau_packages/truemyth/LICENSE" }
 local check = table.find(process.args, "--check") ~= nil
 
 local function run(program: string, args: { string }, stdin: string?): string
@@ -83,7 +83,7 @@ run("selene", { "--config", writeSeleneConfig(), "--display-style", "quiet", bui
 if check then
 	local committed = if fs.isFile(OUTPUT) then string.gsub(fs.readFile(OUTPUT), "\r\n", "\n") else ""
 	if committed ~= bundle then
-		print("FAIL " .. OUTPUT .. " is stale: run `moon run lib:build` and commit the result")
+		print("FAIL " .. OUTPUT .. " is stale: run `sgt run build` and commit the result")
 		process.exit(1)
 	end
 	print("ok   " .. OUTPUT .. " is up to date, valid Lua 5.1, with only Lua 5.1 iteration and globals")

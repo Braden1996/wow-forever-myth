@@ -2,10 +2,10 @@
 extend-exclude = [
   "dist/",
   "tests/fail/*.expected",
-  "src/Api/",
-  "src/Widgets/",
-  "src/ApiIndex.luau",
-  "src/WidgetIndex.luau",
+  "packages/forever-myth/src/Api/",
+  "packages/forever-myth/src/Widgets/",
+  "packages/forever-myth/src/ApiIndex.luau",
+  "packages/forever-myth/src/WidgetIndex.luau",
   "docs/bun.lock",
   "docs/src/wow-ui/assets/",
 ]

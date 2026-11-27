@@ -1,5 +1,5 @@
 --!strict
-local ForeverMyth = require("../src/ForeverMyth")
+local ForeverMyth = require("../packages/forever-myth/src/ForeverMyth")
 
 local _, namespace = ...
 if type(namespace) == "table" then

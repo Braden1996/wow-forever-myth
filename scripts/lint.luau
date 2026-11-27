@@ -4,7 +4,7 @@ local process = require("@lune/process")
 
 local Lua51 = require("./Lua51")
 
-local ROOTS = { "src", "wow", "generator", "overrides", "scripts", "tests" }
+local ROOTS = { "packages", "wow", "generator", "overrides", "scripts", "tests" }
 local EXPECT_ERROR = "^%-%- expect%-error: "
 local CAST_TO_ANY = ":: " .. "any"
 
@@ -74,7 +74,7 @@ local function isUncheckedName(name: string?): boolean
 end
 
 local function runsInTheGame(file: string): boolean
-	return string.match(file, "^src/") ~= nil or string.match(file, "^wow/") ~= nil
+	return string.match(file, "^packages/forever%-myth/src/") ~= nil or string.match(file, "^wow/") ~= nil
 end
 
 local function lintFile(file: string, problems: { Problem })

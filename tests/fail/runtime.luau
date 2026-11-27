@@ -1,5 +1,5 @@
 --!strict
-local ForeverMyth = require("../../src/ForeverMyth")
+local ForeverMyth = require("../../packages/forever-myth/src/ForeverMyth")
 
 type LevelReader = ForeverMyth.EventReader<"PLAYER_LEVEL_UP", string>
 type Bags = ForeverMyth.Task<{ string }, never>

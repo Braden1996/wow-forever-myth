@@ -80,12 +80,12 @@ export default defineConfig({
       plugins: [
         starlightWarcraft(),
         starlightLuau({
-          source: "../src",
-          exclude: ["ApiIndex.luau", "WidgetIndex.luau"],
+          source: "../packages/forever-myth/src",
+          exclude: ["ApiIndex.luau", "WidgetIndex.luau", "*.spec.luau"],
           output: "reference",
           sidebar: false,
           examples: false,
-          sourceUrl: `${repository}/blob/main/src/{file}#L{line}`,
+          sourceUrl: `${repository}/blob/main/packages/forever-myth/src/{file}#L{line}`,
         }),
       ],
     }),

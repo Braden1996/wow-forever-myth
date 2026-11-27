@@ -1,0 +1,13 @@
+[package]
+name = "wow-forever-myth"
+version = "0.6.0"
+kind = "library"
+target = "wow"
+entry = "packages/forever-myth/src/ForeverMyth.luau"
+
+[luaurc]
+sync = true
+
+[dependencies]
+truemyth = { github = "Braden1996/luau-true-myth", tag = "v0.2.0", asset = "luau-true-myth-0.2.0.zip", subpath = "src" }
+wow-types = { github = "Braden1996/wow-forever-luau-types", tag = "v0.7.0", asset = "wow-forever-luau-types-0.7.0.zip" }

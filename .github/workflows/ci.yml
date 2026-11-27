@@ -1,8 +1,6 @@
-# The required gate. `ci-ok` is the one status check the branch ruleset requires (with `pr-title`), so jobs can
-# change without editing the ruleset. `check` runs the FULL `moon run :check` cold: .moon/cache is never restored
-# and MOON_CACHE=write disables cache reads, so narrowing task inputs cannot skip a check. Every action is pinned by
-# commit SHA (Dependabot bumps them; zizmor, part of the gate, checks); every tool comes from mise.toml with
-# mise.lock checksums, and both upstream libraries from deps.toml with SHA-256 checksums.
+# The required gate. `ci-ok` is the one status check the branch ruleset requires (with `pr-title`).
+# Every tool comes from mise.toml with mise.lock checksums, and both upstream Luau libraries come from woof.toml
+# + woof.lock verified by SHA-256 via `sgt install --frozen`.
 name: ci
 
 on:
@@ -24,17 +22,39 @@ jobs:
     timeout-minutes: 30
     env:
       CI: "true"
-      MOON_CACHE: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # moon compares with the default branch
+          fetch-depth: 0
           persist-credentials: false
       - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           cache: true
+      - name: install luajit and enable sealing
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends luajit
+      - name: setup lune typedefs and install dependencies
+        run: |
+          mise exec -- lune setup
+          mise exec -- sgt --no-daemon install --frozen
+          mise exec -- sgt --no-daemon run derive
+          mise exec -- bun install --cwd docs --frozen-lockfile
       - name: gate
-        run: mise exec -- moon run :check
+        run: |
+          mise exec -- sgt --no-daemon doctor
+          mise exec -- sgt --no-daemon check
+          mise exec -- sgt --no-daemon test
+          mise exec -- sgt --no-daemon run fresh
+          mise exec -- sgt --no-daemon run tools-typecheck
+          mise exec -- sgt --no-daemon run tools-lint
+          mise exec -- sgt --no-daemon run build-fresh
+          mise exec -- sgt --no-daemon run banner-fresh
+          mise exec -- sgt --no-daemon run bundle-specs
+          mise exec -- sgt --no-daemon run luajit-smoke
+          mise exec -- sgt --no-daemon run fixtures
+          mise exec -- sgt --no-daemon run docs-check
 
   ci-ok:
     if: always()
@@ -46,4 +66,4 @@ jobs:
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
         run: exit 1
       - name: ok
-        run: echo "moon run :check passed"
+        run: echo "sgt gate passed"

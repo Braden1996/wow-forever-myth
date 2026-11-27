@@ -17,8 +17,8 @@ luau-true-myth ─────────────────────�
    documentation, community annotations and a dump of the live client into definitions for luau-lsp. Alongside them
    it writes `api-shapes.json`: for every function and widget method, the kind of results it has, their documented
    names and nilability, its parameters, and whether it is protected.
-2. **Pinned inputs.** This repository pins that release, and the luau-true-myth release it builds on, in `deps.toml`
-   by tag and by the SHA-256 of every file. `moon run generator:fetch` downloads them and fails on any mismatch.
+2. **Pinned inputs.** This repository pins that release, and the luau-true-myth release it builds on, in `woof.toml`
+   and `woof.lock` by tag and SHA-256. `sgt install` (via Woof) downloads them and fails on any mismatch.
 3. **Overrides.** [`overrides/`](../overrides/) adds what the documentation cannot say. The generator checks every
    entry against the shapes before it uses it.
 4. **Generation.** `generator/` plans one module per namespace and per widget type and renders strict Luau. The

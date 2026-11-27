@@ -5,16 +5,16 @@ description: Set up the repository, run the gate, and work on the library or thi
 
 1. Install [mise](https://mise.jdx.dev) and run `mise install`. It installs every tool at the version in `mise.toml`,
    checked against `mise.lock`.
-2. `mise exec -- moon run generator:fetch` downloads the two pinned releases into `.deps/`.
-3. `mise exec -- moon run :check` runs everything CI runs, this site included.
+2. `mise exec -- sgt install` downloads the pinned releases from `woof.toml` / `woof.lock` into `luau_packages/`.
+3. `mise exec -- sgt check && mise exec -- sgt test` runs the fast local gate.
 
-| Command                                    | What it does                                            |
-| ------------------------------------------ | ------------------------------------------------------- |
-| `mise exec -- moon run generator:generate` | regenerate `src/Api` and `src/Widgets`                  |
-| `mise exec -- moon run lib:build`          | build `dist/ForeverMyth.lua`                            |
-| `mise exec -- moon run tests:spec`         | run every test against the bundle                       |
-| `mise exec -- moon run docs:dev`           | serve this site locally                                 |
-| `mise exec -- moon run docs:check`         | lint, type-check, format-check, build and link-check it |
+| Command                                   | What it does                                                |
+| ----------------------------------------- | ----------------------------------------------------------- |
+| `mise exec -- sgt run generate`           | regenerate `packages/forever-myth/src/Api` and `Widgets`    |
+| `mise exec -- sgt run build`              | build `dist/ForeverMyth.lua`                                |
+| `mise exec -- sgt run bundle-specs`       | run every test against the bundle                           |
+| `mise exec -- sgt run docs-dev`           | serve this site locally                                     |
+| `mise exec -- sgt run docs-check`         | lint, type-check, format-check, build and link-check it     |
 
 ## The site
 

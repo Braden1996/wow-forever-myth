@@ -2,14 +2,15 @@
 local fs = require("@lune/fs")
 local serde = require("@lune/serde")
 
-local TYPES = ".deps/wow-forever-luau-types"
+local TYPES = "luau_packages/wow-types"
 local DISABLED = "luau-lsp.types.disabledGlobals"
 local BUNDLED_AWAY = { require = true }
 
 local Derived = {}
 
-Derived.LIBRARY_SETTINGS = ".deps/library.settings.json"
-Derived.SELENE_STD = "wow-forever.yml"
+Derived.LIBRARY_SETTINGS = ".build/library.settings.json"
+Derived.SELENE_STD_YML = "wow-forever.yml"
+Derived.SELENE_STD_TOML = "wow-forever-sgt.toml"
 
 local function uncheckedSettings(decoded: unknown): { [string]: { string } }
 	return decoded :: any
@@ -43,7 +44,7 @@ function Derived.declaredGlobals(): { string }
 	return sorted
 end
 
-function Derived.seleneStd(): string
+function Derived.seleneStdYaml(): string
 	local lines = { "globals:" }
 	for _, name in Derived.declaredGlobals() do
 		table.insert(lines, "  " .. name .. ":")
@@ -52,9 +53,21 @@ function Derived.seleneStd(): string
 	return table.concat(lines, "\n") .. "\n"
 end
 
+function Derived.seleneStdToml(): string
+	local lines = { "[globals]" }
+	for _, name in Derived.declaredGlobals() do
+		table.insert(lines, name .. " = { any = true }")
+	end
+	return table.concat(lines, "\n") .. "\n"
+end
+
 function Derived.writeAll()
+	if not fs.isDir(".build") then
+		fs.writeDir(".build")
+	end
 	fs.writeFile(Derived.LIBRARY_SETTINGS, Derived.librarySettings())
-	fs.writeFile(Derived.SELENE_STD, Derived.seleneStd())
+	fs.writeFile(Derived.SELENE_STD_YML, Derived.seleneStdYaml())
+	fs.writeFile(Derived.SELENE_STD_TOML, Derived.seleneStdToml())
 end
 
 return Derived

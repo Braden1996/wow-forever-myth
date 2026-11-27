@@ -1,6 +1,6 @@
 --!strict
-local C_Item = require("../../src/Api/C_Item")
-local ForeverMyth = require("../../src/ForeverMyth")
+local C_Item = require("../../packages/forever-myth/src/Api/C_Item")
+local ForeverMyth = require("../../packages/forever-myth/src/ForeverMyth")
 
 local Api, Maybe, Result, Task = ForeverMyth.Api, ForeverMyth.Maybe, ForeverMyth.Result, ForeverMyth.Task
 

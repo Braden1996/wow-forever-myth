@@ -8,7 +8,7 @@ local ShapeFile = require("../../generator/ShapeFile")
 
 type Shape = ShapeFile.Shape
 
-local SHAPES = ".deps/wow-forever-luau-types/api-shapes.json"
+local SHAPES = "luau_packages/wow-types/api-shapes.json"
 
 local function prepend(first: { unknown }, rest: { unknown }): { unknown }
 	local out = table.clone(first)

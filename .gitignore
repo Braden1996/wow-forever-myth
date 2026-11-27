@@ -1,5 +1,5 @@
 .build/
-.deps/
-.moon/cache/
-.moon/docker/
+.sergeant/
+luau_packages/
 wow-forever.yml
+wow-forever-sgt.toml

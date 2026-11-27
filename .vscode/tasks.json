@@ -2,37 +2,37 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "check (everything CI runs)",
+      "label": "check (Sergeant gate)",
       "type": "shell",
-      "command": "mise exec -- moon run :check",
+      "command": "mise exec -- sgt check && mise exec -- sgt test",
       "group": { "kind": "test", "isDefault": true },
       "problemMatcher": []
     },
     {
       "label": "spec (Lua 5.1 bundle in a fake WoW world)",
       "type": "shell",
-      "command": "mise exec -- moon run tests:spec",
+      "command": "mise exec -- sgt run bundle-specs",
       "group": "test",
       "problemMatcher": []
     },
     {
       "label": "fixtures (type errors)",
       "type": "shell",
-      "command": "mise exec -- moon run tests:fixtures",
+      "command": "mise exec -- sgt run fixtures",
       "group": "test",
       "problemMatcher": []
     },
     {
       "label": "generate and build dist/ForeverMyth.lua",
       "type": "shell",
-      "command": "mise exec -- moon run generator:generate lib:build",
+      "command": "mise exec -- sgt run generate && mise exec -- sgt run build",
       "group": "build",
       "problemMatcher": []
     },
     {
       "label": "format",
       "type": "shell",
-      "command": "mise exec -- moon run repo:fmt lib:fmt",
+      "command": "mise exec -- sgt fmt",
       "problemMatcher": []
     }
   ]

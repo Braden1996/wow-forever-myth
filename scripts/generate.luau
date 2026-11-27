@@ -10,8 +10,8 @@ local Results = require("../overrides/Results")
 local ShapeFile = require("../generator/ShapeFile")
 local Validate = require("../generator/Validate")
 
-local SHAPES = ".deps/wow-forever-luau-types/api-shapes.json"
-local TARGET = "src"
+local SHAPES = "luau_packages/wow-types/api-shapes.json"
+local TARGET = "packages/forever-myth/src"
 local SCRATCH = ".build/generated"
 local FOLDERS: { Plan.Folder } = { "Api", "Widgets" }
 local INDEX: { [Plan.Folder]: string } = { Api = "ApiIndex.luau", Widgets = "WidgetIndex.luau" }

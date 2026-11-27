@@ -6,7 +6,7 @@ local OverrideTypes = require("../../generator/OverrideTypes")
 local ShapeFile = require("../../generator/ShapeFile")
 local Validate = require("../../generator/Validate")
 
-local SHAPES = ".deps/wow-forever-luau-types/api-shapes.json"
+local SHAPES = "luau_packages/wow-types/api-shapes.json"
 
 local function none(): OverrideTypes.Overrides
 	return { results = {}, loads = {}, callbacks = {} }

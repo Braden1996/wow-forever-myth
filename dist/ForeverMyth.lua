@@ -1,4 +1,4 @@
--- wow-forever-myth 0.5.0: the WoW: Forever API in Maybe, Result and Task idioms (Lua 5.1).
+-- wow-forever-myth 0.6.0: the WoW: Forever API in Maybe, Result and Task idioms (Lua 5.1).
 -- https://github.com/Braden1996/wow-forever-myth - generated from the Luau sources by darklua; do not edit.
 -- Listed in a .toc it stores the library as `ns.ForeverMyth`; loaded any other way it returns it.
 -- It bundles luau-true-myth (https://github.com/Braden1996/luau-true-myth).
@@ -54,30 +54,63 @@ do
     do
         local function __modImpl()
             local Show = {}
+            local TAGGED_RENDERINGS = {
+                {
+                    tag = 'Just',
+                    payloadField = 'value',
+                },
+                {
+                    tag = 'Nothing',
+                    payloadField = nil,
+                },
+                {
+                    tag = 'Ok',
+                    payloadField = 'value',
+                },
+                {
+                    tag = 'Err',
+                    payloadField = 'error',
+                },
+            }
 
-            local function isTagged(value, kind)
-                return type(value) == 'table' and rawget(value, 'kind') == kind
+            local function uncheckedRawField(record, field)
+                return rawget(record, field)
+            end
+            local function tagOf(value)
+                if type(value) ~= 'table' then
+                    return nil
+                end
+
+                return uncheckedRawField(value, 'kind')
+            end
+            local function renderingFor(tag)
+                for _, rendering in ipairs(TAGGED_RENDERINGS)do
+                    if rendering.tag == tag then
+                        return rendering
+                    end
+                end
+
+                return nil
             end
 
             function Show.value(value)
                 if type(value) == 'string' then
                     return string.format('%q', value)
                 end
-                if type(value) == 'table' then
-                    local t = value
 
-                    if isTagged(t, 'Just') then
-                        return 'Just(' .. Show.value(rawget(t, 'value')) .. ')'
-                    elseif isTagged(t, 'Nothing') then
-                        return 'Nothing'
-                    elseif isTagged(t, 'Ok') then
-                        return 'Ok(' .. Show.value(rawget(t, 'value')) .. ')'
-                    elseif isTagged(t, 'Err') then
-                        return 'Err(' .. Show.value(rawget(t, 'error')) .. ')'
-                    end
+                local rendering = renderingFor(tagOf(value))
+
+                if rendering == nil then
+                    return tostring(value)
                 end
 
-                return tostring(value)
+                local payloadField = rendering.payloadField
+
+                if payloadField == nil then
+                    return rendering.tag
+                end
+
+                return rendering.tag .. '(' .. Show.value(uncheckedRawField(value, payloadField)) .. ')'
             end
 
             return Show
@@ -104,7 +137,13 @@ do
             }
             local Maybe = {}
 
-            local function view(maybe)
+            local function uncheckedJustOfNonNil(value)
+                return {
+                    kind = 'Just',
+                    value = value,
+                }
+            end
+            local function uncheckedView(maybe)
                 return maybe
             end
 
@@ -127,10 +166,7 @@ do
                     return NOTHING
                 end
 
-                return {
-                    kind = 'Just',
-                    value = value,
-                }
+                return uncheckedJustOfNonNil(value)
             end
             function Maybe.isJust(maybe)
                 return maybe.kind == 'Just'
@@ -139,7 +175,7 @@ do
                 return maybe.kind == 'Nothing'
             end
             function Maybe.map(maybe, f)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     return Maybe.of(f(m.value))
@@ -148,7 +184,7 @@ do
                 return NOTHING
             end
             function Maybe.mapOr(maybe, default, f)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     return f(m.value)
@@ -157,7 +193,7 @@ do
                 return default
             end
             function Maybe.mapOrElse(maybe, orElse, f)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     return f(m.value)
@@ -166,7 +202,7 @@ do
                 return orElse()
             end
             function Maybe.match(maybe, matcher)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     return matcher.Just(m.value)
@@ -175,41 +211,41 @@ do
                 return matcher.Nothing()
             end
             function Maybe.andThen(maybe, f)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
-                    return view(f(m.value))
+                    return uncheckedView(f(m.value))
                 end
 
                 return NOTHING
             end
             function Maybe.and_(maybe, other)
-                if view(maybe).kind == 'Just' then
-                    return view(other)
+                if uncheckedView(maybe).kind == 'Just' then
+                    return uncheckedView(other)
                 end
 
                 return NOTHING
             end
             function Maybe.or_(maybe, other)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     return m
                 end
 
-                return view(other)
+                return uncheckedView(other)
             end
             function Maybe.orElse(maybe, f)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     return m
                 end
 
-                return view(f())
+                return uncheckedView(f())
             end
             function Maybe.unwrapOr(maybe, default)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     return m.value
@@ -218,7 +254,7 @@ do
                 return default
             end
             function Maybe.unwrapOrElse(maybe, f)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     return m.value
@@ -227,16 +263,16 @@ do
                 return f()
             end
             function Maybe.flatten(maybe)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
-                    return view(m.value)
+                    return uncheckedView(m.value)
                 end
 
                 return NOTHING
             end
             function Maybe.filter(maybe, predicate)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' and predicate(m.value) then
                     return m
@@ -255,7 +291,7 @@ do
                 return Show.value(maybe)
             end
             function Maybe.inspect(maybe, f)
-                local m = view(maybe)
+                local m = uncheckedView(maybe)
 
                 if m.kind == 'Just' then
                     f(m.value)
@@ -285,7 +321,7 @@ do
                 local values = {}
 
                 for _, maybe in ipairs(maybes)do
-                    local m = view(maybe)
+                    local m = uncheckedView(maybe)
 
                     if m.kind == 'Nothing' then
                         return NOTHING
@@ -300,7 +336,7 @@ do
                 local values = {}
 
                 for _, maybe in ipairs(maybes)do
-                    local m = view(maybe)
+                    local m = uncheckedView(maybe)
 
                     if m.kind == 'Just' then
                         table.insert(values, m.value)
@@ -816,7 +852,7 @@ do
             local Show = __DARKLUA_BUNDLE_MODULES.a()
             local Result = {}
 
-            local function view(result)
+            local function uncheckedView(result)
                 return result
             end
 
@@ -839,7 +875,7 @@ do
                 return result.kind == 'Err'
             end
             function Result.map(result, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     return Result.ok(f(r.value))
@@ -848,7 +884,7 @@ do
                 return r
             end
             function Result.mapErr(result, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Err' then
                     return Result.err(f(r.error))
@@ -857,7 +893,7 @@ do
                 return r
             end
             function Result.mapOr(result, default, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     return f(r.value)
@@ -866,7 +902,7 @@ do
                 return default
             end
             function Result.mapOrElse(result, orElse, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     return f(r.value)
@@ -875,7 +911,7 @@ do
                 return orElse(r.error)
             end
             function Result.match(result, matcher)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     return matcher.Ok(r.value)
@@ -884,43 +920,43 @@ do
                 return matcher.Err(r.error)
             end
             function Result.andThen(result, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
-                    return view(f(r.value))
+                    return uncheckedView(f(r.value))
                 end
 
                 return r
             end
             function Result.and_(result, other)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
-                    return view(other)
+                    return uncheckedView(other)
                 end
 
                 return r
             end
             function Result.or_(result, other)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     return r
                 end
 
-                return view(other)
+                return uncheckedView(other)
             end
             function Result.orElse(result, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     return r
                 end
 
-                return view(f(r.error))
+                return uncheckedView(f(r.error))
             end
             function Result.unwrapOr(result, default)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     return r.value
@@ -929,7 +965,7 @@ do
                 return default
             end
             function Result.unwrapOrElse(result, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     return r.value
@@ -938,10 +974,10 @@ do
                 return f(r.error)
             end
             function Result.flatten(result)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
-                    return view(r.value)
+                    return uncheckedView(r.value)
                 end
 
                 return r
@@ -959,7 +995,7 @@ do
                 return Show.value(result)
             end
             function Result.inspect(result, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Ok' then
                     f(r.value)
@@ -968,7 +1004,7 @@ do
                 return result
             end
             function Result.inspectErr(result, f)
-                local r = view(result)
+                local r = uncheckedView(result)
 
                 if r.kind == 'Err' then
                     f(r.error)
@@ -980,7 +1016,7 @@ do
                 local values = {}
 
                 for _, result in ipairs(results)do
-                    local r = view(result)
+                    local r = uncheckedView(result)
 
                     if r.kind == 'Err' then
                         return r
@@ -995,7 +1031,7 @@ do
                 local errors = {}
 
                 for _, result in ipairs(results)do
-                    local r = view(result)
+                    local r = uncheckedView(result)
 
                     if r.kind == 'Ok' then
                         return r
@@ -1010,7 +1046,7 @@ do
                 local values, errors = {}, {}
 
                 for _, result in ipairs(results)do
-                    local r = view(result)
+                    local r = uncheckedView(result)
 
                     if r.kind == 'Ok' then
                         table.insert(values, r.value)
@@ -9470,21 +9506,29 @@ do
         local function __modImpl()
             local Delay = __DARKLUA_BUNDLE_MODULES.aM()
             local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local PENDING = {
+            local PENDING_STATE = {
                 kind = 'Pending',
             }
-            local asyncThreads = (setmetatable({}, {
-                __mode = 'k',
-            }))
+
+            local function uncheckedWeakKeyedThreads()
+                return (setmetatable({}, {
+                    __mode = 'k',
+                }))
+            end
+
+            local asyncThreads = uncheckedWeakKeyedThreads()
             local Task = {}
 
-            local function newInternal()
+            local function uncheckedResult(value)
+                return value
+            end
+            local function newPendingRecord()
                 return {
-                    state = PENDING,
+                    state = PENDING_STATE,
                     waiters = {},
                 }
             end
-            local function internal(task)
+            local function uncheckedRecordOf(task)
                 return task
             end
             local function toResult(state)
@@ -9511,20 +9555,20 @@ do
                     waiter(result)
                 end
             end
-            local function resolveInternal(task, value)
+            local function resolveRecord(task, value)
                 settle(task, {
                     kind = 'Resolved',
                     value = value,
                 })
             end
-            local function rejectInternal(task, reason)
+            local function rejectRecord(task, reason)
                 settle(task, {
                     kind = 'Rejected',
                     reason = reason,
                 })
             end
-            local function onSettled(task, callback)
-                local inner = internal(task)
+            local function whenRecordSettles(task, callback)
+                local inner = uncheckedRecordOf(task)
                 local state = inner.state
 
                 if state.kind == 'Pending' then
@@ -9533,71 +9577,71 @@ do
                     callback(toResult(state))
                 end
             end
-            local function follow(source, target)
-                onSettled(source, function(result)
+            local function settleLike(source, target)
+                whenRecordSettles(source, function(result)
                     if result.kind == 'Ok' then
-                        resolveInternal(target, result.value)
+                        resolveRecord(target, result.value)
                     else
-                        rejectInternal(target, result.error)
+                        rejectRecord(target, result.error)
                     end
                 end)
             end
 
             function Task.whenSettled(task, callback)
-                onSettled(task, callback)
+                whenRecordSettles(task, callback)
             end
             function Task.new(executor)
-                local task = newInternal()
+                local task = newPendingRecord()
 
                 executor(function(value)
-                    resolveInternal(task, value)
+                    resolveRecord(task, value)
                 end, function(reason)
-                    rejectInternal(task, reason)
+                    rejectRecord(task, reason)
                 end)
 
                 return task
             end
             function Task.withResolvers()
-                local task = newInternal()
+                local task = newPendingRecord()
 
                 return {
                     task = task,
                     resolve = function(value)
-                        resolveInternal(task, value)
+                        resolveRecord(task, value)
                     end,
                     reject = function(reason)
-                        rejectInternal(task, reason)
+                        rejectRecord(task, reason)
                     end,
                 }
             end
             function Task.resolve(value)
-                local task = newInternal()
+                local task = newPendingRecord()
 
-                resolveInternal(task, value)
+                resolveRecord(task, value)
 
                 return task
             end
             function Task.reject(reason)
-                local task = newInternal()
+                local task = newPendingRecord()
 
-                rejectInternal(task, reason)
+                rejectRecord(task, reason)
 
                 return task
             end
             function Task.fromResult(result)
-                local task = newInternal()
-                local r = (result)
+                local task = newPendingRecord()
+                local r = uncheckedResult(result)
 
                 if r.kind == 'Ok' then
-                    resolveInternal(task, r.value)
+                    resolveRecord(task, r.value)
                 else
-                    rejectInternal(task, r.error)
+                    rejectRecord(task, r.error)
                 end
 
                 return task
             end
             function Task.peek(task)
-                local state = internal(task).state
+                local state = uncheckedRecordOf(task).state
 
                 if state.kind == 'Pending' then
                     return nil
@@ -9615,107 +9659,107 @@ do
                 return task.state.kind == 'Rejected'
             end
             function Task.map(task, f)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Ok' then
-                        resolveInternal(target, f(result.value))
+                        resolveRecord(target, f(result.value))
                     else
-                        rejectInternal(target, result.error)
+                        rejectRecord(target, result.error)
                     end
                 end)
 
                 return target
             end
             function Task.mapRejected(task, f)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Ok' then
-                        resolveInternal(target, result.value)
+                        resolveRecord(target, result.value)
                     else
-                        rejectInternal(target, f(result.error))
+                        rejectRecord(target, f(result.error))
                     end
                 end)
 
                 return target
             end
             function Task.andThen(task, f)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Ok' then
-                        follow(f(result.value), target)
+                        settleLike(f(result.value), target)
                     else
-                        rejectInternal(target, result.error)
+                        rejectRecord(target, result.error)
                     end
                 end)
 
                 return target
             end
             function Task.orElse(task, f)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Ok' then
-                        resolveInternal(target, result.value)
+                        resolveRecord(target, result.value)
                     else
-                        follow(f(result.error), target)
+                        settleLike(f(result.error), target)
                     end
                 end)
 
                 return target
             end
             function Task.and_(task, other)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Ok' then
-                        follow(other, target)
+                        settleLike(other, target)
                     else
-                        rejectInternal(target, result.error)
+                        rejectRecord(target, result.error)
                     end
                 end)
 
                 return target
             end
             function Task.or_(task, other)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Ok' then
-                        resolveInternal(target, result.value)
+                        resolveRecord(target, result.value)
                     else
-                        follow(other, target)
+                        settleLike(other, target)
                     end
                 end)
 
                 return target
             end
             function Task.match(task, matcher)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Ok' then
-                        resolveInternal(target, matcher.Resolved(result.value))
+                        resolveRecord(target, matcher.Resolved(result.value))
                     else
-                        resolveInternal(target, matcher.Rejected(result.error))
+                        resolveRecord(target, matcher.Rejected(result.error))
                     end
                 end)
 
                 return target
             end
             function Task.toResult(task)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                onSettled(task, function(result)
-                    resolveInternal(target, result)
+                whenRecordSettles(task, function(result)
+                    resolveRecord(target, result)
                 end)
 
                 return target
             end
             function Task.inspect(task, f)
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Ok' then
                         f(result.value)
                     end
@@ -9724,7 +9768,7 @@ do
                 return task
             end
             function Task.inspectRejected(task, f)
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     if result.kind == 'Err' then
                         f(result.error)
                     end
@@ -9733,27 +9777,27 @@ do
                 return task
             end
             function Task.all(tasks)
-                local target = newInternal()
+                local target = newPendingRecord()
                 local values = {}
                 local remaining = #tasks
 
                 if remaining == 0 then
-                    resolveInternal(target, values)
+                    resolveRecord(target, values)
 
                     return target
                 end
 
                 for index, task in ipairs(tasks)do
-                    onSettled(task, function(result)
+                    whenRecordSettles(task, function(result)
                         if result.kind == 'Ok' then
                             values[index] = result.value
                             remaining = remaining - 1
 
                             if remaining == 0 then
-                                resolveInternal(target, values)
+                                resolveRecord(target, values)
                             end
                         else
-                            rejectInternal(target, result.error)
+                            rejectRecord(target, result.error)
                         end
                     end)
                 end
@@ -9761,23 +9805,23 @@ do
                 return target
             end
             function Task.allSettled(tasks)
-                local target = newInternal()
+                local target = newPendingRecord()
                 local results = {}
                 local remaining = #tasks
 
                 if remaining == 0 then
-                    resolveInternal(target, results)
+                    resolveRecord(target, results)
 
                     return target
                 end
 
                 for index, task in ipairs(tasks)do
-                    onSettled(task, function(result)
+                    whenRecordSettles(task, function(result)
                         results[index] = result
                         remaining = remaining - 1
 
                         if remaining == 0 then
-                            resolveInternal(target, results)
+                            resolveRecord(target, results)
                         end
                     end)
                 end
@@ -9785,26 +9829,26 @@ do
                 return target
             end
             function Task.any(tasks)
-                local target = newInternal()
+                local target = newPendingRecord()
                 local reasons = {}
                 local remaining = #tasks
 
                 if remaining == 0 then
-                    rejectInternal(target, reasons)
+                    rejectRecord(target, reasons)
 
                     return target
                 end
 
                 for index, task in ipairs(tasks)do
-                    onSettled(task, function(result)
+                    whenRecordSettles(task, function(result)
                         if result.kind == 'Ok' then
-                            resolveInternal(target, result.value)
+                            resolveRecord(target, result.value)
                         else
                             reasons[index] = result.error
                             remaining = remaining - 1
 
                             if remaining == 0 then
-                                rejectInternal(target, reasons)
+                                rejectRecord(target, reasons)
                             end
                         end
                     end)
@@ -9813,23 +9857,23 @@ do
                 return target
             end
             function Task.race(tasks)
-                local target = newInternal()
+                local target = newPendingRecord()
 
                 for _, task in ipairs(tasks)do
-                    follow(task, target)
+                    settleLike(task, target)
                 end
 
                 return target
             end
             function Task.async(body)
-                local task = newInternal()
+                local task = newPendingRecord()
                 local thread = coroutine.create(function()
-                    local result = ((body()))
+                    local result = uncheckedResult(body())
 
                     if result.kind == 'Ok' then
-                        resolveInternal(task, result.value)
+                        resolveRecord(task, result.value)
                     else
-                        rejectInternal(task, result.error)
+                        rejectRecord(task, result.error)
                     end
                 end)
 
@@ -9844,7 +9888,7 @@ do
                 return task
             end
             function Task.await(task)
-                local state = internal(task).state
+                local state = uncheckedRecordOf(task).state
 
                 if state.kind ~= 'Pending' then
                     return toResult(state)
@@ -9858,7 +9902,7 @@ do
 
                 local settled = nil
 
-                onSettled(task, function(result)
+                whenRecordSettles(task, function(result)
                     settled = result
 
                     local ok, raised = coroutine.resume(thread)
@@ -9879,29 +9923,52 @@ do
                 end
             end
             function Task.timer(seconds, schedule)
-                local task = newInternal()
+                local task = newPendingRecord()
 
                 schedule(seconds, function()
-                    resolveInternal(task, seconds)
+                    resolveRecord(task, seconds)
                 end)
 
                 return task
             end
             function Task.timeout(task, seconds, schedule)
-                local target = newInternal()
+                local target = newPendingRecord()
 
-                follow(task, target)
+                settleLike(task, target)
                 schedule(seconds, function()
                     local timeout = {
                         kind = 'Timeout',
                         seconds = seconds,
                     }
 
-                    rejectInternal(target, timeout)
+                    rejectRecord(target, timeout)
                 end)
 
                 return target
             end
+
+            local function delayBeforeNextAttempt(
+                reason,
+                status,
+                strategy,
+                shouldRetry
+            )
+                if shouldRetry ~= nil and not shouldRetry(reason, status) then
+                    return nil
+                end
+
+                return strategy()
+            end
+            local function waitThen(seconds, schedule, continue)
+                if seconds <= 0 then
+                    continue()
+                elseif schedule then
+                    schedule(seconds, continue)
+                else
+                    error('Task.withRetries: a delay above 0 needs options.schedule', 0)
+                end
+            end
+
             function Task.withRetries(retryable, options)
                 local strategy = (options and options.strategy and {
                     options.strategy,
@@ -9914,53 +9981,48 @@ do
                 local shouldRetry = (options and {
                     options.shouldRetry,
                 } or {nil})[1]
-                local target = newInternal()
+                local target = newPendingRecord()
                 local rejections = {}
                 local elapsed = 0
 
+                local function giveUp(attempts)
+                    local failed = {
+                        kind = 'RetryFailed',
+                        tries = attempts,
+                        elapsed = elapsed,
+                        rejections = rejections,
+                    }
+
+                    rejectRecord(target, failed)
+                end
                 local function attempt(count)
                     local status = {
                         count = count,
                         elapsed = elapsed,
                     }
 
-                    onSettled(retryable(status), function(result)
+                    whenRecordSettles(retryable(status), function(result)
                         if result.kind == 'Ok' then
-                            resolveInternal(target, result.value)
+                            resolveRecord(target, result.value)
 
                             return
                         end
 
                         table.insert(rejections, result.error)
 
-                        local delay = ((shouldRetry == nil or shouldRetry(result.error, status)) and {
-                            (strategy()),
-                        } or {nil})[1]
+                        local delay = delayBeforeNextAttempt(result.error, status, strategy, shouldRetry)
 
                         if delay == nil then
-                            local failed = {
-                                kind = 'RetryFailed',
-                                tries = count + 1,
-                                elapsed = elapsed,
-                                rejections = rejections,
-                            }
-
-                            rejectInternal(target, failed)
+                            giveUp(count + 1)
 
                             return
                         end
 
                         elapsed = elapsed + delay
 
-                        if delay <= 0 then
+                        waitThen(delay, schedule, function()
                             attempt(count + 1)
-                        elseif schedule then
-                            schedule(delay, function()
-                                attempt(count + 1)
-                            end)
-                        else
-                            error('Task.withRetries: a delay above 0 needs options.schedule', 0)
-                        end
+                        end)
                     end)
                 end
 
@@ -33817,7 +33879,7 @@ do
             local Widgets = __DARKLUA_BUNDLE_MODULES.c4()
 
             return {
-                version = '0.5.0',
+                version = '0.6.0',
                 Api = Api,
                 Widgets = Widgets,
                 Combat = Combat,

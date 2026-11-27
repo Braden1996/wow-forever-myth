@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const REPOSITORY_ROOT = "..";
-const SHAPES = join(REPOSITORY_ROOT, ".deps", "wow-forever-luau-types", "api-shapes.json");
+const SHAPES = join(REPOSITORY_ROOT, "luau_packages", "wow-types", "api-shapes.json");
 const GENERATED_FOLDERS = ["Api", "Widgets"] as const;
 const OVERRIDE_FILES = { results: "Results.luau", loads: "Loads.luau", callbacks: "Callbacks.luau" } as const;
 const OVERRIDE_KEY = /^\t\["([^"]+)"\] = /gmu;
@@ -59,7 +59,10 @@ function countOverrides(): Record<OverrideKind, number> {
 function countModules(): number {
   return GENERATED_FOLDERS.reduce(
     (total, folder) =>
-      total + readdirSync(join(REPOSITORY_ROOT, "src", folder)).filter((entry) => entry.endsWith(".luau")).length,
+      total +
+      readdirSync(join(REPOSITORY_ROOT, "packages", "forever-myth", "src", folder)).filter((entry) =>
+        entry.endsWith(".luau"),
+      ).length,
     0,
   );
 }

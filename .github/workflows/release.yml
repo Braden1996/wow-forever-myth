@@ -1,6 +1,6 @@
-# Publishes a release when a `v*.*.*` tag on main is pushed. The tagged commit is re-verified with the full
-# `moon run :check` from a cold start (no tool or moon cache, so nothing a pull request wrote can reach a release),
-# the tag must match the library's `version`, then the Lua 5.1 bundle and a source archive are attached with checksums.
+# Publishes a release when a `v*.*.*` tag on main is pushed. `verify` re-runs the full Sergeant gate from a cold
+# start with read-only permissions; `publish` attaches `ForeverMyth.lua`, a woof-native `wow-forever-myth-<ver>.zip`
+# (with `woof.toml` declaring its transitive `truemyth` and `wow-types` deps + `src/` at archive root), and `SHA256SUMS`.
 name: release
 
 on:
@@ -18,28 +18,55 @@ jobs:
   verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      CI: "true"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # the tag must be on main
+          fetch-depth: 0
           persist-credentials: false
       - name: tag is on main
         run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
-      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
-        with:
-          cache: false
-      - name: gate
-        env:
-          MOON_CACHE: write
-        run: mise exec -- moon run :check
       - name: version matches tag
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          if ! grep -q "version = \"${TAG#v}\"" src/ForeverMyth.luau; then
-            echo "::error file=src/ForeverMyth.luau::version is not ${TAG#v}"
+          if ! grep -q "version = \"${TAG#v}\"" packages/forever-myth/src/ForeverMyth.luau; then
+            echo "::error file=packages/forever-myth/src/ForeverMyth.luau::version is not ${TAG#v}"
             exit 1
           fi
+          if ! grep -q "^version = \"${TAG#v}\"$" woof.toml; then
+            echo "::error file=woof.toml::version is not ${TAG#v}"
+            exit 1
+          fi
+      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+        with:
+          cache: false
+      - name: install luajit and enable sealing
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends luajit
+      - name: setup and install
+        run: |
+          mise exec -- lune setup
+          mise exec -- sgt --no-daemon install --frozen
+          mise exec -- sgt --no-daemon run derive
+          mise exec -- bun install --cwd docs --frozen-lockfile
+      - name: gate
+        run: |
+          mise exec -- sgt --no-daemon doctor
+          mise exec -- sgt --no-daemon check
+          mise exec -- sgt --no-daemon test
+          mise exec -- sgt --no-daemon run fresh
+          mise exec -- sgt --no-daemon run tools-typecheck
+          mise exec -- sgt --no-daemon run tools-lint
+          mise exec -- sgt --no-daemon run build-fresh
+          mise exec -- sgt --no-daemon run banner-fresh
+          mise exec -- sgt --no-daemon run bundle-specs
+          mise exec -- sgt --no-daemon run luajit-smoke
+          mise exec -- sgt --no-daemon run fixtures
+          mise exec -- sgt --no-daemon run docs-check
 
   publish:
     needs: [verify]
@@ -63,15 +90,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          name="wow-forever-myth-${TAG#v}"
-          mkdir -p "$name"
-          cp -r src LICENSE README.md CHANGELOG.md deps.toml "$name/"
-          rm -f "$name/src/moon.yml"
-          zip -qr "$name.zip" "$name"
+          ver="${TAG#v}"
+          zip_name="wow-forever-myth-${ver}.zip"
+          mkdir -p pkg/src
+          cp -r packages/forever-myth/src/* pkg/src/
+          find pkg/src -name '*.spec.luau' -delete
+          cp LICENSE README.md CHANGELOG.md pkg/
+          sed 's|entry = "packages/forever-myth/src/ForeverMyth.luau"|entry = "src/ForeverMyth.luau"|' woof.toml > pkg/woof.toml
+          (cd pkg && zip -qr "../${zip_name}" .)
           cp dist/ForeverMyth.lua ForeverMyth.lua
-          sha256sum ForeverMyth.lua "$name.zip" > SHA256SUMS
+          sha256sum ForeverMyth.lua "$zip_name" > SHA256SUMS
           prerelease=""
           case "$TAG" in *-*) prerelease="--prerelease" ;; esac
           # shellcheck disable=SC2086
-          gh release create "$TAG" ForeverMyth.lua "$name.zip" SHA256SUMS $prerelease \
+          gh release create "$TAG" ForeverMyth.lua "$zip_name" SHA256SUMS $prerelease \
             --repo "$GITHUB_REPOSITORY" --title "$TAG" --notes-file notes.md --verify-tag

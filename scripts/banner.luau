@@ -9,7 +9,7 @@ local Results = require("../overrides/Results")
 local ShapeFile = require("../generator/ShapeFile")
 
 local OUTPUT = ".github/banner.svg"
-local SHAPES = ".deps/wow-forever-luau-types/api-shapes.json"
+local SHAPES = "luau_packages/wow-types/api-shapes.json"
 local MONO = "'JetBrains Mono','Cascadia Code',Consolas,monospace"
 local SANS = "'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif"
 

@@ -24,9 +24,9 @@ local function analyze(file: string): { Diagnostic }
 		"--platform=standard",
 		"--flag:LuauSolverV2=true",
 		"--base-luaurc=.luaurc",
-		"--definitions=@wow=.deps/wow-forever-luau-types/wow-forever.d.luau",
-		"--settings=.deps/library.settings.json",
-		"--ignore=.deps/**",
+		"--definitions=@wow=luau_packages/wow-types/wow-forever.d.luau",
+		"--settings=.build/library.settings.json",
+		"--ignore=luau_packages/**",
 		file,
 	})
 	local output = string.gsub(result.stdout .. "\n" .. result.stderr, "\r", "")

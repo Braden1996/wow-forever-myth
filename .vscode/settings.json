@@ -1,21 +1,29 @@
 {
-  // luau-lsp: the standard platform and the new type solver, the pinned WoW: Forever definitions, and the client's
-  // missing globals except `require` (darklua bundles it away). Run `moon run generator:fetch` first.
   "luau-lsp.platform.type": "standard",
   "luau-lsp.sourcemap.enabled": false,
   "luau-lsp.fflags.enableNewSolver": true,
-  "luau-lsp.types.definitionFiles": { "@wow": ".deps/wow-forever-luau-types/wow-forever.d.luau" },
-  "luau-lsp.ignoreGlobs": ["dist/**", "tests/fail/**", ".deps/**"],
-  "files.exclude": { ".moon/cache": true, ".build": true },
-  "search.exclude": { "dist": true, "mise.lock": true, ".deps": true },
+  "luau-lsp.types.definitionFiles": { "@wow": "luau_packages/wow-types/wow-forever.d.luau" },
+  "luau-lsp.ignoreGlobs": ["dist/**", "tests/fail/**", "luau_packages/**"],
+  "files.exclude": { ".sergeant": true, ".build": true },
+  "search.exclude": { "dist": true, "mise.lock": true, "luau_packages": true },
   "editor.rulers": [120],
   "[luau]": {
     "editor.defaultFormatter": "JohnnyMorganz.stylua",
     "editor.formatOnSave": true,
     "editor.insertSpaces": false
   },
-  "[markdown][json][jsonc][yaml][toml]": {
-    "editor.defaultFormatter": "dprint.dprint",
-    "editor.formatOnSave": true
-  }
+  "json.schemas": [
+    {
+      "fileMatch": ["/sergeant.jsonc", "/sergeant.json"],
+      "url": "./.sergeant/schema.json"
+    },
+    {
+      "fileMatch": ["/**/sergeant.jsonc", "/**/sergeant.json"],
+      "url": "./.sergeant/schema.unit.json"
+    },
+    {
+      "fileMatch": ["/sergeant.allow.jsonc", "/sergeant.allow.json"],
+      "url": "./.sergeant/schema.allow.json"
+    }
+  ]
 }

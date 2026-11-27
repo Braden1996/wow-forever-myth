@@ -5,6 +5,24 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-27
+
+### Added
+
+- `woof.toml` + `woof.lock` package management replacing `deps.toml` and `scripts/fetch.luau`, pinning
+  `luau-true-myth` `v0.2.0` and `wow-forever-luau-types` `v0.7.0` with SHA-256 verification and transitive dependency
+  metadata in release archives (`wow-forever-myth-0.6.0.zip`).
+- Native LuaJIT runtime specs (`sgt test`) with Sergeant symbol-level caching alongside the full bundle and override
+  coverage suites.
+
+### Changed
+
+- Migrated workspace orchestration, formatting, linting, strict Lua 5.1 static analysis, and typechecking from `moon`
+  and `dprint` to [Sergeant](https://github.com/Braden1996/sergeant) (`v0.14.0`) with the `luau`, `lune`, `wow`,
+  `woof`, `actionlint`, `zizmor`, and `lychee` plugins.
+- Moved library sources into `packages/forever-myth/src/` (`@wow-forever-myth/forever-myth`, `"kind": "wow:lib"`).
+  Release archives still ship runtime files under `src/`.
+
 ## [0.5.0] - 2026-11-16
 
 ### Changed

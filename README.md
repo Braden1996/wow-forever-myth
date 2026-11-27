@@ -94,24 +94,28 @@ modules you use: `require("wow-forever-myth/src/Api/C_Item")`.
 
 - **Plain Lua addon:** add the release's `ForeverMyth.lua` to your `.toc` before your files; it stores the library as
   `ns.ForeverMyth`.
-- **Strict Luau addon with darklua:** use the release's source archive (`src/`). The sources require luau-true-myth as
-  `@truemyth/...`: add that alias to your `.luaurc` and darklua's `bundle.require_mode.sources`, pointing at
-  luau-true-myth's `src/` (the version pinned in `deps.toml`). Type-check with the WoW: Forever definitions from the
-  release pinned in `deps.toml`.
+- **Strict Luau addon with Woof (recommended):** add `wow-forever-myth` to `woof.toml` and run `woof install` (or
+  `sgt install` with the `"woof"` plugin). Woof unpacks the library, brings in the pinned `luau-true-myth` and
+  `wow-forever-luau-types` releases transitively, and wires `.luaurc` aliases (`@forevermyth`, `@truemyth`) and
+  definitions automatically.
+- **Manual darklua setup:** unpack `wow-forever-myth-<version>.zip` and point `@truemyth` in `.luaurc` and darklua's
+  `bundle.require_mode.sources` at the `luau-true-myth` release pinned in `woof.toml`, then type-check with the
+  `wow-forever-luau-types` definitions pinned in `woof.toml`.
 
 ## Development
 
 `mise install`, then:
 
-| Command                                              | What it does                                                                 |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `mise exec -- moon run :check`                       | everything CI runs                                                           |
-| `mise exec -- moon run generator:fetch`              | download the releases pinned in `deps.toml` into `.deps/`, verifying SHA-256 |
-| `mise exec -- moon run generator:generate`           | regenerate `src/Api`, `src/Widgets` and their indexes                        |
-| `mise exec -- moon run lib:build`                    | build `dist/ForeverMyth.lua`                                                 |
-| `mise exec -- moon run tests:spec`                   | run every spec against the bundle                                            |
-| `mise exec -- moon run tests:lua51`                  | run the bundle under LuaJIT (Lua 5.1, as in WoW) through its runtime paths   |
-| `mise exec -- lune run scripts/fixtures -- --update` | rewrite the negative fixtures' `.expected` files                             |
-| `mise exec -- lune run scripts/banner`               | redraw the banner                                                            |
+| Command                                              | What it does                                                               |
+| ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| `mise exec -- sgt install`                           | install the Woof packages pinned in `woof.lock` into `luau_packages/`      |
+| `mise exec -- sgt check`                             | format, lint, typecheck, boundaries, and static checks                     |
+| `mise exec -- sgt test`                              | run fast unit specs on LuaJIT                                              |
+| `mise exec -- sgt run generate`                      | regenerate `packages/forever-myth/src/Api`, `Widgets`, and their indexes   |
+| `mise exec -- sgt run build`                         | build `dist/ForeverMyth.lua`                                               |
+| `mise exec -- sgt run bundle-specs`                  | run every spec against the bundle in a fake WoW world                      |
+| `mise exec -- sgt run luajit-smoke`                  | run the bundle under LuaJIT (Lua 5.1, as in WoW) through its runtime paths |
+| `mise exec -- lune run scripts/fixtures -- --update` | rewrite the negative fixtures' `.expected` files                           |
+| `mise exec -- sgt run banner`                        | redraw the banner                                                          |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). MIT licence; the bundle includes luau-true-myth (MIT).

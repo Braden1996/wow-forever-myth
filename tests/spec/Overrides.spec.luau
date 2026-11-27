@@ -12,7 +12,7 @@ local ShapeFile = require("../../generator/ShapeFile")
 
 type Shape = ShapeFile.Shape
 
-local SHAPES = ".deps/wow-forever-luau-types/api-shapes.json"
+local SHAPES = "luau_packages/wow-types/api-shapes.json"
 local KEY = 4242
 
 local function sortedKeys<V>(t: { [string]: V }): { string }

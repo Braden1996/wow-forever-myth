@@ -1,7 +1,5 @@
 # Builds the documentation site (docs/) and deploys it to GitHub Pages from main. Fully static: the API reference is
-# generated from src/ and the examples are checked against the releases deps.toml pins. The ci workflow runs the same
-# build, plus every check, on pull requests. No dependency cache here: the published site is built from a clean
-# install (zizmor cache-poisoning).
+# generated from packages/forever-myth/src/ and the examples are checked against the releases woof.toml pins.
 name: pages
 
 on:
@@ -9,9 +7,10 @@ on:
     branches: [main]
     paths:
       - "docs/**"
-      - "src/**"
+      - "packages/forever-myth/src/**"
       - "overrides/**"
-      - "deps.toml"
+      - "woof.toml"
+      - "woof.lock"
       - "mise.toml"
       - "mise.lock"
       - ".github/workflows/pages.yml"
@@ -34,10 +33,12 @@ jobs:
           persist-credentials: false
       - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
-          install_args: bun node github:lune-org/lune github:luau-lang/luau
+          install_args: bun node github:lune-org/lune github:luau-lang/luau http:woof
           cache: false
-      - name: fetch the pinned releases
-        run: mise exec -- lune run scripts/fetch
+      - name: install pinned Luau packages and derive settings
+        run: |
+          mise exec -- woof install --frozen
+          mise exec -- lune run scripts/derive
       - name: install
         working-directory: docs
         run: mise exec -- bun install --frozen-lockfile
