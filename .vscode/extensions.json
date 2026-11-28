@@ -1,10 +1,3 @@
 {
-  "recommendations": [
-    "JohnnyMorganz.luau-lsp",
-    "JohnnyMorganz.stylua",
-    "Kampfkarren.selene-vscode",
-    "dprint.dprint",
-    "EditorConfig.EditorConfig",
-    "moonrepo.moon-console"
-  ]
+  "recommendations": ["JohnnyMorganz.luau-lsp", "JohnnyMorganz.stylua", "EditorConfig.EditorConfig"]
 }

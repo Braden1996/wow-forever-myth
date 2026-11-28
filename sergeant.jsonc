@@ -1,138 +1,105 @@
 {
   "$schema": "./.sergeant/schema.json",
-  "plugins": ["luau", "lune", "wow", "woof", "actionlint", "zizmor", "lychee"],
-  "packages": ["packages/*"],
-  "cache": {
-    "untrackable": "degrade",
-  },
+  "plugins": [
+    "ts",
+    "bun",
+    "oxlint",
+    "astro",
+    "luau",
+    "lune",
+    "woof",
+    "wow",
+    "actionlint",
+    "zizmor",
+    "lychee",
+    "secrets",
+  ],
+  "packages": ["packages/libraries/*/*/*", "packages/runtimes/*"],
   "boundaries": {
     "noUnitCycles": true,
   },
-  "check": {
-    "woof-lint": {
-      "description": "Audit woof.toml manifest hygiene",
-      "cache": true,
-      "inputs": ["woof.toml", "packages/forever-myth/src/ForeverMyth.luau"],
-      "env": ["WOOF_STORE_DIR=.woof-store"],
-      "run": ["woof", "lint"],
-    },
-    "strict-lint": {
-      "description": "Enforce --!strict, names-over-comments, unchecked* casts, and Lua 5.1 iteration",
-      "cache": true,
-      "inputs": [
-        "packages/**/*.luau",
-        "wow/**/*.luau",
-        "generator/**/*.luau",
-        "overrides/**/*.luau",
-        "scripts/**/*.luau",
-        "tests/**/*.luau",
-      ],
-      "run": ["lune", "run", "scripts/lint"],
-    },
-    "lint-lua51": {
-      "description": "Lint tests/lua51 with Lua 5.1 and LuaJIT globals",
-      "cache": true,
-      "inputs": ["tests/lua51/**/*"],
-      "run": ["selene", "--config", "tests/lua51/selene.toml", "tests/lua51"],
-    },
-    "tools-fmt": {
-      "description": "Verify StyLua formatting on wow, generator, overrides, scripts, and tests",
-      "cache": true,
-      "inputs": [
-        "wow/**/*.luau",
-        "generator/**/*.luau",
-        "overrides/**/*.luau",
-        "scripts/**/*.luau",
-        "tests/**/*.luau",
-        "stylua.toml",
-      ],
-      "run": ["stylua", "--check", "wow", "generator", "overrides", "scripts", "tests"],
+  "tasks": {
+    "bundle": {
+      "run": ["lune", "run", "packages/runtimes/cli/src/build.effect", "${@wow-forever-myth/wow-bundle:build}"],
+      "mode": "live",
     },
   },
   "commands": {
-    "derive": {
-      "description": "Generate .build/library.settings.json, wow-forever.yml, and wow-forever-sgt.toml from woof-installed wow-types",
-      "run": ["lune", "run", "scripts/derive"],
-    },
     "generate": {
-      "description": "Regenerate packages/forever-myth/src/{Api,Widgets} from woof-installed api-shapes.json and overrides/",
-      "run": ["lune", "run", "scripts/generate"],
-    },
-    "fresh": {
-      "description": "Verify overrides agree with api-shapes.json and generated wrappers are up to date",
-      "run": ["lune", "run", "scripts/generate", "--", "--check"],
-    },
-    "build": {
-      "description": "Build dist/ForeverMyth.lua (Lua 5.1 bundle via darklua) and verify it",
-      "run": ["lune", "run", "scripts/build"],
-    },
-    "build-fresh": {
-      "description": "Verify dist/ForeverMyth.lua matches darklua output, parses as Lua 5.1, and uses only Lua 5.1 globals",
-      "run": ["lune", "run", "scripts/build", "--", "--check"],
+      "run": ["lune", "run", "packages/runtimes/cli/src/main"],
     },
     "banner": {
-      "description": "Regenerate .github/banner.svg",
-      "run": ["lune", "run", "scripts/banner"],
+      "run": ["lune", "run", "packages/runtimes/cli/src/banner.effect"],
+    },
+    "fixtures-update": {
+      "run": ["lune", "run", "packages/runtimes/cli/src/fixtures.effect", "--update"],
+    },
+  },
+  "manager": "bun",
+  "typescript": {
+    "tsconfig": "repo",
+  },
+  "cache": {
+    "untrackable": "degrade",
+  },
+  "check": {
+    "fresh": {
+      "run": ["lune", "run", "packages/runtimes/cli/src/main", "--check"],
+      "cache": false,
+      "inputs": [
+        "packages/runtimes/cli/src/main.luau",
+        "packages/libraries/luau/pure/generator/src/**",
+        "packages/libraries/luau/wow/forever-myth/src/Api/**",
+        "packages/libraries/luau/wow/forever-myth/src/Widgets/**",
+        "packages/libraries/luau/wow/forever-myth/src/ApiIndex.luau",
+        "packages/libraries/luau/wow/forever-myth/src/WidgetIndex.luau",
+        "luau_packages/wow-types/api-shapes.json",
+        ".editorconfig",
+      ],
+      "tools": ["sgt"],
+    },
+    "fixtures": {
+      "run": ["lune", "run", "packages/runtimes/cli/src/fixtures.effect"],
+      "cache": false,
+      "inputs": [
+        "packages/runtimes/cli/src/fixtures.effect.luau",
+        "packages/libraries/luau/wow/forever-myth/src/**",
+        "tests/pass/**",
+        "tests/fail/**",
+        ".luaurc",
+        "luau_packages/truemyth/src/**",
+        "luau_packages/wow-types/wow-forever.d.luau",
+      ],
+      "tools": ["luau-lsp"],
     },
     "banner-fresh": {
-      "description": "Verify .github/banner.svg matches scripts/banner.luau",
-      "run": ["lune", "run", "scripts/banner", "--", "--check"],
-    },
-    "tools-typecheck": {
-      "description": "Type-check generator, overrides, scripts, and test support under --!strict against Lune definitions",
-      "run": [
-        "luau-lsp",
-        "analyze",
-        "--platform=standard",
-        "--flag:LuauSolverV2=true",
-        "--base-luaurc=.luaurc",
-        "generator/",
-        "overrides/",
-        "scripts/",
-        "tests/spec/",
-        "tests/support/",
-      ],
-    },
-    "tools-lint": {
-      "description": "Lint wow, generator, overrides, scripts, and tests with Selene",
-      "run": [
-        "selene",
-        "--config",
-        "selene.cli.toml",
-        "wow",
-        "generator",
-        "overrides",
-        "scripts",
-        "tests",
+      "run": ["lune", "run", "packages/runtimes/cli/src/banner.effect", "--check"],
+      "cache": false,
+      "inputs": [
+        "packages/runtimes/cli/src/banner.effect.luau",
+        "packages/libraries/luau/pure/generator/src/**",
+        "luau_packages/wow-types/api-shapes.json",
+        ".github/banner.svg",
       ],
     },
     "bundle-specs": {
-      "description": "Run tests/spec/*.spec.luau against dist/ForeverMyth.lua in a fake WoW world and verify override coverage",
-      "run": ["lune", "run", "scripts/test"],
+      "run": ["lune", "run", "packages/runtimes/cli/src/test.effect", "${@wow-forever-myth/wow-bundle:build}"],
+      "cache": false,
+      "inputs": [
+        "packages/runtimes/cli/src/**",
+        "packages/libraries/luau/pure/generator/src/**",
+        "packages/libraries/luau/wow/forever-myth/src/ForeverMyth.luau",
+        "tests/spec/**",
+        "luau_packages/wow-types/api-shapes.json",
+        "LICENSE",
+        "luau_packages/truemyth/LICENSE",
+        "dist/ForeverMyth.lua",
+      ],
     },
     "luajit-smoke": {
-      "description": "Run dist/ForeverMyth.lua directly under LuaJIT (Lua 5.1 semantics)",
       "run": ["luajit", "tests/lua51/run.lua", "dist/ForeverMyth.lua"],
-    },
-    "fixtures": {
-      "description": "Verify tests/pass type-checks clean and tests/fail matches exact .expected diagnostics",
-      "run": ["lune", "run", "scripts/fixtures"],
-    },
-    "fixtures-update": {
-      "description": "Rewrite tests/fail/*.expected files from current luau-lsp diagnostics",
-      "run": ["lune", "run", "scripts/fixtures", "--", "--update"],
-    },
-    "docs-install": {
-      "description": "Install docs site dependencies from docs/bun.lock",
-      "run": ["bun", "install", "--cwd", "docs", "--frozen-lockfile"],
-    },
-    "docs-check": {
-      "description": "Run docs site lint, fmt check, tests, build, typecheck, and internal link checks",
-      "run": "bun run --cwd docs lint && bun run --cwd docs fmt:check && bun run --cwd docs test && bun run --cwd docs build && bun run --cwd docs typecheck && bun run --cwd docs links",
-    },
-    "docs-dev": {
-      "description": "Run the local documentation site dev server",
-      "run": ["bun", "run", "--cwd", "docs", "dev"],
+      "cache": false,
+      "inputs": ["tests/lua51/run.lua", "dist/ForeverMyth.lua"],
     },
   },
 }

@@ -1,3 +1,0 @@
-dist/
-# Definitions files (`declare`): StyLua cannot parse them.
-*.d.luau

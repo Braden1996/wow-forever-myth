@@ -1,5 +1,5 @@
 --!strict
-local ForeverMyth = require("../../packages/forever-myth/src/ForeverMyth")
+local ForeverMyth = require("../../packages/libraries/luau/wow/forever-myth/src/ForeverMyth")
 
 local Combat = ForeverMyth.Combat
 local Events = ForeverMyth.Events

@@ -1,0 +1,3 @@
+{
+  "extends": ["../../../tsconfig.base.json", "@sgt-build/tsconfig/astro"]
+}

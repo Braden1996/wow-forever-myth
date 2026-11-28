@@ -1,10 +1,10 @@
 --!strict
 local fs = require("@lune/fs")
 
-local Fakes = require("../support/Fakes")
-local Lib = require("../support/Lib")
-local Results = require("../../overrides/Results")
-local ShapeFile = require("../../generator/ShapeFile")
+local Fakes = require("../../packages/runtimes/cli/src/support/Fakes")
+local Lib = require("../../packages/runtimes/cli/src/support/Lib")
+local Results = require("../../packages/libraries/luau/pure/generator/src/overrides/Results")
+local ShapeFile = require("../../packages/libraries/luau/pure/generator/src/ShapeFile")
 
 type Shape = ShapeFile.Shape
 

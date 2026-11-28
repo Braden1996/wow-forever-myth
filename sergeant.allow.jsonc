@@ -1,0 +1,47 @@
+{
+  "$schema": "./.sergeant/schema.allow.json",
+  "allow": [
+    {
+      "rule": "boundaries/missing",
+      "file": "packages/libraries/luau/pure/generator/src/ShapeFile.luau",
+      "count": 1,
+      "reason": "Lune provides these built-in modules. Sergeant 0.15 cannot resolve the home-directory typedef alias in the workspace graph."
+    },
+    {
+      "rule": "boundaries/missing",
+      "file": "packages/runtimes/cli/src/Bundle.luau",
+      "count": 1,
+      "reason": "Lune provides these built-in modules. Sergeant 0.15 cannot resolve the home-directory typedef alias in the workspace graph."
+    },
+    {
+      "rule": "boundaries/missing",
+      "file": "packages/runtimes/cli/src/banner.effect.luau",
+      "count": 2,
+      "reason": "Lune provides these built-in modules. Sergeant 0.15 cannot resolve the home-directory typedef alias in the workspace graph."
+    },
+    {
+      "rule": "boundaries/missing",
+      "file": "packages/runtimes/cli/src/build.effect.luau",
+      "count": 2,
+      "reason": "Lune provides these built-in modules. Sergeant 0.15 cannot resolve the home-directory typedef alias in the workspace graph."
+    },
+    {
+      "rule": "boundaries/missing",
+      "file": "packages/runtimes/cli/src/fixtures.effect.luau",
+      "count": 2,
+      "reason": "Lune provides these built-in modules. Sergeant 0.15 cannot resolve the home-directory typedef alias in the workspace graph."
+    },
+    {
+      "rule": "boundaries/missing",
+      "file": "packages/runtimes/cli/src/main.luau",
+      "count": 2,
+      "reason": "Lune provides these built-in modules. Sergeant 0.15 cannot resolve the home-directory typedef alias in the workspace graph."
+    },
+    {
+      "rule": "boundaries/missing",
+      "file": "packages/runtimes/cli/src/test.effect.luau",
+      "count": 3,
+      "reason": "Lune provides these built-in modules. Sergeant 0.15 cannot resolve the home-directory typedef alias in the workspace graph."
+    }
+  ]
+}

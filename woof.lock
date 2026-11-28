@@ -11,6 +11,8 @@ target = "luau"
 direct = true
 dev = false
 tree_sha256 = "a2456a3ae5133ad839c267ac4cd43c6e7d5cf381ef413d4a70390c94611782ae"
+package_dir = "luau_packages/truemyth"
+alias_target = "luau_packages/truemyth/src"
 subpath = "src"
 entry = "src/TrueMyth.luau"
 
@@ -34,6 +36,8 @@ target = "wow"
 direct = true
 dev = false
 tree_sha256 = "e17bfa7b4a73701f22bedeef9b759c8aa06fff122f57da9a0c18511b9288bd30"
+package_dir = "luau_packages/wow-types"
+alias_target = "luau_packages/wow-types"
 definitions = ["wow-forever.d.luau"]
 
 [package.source]

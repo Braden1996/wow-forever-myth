@@ -25,7 +25,7 @@
     {
       "label": "generate and build dist/ForeverMyth.lua",
       "type": "shell",
-      "command": "mise exec -- sgt run generate && mise exec -- sgt run build",
+      "command": "mise exec -- sgt run generate && mise exec -- sgt run bundle",
       "group": "build",
       "problemMatcher": []
     },

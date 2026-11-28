@@ -1,6 +1,3 @@
-# The required gate. `ci-ok` is the one status check the branch ruleset requires (with `pr-title`).
-# Every tool comes from mise.toml with mise.lock checksums, and both upstream Luau libraries come from woof.toml
-# + woof.lock verified by SHA-256 via `sgt install --frozen`.
 name: ci
 
 on:
@@ -17,53 +14,19 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  check:
+  ci-ok:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    env:
-      CI: "true"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+      - uses: Braden1996/sergeant-releases/actions/setup@v0.15.0 # zizmor: ignore[unpinned-uses] -- Sergeant 0.15.0 release action
         with:
-          cache: true
-      - name: install luajit and enable sealing
-        run: |
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends luajit
-      - name: setup lune typedefs and install dependencies
-        run: |
-          mise exec -- lune setup
-          mise exec -- sgt --no-daemon install --frozen
-          mise exec -- sgt --no-daemon run derive
-          mise exec -- bun install --cwd docs --frozen-lockfile
-      - name: gate
-        run: |
-          mise exec -- sgt --no-daemon doctor
-          mise exec -- sgt --no-daemon check
-          mise exec -- sgt --no-daemon test
-          mise exec -- sgt --no-daemon run fresh
-          mise exec -- sgt --no-daemon run tools-typecheck
-          mise exec -- sgt --no-daemon run tools-lint
-          mise exec -- sgt --no-daemon run build-fresh
-          mise exec -- sgt --no-daemon run banner-fresh
-          mise exec -- sgt --no-daemon run bundle-specs
-          mise exec -- sgt --no-daemon run luajit-smoke
-          mise exec -- sgt --no-daemon run fixtures
-          mise exec -- sgt --no-daemon run docs-check
-
-  ci-ok:
-    if: always()
-    needs: [check]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - name: all required jobs passed
-        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
-        run: exit 1
-      - name: ok
-        run: echo "sgt gate passed"
+          seal-sysctl: "true"
+      - uses: Braden1996/sergeant-releases/actions/setup-luau@v0.15.0 # zizmor: ignore[unpinned-uses] -- Sergeant 0.15.0 release action
+        with:
+          luau-ast: "true"
+      - uses: ./.github/actions/setup-workspace
+      - uses: Braden1996/sergeant-releases/actions/ci@v0.15.0 # zizmor: ignore[unpinned-uses] -- Sergeant 0.15.0 release action

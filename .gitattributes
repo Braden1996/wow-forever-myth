@@ -2,7 +2,7 @@
 dist/** linguist-generated=true
 .github/banner.svg linguist-generated=true
 *.luau linguist-language=Luau
-src/Api/** linguist-generated=true
-src/Widgets/** linguist-generated=true
-src/ApiIndex.luau linguist-generated=true
-src/WidgetIndex.luau linguist-generated=true
+packages/libraries/luau/wow/forever-myth/src/Api/** linguist-generated=true
+packages/libraries/luau/wow/forever-myth/src/Widgets/** linguist-generated=true
+packages/libraries/luau/wow/forever-myth/src/ApiIndex.luau linguist-generated=true
+packages/libraries/luau/wow/forever-myth/src/WidgetIndex.luau linguist-generated=true

@@ -1,4 +1,0 @@
-# selene standard library addition: `types`, the global that Luau type functions (`type function`) use.
-globals:
-  types:
-    any: true

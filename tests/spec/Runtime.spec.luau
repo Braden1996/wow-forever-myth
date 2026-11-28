@@ -1,5 +1,5 @@
 --!strict
-local Lib = require("../support/Lib")
+local Lib = require("../../packages/runtimes/cli/src/support/Lib")
 
 local spec: Lib.Spec = function(lib, t, world)
 	local Task = lib.Task

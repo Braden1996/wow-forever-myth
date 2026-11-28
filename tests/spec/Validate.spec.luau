@@ -1,10 +1,10 @@
 --!strict
 local fs = require("@lune/fs")
 
-local Lib = require("../support/Lib")
-local OverrideTypes = require("../../generator/OverrideTypes")
-local ShapeFile = require("../../generator/ShapeFile")
-local Validate = require("../../generator/Validate")
+local Lib = require("../../packages/runtimes/cli/src/support/Lib")
+local OverrideTypes = require("../../packages/libraries/luau/pure/generator/src/OverrideTypes")
+local ShapeFile = require("../../packages/libraries/luau/pure/generator/src/ShapeFile")
+local Validate = require("../../packages/libraries/luau/pure/generator/src/Validate")
 
 local SHAPES = "luau_packages/wow-types/api-shapes.json"
 
@@ -60,9 +60,9 @@ local spec: Lib.Spec = function(_lib, t, _world)
 	t.test("validate: the reviewed overrides are valid", function()
 		t.equal(
 			problems({
-				results = require("../../overrides/Results"),
-				loads = require("../../overrides/Loads"),
-				callbacks = require("../../overrides/Callbacks"),
+				results = require("../../packages/libraries/luau/pure/generator/src/overrides/Results"),
+				loads = require("../../packages/libraries/luau/pure/generator/src/overrides/Loads"),
+				callbacks = require("../../packages/libraries/luau/pure/generator/src/overrides/Callbacks"),
 			}),
 			{}
 		)

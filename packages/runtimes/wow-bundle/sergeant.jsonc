@@ -1,0 +1,5 @@
+{
+  "name": "@wow-forever-myth/wow-bundle",
+  "kind": "wow:bundle",
+  "dependencies": ["@wow-forever-myth/forever-myth"],
+}

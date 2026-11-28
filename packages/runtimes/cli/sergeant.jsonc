@@ -1,0 +1,5 @@
+{
+  "name": "@wow-forever-myth/cli",
+  "kind": "lune:cli",
+  "dependencies": ["@wow-forever-myth/generator"],
+}

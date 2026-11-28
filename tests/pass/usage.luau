@@ -1,8 +1,8 @@
 --!strict
-local C_Item = require("../../packages/forever-myth/src/Api/C_Item")
-local ForeverMyth = require("../../packages/forever-myth/src/ForeverMyth")
-local Globals = require("../../packages/forever-myth/src/Api/Globals")
-local ScriptRegionWrappers = require("../../packages/forever-myth/src/Widgets/ScriptRegion")
+local C_Item = require("../../packages/libraries/luau/wow/forever-myth/src/Api/C_Item")
+local ForeverMyth = require("../../packages/libraries/luau/wow/forever-myth/src/ForeverMyth")
+local Globals = require("../../packages/libraries/luau/wow/forever-myth/src/Api/Globals")
+local ScriptRegionWrappers = require("../../packages/libraries/luau/wow/forever-myth/src/Widgets/ScriptRegion")
 
 local Api = ForeverMyth.Api
 local Maybe = ForeverMyth.Maybe

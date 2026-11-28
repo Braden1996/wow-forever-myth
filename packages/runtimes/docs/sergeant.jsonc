@@ -1,0 +1,12 @@
+{
+  "name": "@wow-forever-myth/docs",
+  "kind": "astro:app",
+  "reads": [
+    "packages/libraries/luau/wow/forever-myth/src/**",
+    "packages/libraries/luau/pure/generator/src/overrides/**",
+    "README.md",
+    "CHANGELOG.md",
+    "luau_packages/**",
+  ],
+  "tools": ["luau-ast"],
+}

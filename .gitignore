@@ -1,5 +1,4 @@
 .build/
 .sergeant/
 luau_packages/
-wow-forever.yml
-wow-forever-sgt.toml
+node_modules/

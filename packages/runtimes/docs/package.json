@@ -1,0 +1,38 @@
+{
+  "name": "wow-forever-myth-docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The documentation site for wow-forever-myth (Astro + Starlight, static for GitHub Pages).",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "bun test",
+    "links": "bun scripts/check-links.effect.ts"
+  },
+  "dependencies": {
+    "@astrojs/react": "catalog:",
+    "@astrojs/starlight": "catalog:",
+    "astro": "catalog:",
+    "luau-web-checker": "catalog:",
+    "starlight-luau": "catalog:",
+    "starlight-warcraft": "catalog:"
+  },
+  "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  },
+  "packageManager": "bun@1.4.4",
+  "engines": {
+    "bun": ">=1.4.4",
+    "node": ">=26.13.1"
+  },
+  "peerDependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  }
+}

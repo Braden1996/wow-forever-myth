@@ -3,7 +3,7 @@ name = "wow-forever-myth"
 version = "0.6.0"
 kind = "library"
 target = "wow"
-entry = "packages/forever-myth/src/ForeverMyth.luau"
+entry = "packages/libraries/luau/wow/forever-myth/src/ForeverMyth.luau"
 
 [luaurc]
 sync = true

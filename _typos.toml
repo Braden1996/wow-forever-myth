@@ -2,10 +2,9 @@
 extend-exclude = [
   "dist/",
   "tests/fail/*.expected",
-  "packages/forever-myth/src/Api/",
-  "packages/forever-myth/src/Widgets/",
-  "packages/forever-myth/src/ApiIndex.luau",
-  "packages/forever-myth/src/WidgetIndex.luau",
-  "docs/bun.lock",
-  "docs/src/wow-ui/assets/",
+  "packages/libraries/luau/wow/forever-myth/src/Api/",
+  "packages/libraries/luau/wow/forever-myth/src/Widgets/",
+  "packages/libraries/luau/wow/forever-myth/src/ApiIndex.luau",
+  "packages/libraries/luau/wow/forever-myth/src/WidgetIndex.luau",
+  "bun.lock",
 ]

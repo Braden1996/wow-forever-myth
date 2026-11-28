@@ -1,5 +1,3 @@
-# Pull request titles become squash-commit messages, so they follow Conventional Commits:
-# `type(scope)!: summary`. Required by the branch ruleset as the `pr-title` check.
 name: pr-title
 
 on:
@@ -14,16 +12,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: conventional commit title
-        env:
-          TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          pattern='^(feat|fix|perf|refactor|test|docs|build|ci|chore|style|revert)(\((api|widgets|runtime|overrides|generator|bundle|tests|site|ci|docs|deps|repo)\))?!?: [a-z0-9`].{0,98}[^.]$'
-          if printf '%s' "$TITLE" | grep -Eq "$pattern"; then
-            echo "ok: $TITLE"
-          else
-            echo "::error::Title must look like 'type(scope): summary' (lower-case start, no trailing period)."
-            echo "Types: feat fix perf refactor test docs build ci chore style revert."
-            echo "Scopes: api widgets runtime overrides generator bundle tests site ci docs deps repo."
-            exit 1
-          fi
+      - uses: Braden1996/sergeant-releases/actions/pr-title@v0.15.0 # zizmor: ignore[unpinned-uses] -- Sergeant 0.15.0 release action
+        with:
+          scopes: api,widgets,runtime,overrides,generator,bundle,tests,site,ci,docs,deps,repo

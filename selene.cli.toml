@@ -1,3 +1,0 @@
-# Used by the external `selene` CLI for `scripts/`, `generator/`, `overrides/`, and `tests/`.
-std = "luau+luau-type-functions+wow-forever"
-exclude = ["tests/lua51/*"]

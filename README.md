@@ -18,7 +18,7 @@ local Api, Maybe, Result, Task = ForeverMyth.Api, ForeverMyth.Maybe, ForeverMyth
 
 local title = Maybe.unwrapOr(Api.C_QuestLog.GetTitleForQuestID(questID), "an unknown quest") -- Maybe<string>
 
-local message = Result.match(Api.C_AddOns.LoadAddOn("Speedline_Data"), { -- Result<true, string>
+local message = Result.match(Api.C_AddOns.LoadAddOn("MyAddon_Data"), { -- Result<true, string>
 	Ok = function(_loaded: true): string return "loaded" end,
 	Err = function(reason: string): string return "not loaded: " .. reason end,
 })
@@ -55,14 +55,14 @@ Widget methods live under `ForeverMyth.Widgets.<Type>` and take the object first
 
 ### Reviewed overrides
 
-[`overrides/`](overrides) holds what the documentation cannot express. Every entry states `why`, is validated against
+[`overrides/`](packages/libraries/luau/pure/generator/src/overrides) holds what the documentation cannot express. Every entry states `why`, is validated against
 `api-shapes.json` at generation time, and has its own tests (the test runner fails on an untested override).
 
-| File                                         | Meaning                                                                    | Wrapper                                 |
-| -------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------- |
-| [`Results.luau`](overrides/Results.luau)     | a boolean-first result means success or failure, with a named error result | `Fn(...): Result<true or FnSuccess, E>` |
-| [`Loads.luau`](overrides/Loads.luau)         | a nil means "not cached yet": a request API fires a load event             | `FnAsync(...): Task<T, LoadFailed>`     |
-| [`Callbacks.luau`](overrides/Callbacks.luau) | a callback parameter fires exactly once                                    | `FnAsync(...): Task<T, never>`          |
+| File                                                                                    | Meaning                                                                    | Wrapper                                 |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------- |
+| [`Results.luau`](packages/libraries/luau/pure/generator/src/overrides/Results.luau)     | a boolean-first result means success or failure, with a named error result | `Fn(...): Result<true or FnSuccess, E>` |
+| [`Loads.luau`](packages/libraries/luau/pure/generator/src/overrides/Loads.luau)         | a nil means "not cached yet": a request API fires a load event             | `FnAsync(...): Task<T, LoadFailed>`     |
+| [`Callbacks.luau`](packages/libraries/luau/pure/generator/src/overrides/Callbacks.luau) | a callback parameter fires exactly once                                    | `FnAsync(...): Task<T, never>`          |
 
 ## Cost
 
@@ -104,18 +104,19 @@ modules you use: `require("wow-forever-myth/src/Api/C_Item")`.
 
 ## Development
 
-`mise install`, then:
+Set up the tools and preset tarballs in [CONTRIBUTING.md](CONTRIBUTING.md), then:
 
-| Command                                              | What it does                                                               |
-| ---------------------------------------------------- | -------------------------------------------------------------------------- |
-| `mise exec -- sgt install`                           | install the Woof packages pinned in `woof.lock` into `luau_packages/`      |
-| `mise exec -- sgt check`                             | format, lint, typecheck, boundaries, and static checks                     |
-| `mise exec -- sgt test`                              | run fast unit specs on LuaJIT                                              |
-| `mise exec -- sgt run generate`                      | regenerate `packages/forever-myth/src/Api`, `Widgets`, and their indexes   |
-| `mise exec -- sgt run build`                         | build `dist/ForeverMyth.lua`                                               |
-| `mise exec -- sgt run bundle-specs`                  | run every spec against the bundle in a fake WoW world                      |
-| `mise exec -- sgt run luajit-smoke`                  | run the bundle under LuaJIT (Lua 5.1, as in WoW) through its runtime paths |
-| `mise exec -- lune run scripts/fixtures -- --update` | rewrite the negative fixtures' `.expected` files                           |
-| `mise exec -- sgt run banner`                        | redraw the banner                                                          |
+| Command                                | What it does                                                                                |
+| -------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `mise exec -- sgt install`             | install Bun and Woof dependencies from the workspace lockfiles                              |
+| `mise exec -- sgt check`               | format, lint, typecheck, boundaries, and static checks                                      |
+| `mise exec -- sgt test`                | run the workspace unit tests                                                                |
+| `mise exec -- sgt build`               | build the Lua 5.1 bundle and the Astro site                                                 |
+| `mise exec -- sgt run generate`        | regenerate `packages/libraries/luau/wow/forever-myth/src/Api`, `Widgets`, and their indexes |
+| `mise exec -- sgt run bundle`          | build `dist/ForeverMyth.lua`                                                                |
+| `mise exec -- sgt run bundle-specs`    | run every spec against the bundle in a fake WoW world                                       |
+| `mise exec -- sgt run luajit-smoke`    | run the bundle under LuaJIT (Lua 5.1, as in WoW) through its runtime paths                  |
+| `mise exec -- sgt run fixtures-update` | rewrite the negative fixtures' `.expected` files                                            |
+| `mise exec -- sgt run banner`          | redraw the banner                                                                           |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). MIT licence; the bundle includes luau-true-myth (MIT).

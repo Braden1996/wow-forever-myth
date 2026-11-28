@@ -1,6 +1,6 @@
 --!strict
-local Lib = require("../support/Lib")
-local Lua51 = require("../../scripts/Lua51")
+local Lib = require("../../packages/runtimes/cli/src/support/Lib")
+local Lua51 = require("../../packages/runtimes/cli/src/Lua51")
 
 local spec: Lib.Spec = function(_lib, t, _world)
 	t.test("lua51: generalised iteration over a table is found", function()

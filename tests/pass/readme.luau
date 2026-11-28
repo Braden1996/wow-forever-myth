@@ -1,6 +1,6 @@
 --!strict
-local C_Item = require("../../packages/forever-myth/src/Api/C_Item")
-local ForeverMyth = require("../../packages/forever-myth/src/ForeverMyth")
+local C_Item = require("../../packages/libraries/luau/wow/forever-myth/src/Api/C_Item")
+local ForeverMyth = require("../../packages/libraries/luau/wow/forever-myth/src/ForeverMyth")
 
 local Api, Maybe, Result, Task = ForeverMyth.Api, ForeverMyth.Maybe, ForeverMyth.Result, ForeverMyth.Task
 
@@ -8,7 +8,7 @@ local function readme(questID: number, frame: Frame)
 	local title = Maybe.unwrapOr(Api.C_QuestLog.GetTitleForQuestID(questID), "an unknown quest")
 	print(title)
 
-	local message = Result.match(Api.C_AddOns.LoadAddOn("Speedline_Data"), {
+	local message = Result.match(Api.C_AddOns.LoadAddOn("MyAddon_Data"), {
 		Ok = function(_loaded: true): string
 			return "loaded"
 		end,

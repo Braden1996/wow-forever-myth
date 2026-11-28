@@ -2,13 +2,13 @@
 local fs = require("@lune/fs")
 local luau = require("@lune/luau")
 
-local Callbacks = require("../../overrides/Callbacks")
-local Fakes = require("../support/Fakes")
-local Lib = require("../support/Lib")
-local Loads = require("../../overrides/Loads")
-local OverrideTypes = require("../../generator/OverrideTypes")
-local Results = require("../../overrides/Results")
-local ShapeFile = require("../../generator/ShapeFile")
+local Callbacks = require("../../packages/libraries/luau/pure/generator/src/overrides/Callbacks")
+local Fakes = require("../../packages/runtimes/cli/src/support/Fakes")
+local Lib = require("../../packages/runtimes/cli/src/support/Lib")
+local Loads = require("../../packages/libraries/luau/pure/generator/src/overrides/Loads")
+local OverrideTypes = require("../../packages/libraries/luau/pure/generator/src/OverrideTypes")
+local Results = require("../../packages/libraries/luau/pure/generator/src/overrides/Results")
+local ShapeFile = require("../../packages/libraries/luau/pure/generator/src/ShapeFile")
 
 type Shape = ShapeFile.Shape
 

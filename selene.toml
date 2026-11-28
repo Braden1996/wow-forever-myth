@@ -1,4 +1,0 @@
-# Used by Sergeant's in-process Selene linter (`*.toml` custom stdlibs).
-# External `selene` CLI uses `selene.cli.toml` (`*.yml` v2 custom stdlibs).
-std = "luau+luau-type-functions-sgt+wow-forever-sgt"
-exclude = ["tests/lua51/*"]

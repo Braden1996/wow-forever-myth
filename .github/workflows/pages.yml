@@ -1,19 +1,8 @@
-# Builds the documentation site (docs/) and deploys it to GitHub Pages from main. Fully static: the API reference is
-# generated from packages/forever-myth/src/ and the examples are checked against the releases woof.toml pins.
 name: pages
 
 on:
   push:
     branches: [main]
-    paths:
-      - "docs/**"
-      - "packages/forever-myth/src/**"
-      - "overrides/**"
-      - "woof.toml"
-      - "woof.lock"
-      - "mise.toml"
-      - "mise.lock"
-      - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
 permissions:
@@ -30,24 +19,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+      - uses: Braden1996/sergeant-releases/actions/setup@v0.15.0 # zizmor: ignore[unpinned-uses] -- Sergeant 0.15.0 release action
         with:
-          install_args: bun node github:lune-org/lune github:luau-lang/luau http:woof
-          cache: false
-      - name: install pinned Luau packages and derive settings
-        run: |
-          mise exec -- woof install --frozen
-          mise exec -- lune run scripts/derive
-      - name: install
-        working-directory: docs
-        run: mise exec -- bun install --frozen-lockfile
-      - name: build
-        working-directory: docs
-        run: mise exec -- bun run build
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+          seal-sysctl: "true"
+      - uses: Braden1996/sergeant-releases/actions/setup-luau@v0.15.0 # zizmor: ignore[unpinned-uses] -- Sergeant 0.15.0 release action
         with:
-          path: docs/dist
+          luau-ast: "true"
+      - uses: ./.github/actions/setup-workspace
+      - run: sgt --no-daemon install --frozen
+      - uses: Braden1996/sergeant-releases/actions/deploy-astro-pages@v0.15.0 # zizmor: ignore[unpinned-uses] -- Sergeant 0.15.0 release action
+        with:
+          unit: "@wow-forever-myth/docs"
 
   deploy:
     needs: build

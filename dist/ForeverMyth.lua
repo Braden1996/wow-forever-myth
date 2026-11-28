@@ -1,5 +1,5 @@
 -- wow-forever-myth 0.6.0: the WoW: Forever API in Maybe, Result and Task idioms (Lua 5.1).
--- https://github.com/Braden1996/wow-forever-myth - generated from the Luau sources by darklua; do not edit.
+-- https://github.com/Braden1996/wow-forever-myth - generated from the Luau sources by Sergeant; do not edit.
 -- Listed in a .toc it stores the library as `ns.ForeverMyth`; loaded any other way it returns it.
 -- It bundles luau-true-myth (https://github.com/Braden1996/luau-true-myth).
 --
@@ -369,6 +369,916 @@ do
     end
     do
         local function __modImpl()
+            local Show = __DARKLUA_BUNDLE_MODULES.a()
+            local Result = {}
+
+            local function uncheckedView(result)
+                return result
+            end
+
+            function Result.ok(value)
+                return {
+                    kind = 'Ok',
+                    value = value,
+                }
+            end
+            function Result.err(error)
+                return {
+                    kind = 'Err',
+                    error = error,
+                }
+            end
+            function Result.isOk(result)
+                return result.kind == 'Ok'
+            end
+            function Result.isErr(result)
+                return result.kind == 'Err'
+            end
+            function Result.map(result, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return Result.ok(f(r.value))
+                end
+
+                return r
+            end
+            function Result.mapErr(result, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Err' then
+                    return Result.err(f(r.error))
+                end
+
+                return r
+            end
+            function Result.mapOr(result, default, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return f(r.value)
+                end
+
+                return default
+            end
+            function Result.mapOrElse(result, orElse, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return f(r.value)
+                end
+
+                return orElse(r.error)
+            end
+            function Result.match(result, matcher)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return matcher.Ok(r.value)
+                end
+
+                return matcher.Err(r.error)
+            end
+            function Result.andThen(result, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return uncheckedView(f(r.value))
+                end
+
+                return r
+            end
+            function Result.and_(result, other)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return uncheckedView(other)
+                end
+
+                return r
+            end
+            function Result.or_(result, other)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return r
+                end
+
+                return uncheckedView(other)
+            end
+            function Result.orElse(result, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return r
+                end
+
+                return uncheckedView(f(r.error))
+            end
+            function Result.unwrapOr(result, default)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return r.value
+                end
+
+                return default
+            end
+            function Result.unwrapOrElse(result, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return r.value
+                end
+
+                return f(r.error)
+            end
+            function Result.flatten(result)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    return uncheckedView(r.value)
+                end
+
+                return r
+            end
+            function Result.equals(a, b)
+                if a.kind == 'Ok' and b.kind == 'Ok' then
+                    return a.value == b.value
+                elseif a.kind == 'Err' and b.kind == 'Err' then
+                    return a.error == b.error
+                end
+
+                return false
+            end
+            function Result.toString(result)
+                return Show.value(result)
+            end
+            function Result.inspect(result, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Ok' then
+                    f(r.value)
+                end
+
+                return result
+            end
+            function Result.inspectErr(result, f)
+                local r = uncheckedView(result)
+
+                if r.kind == 'Err' then
+                    f(r.error)
+                end
+
+                return result
+            end
+            function Result.all(results)
+                local values = {}
+
+                for _, result in ipairs(results)do
+                    local r = uncheckedView(result)
+
+                    if r.kind == 'Err' then
+                        return r
+                    end
+
+                    table.insert(values, r.value)
+                end
+
+                return Result.ok(values)
+            end
+            function Result.any(results)
+                local errors = {}
+
+                for _, result in ipairs(results)do
+                    local r = uncheckedView(result)
+
+                    if r.kind == 'Ok' then
+                        return r
+                    end
+
+                    table.insert(errors, r.error)
+                end
+
+                return Result.err(errors)
+            end
+            function Result.partition(results)
+                local values, errors = {}, {}
+
+                for _, result in ipairs(results)do
+                    local r = uncheckedView(result)
+
+                    if r.kind == 'Ok' then
+                        table.insert(values, r.value)
+                    else
+                        table.insert(errors, r.error)
+                    end
+                end
+
+                return values, errors
+            end
+            function Result.tryOr(error, f)
+                local ok, value = pcall(f)
+
+                if ok then
+                    return Result.ok(value)
+                end
+
+                return Result.err(error)
+            end
+            function Result.tryOrElse(onError, f)
+                local ok, value = pcall(f)
+
+                if ok then
+                    return Result.ok(value)
+                end
+
+                return Result.err(onError(value))
+            end
+            function Result.safe(f, onError)
+                return function(...)
+                    local ok, value = pcall(f, ...)
+
+                    if ok then
+                        return Result.ok(value)
+                    end
+
+                    return Result.err(onError(value))
+                end
+            end
+
+            return Result
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.c()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.c
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.c = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Delay = {}
+
+            function Delay.fixed(seconds)
+                return function()
+                    return seconds
+                end
+            end
+            function Delay.immediate()
+                return Delay.fixed(0)
+            end
+            function Delay.none()
+                return function()
+                    return nil
+                end
+            end
+            function Delay.exponential(options)
+                local from = (options and options.from and {
+                    options.from,
+                } or {1})[1]
+                local factor = (options and options.factor and {
+                    options.factor,
+                } or {2})[1]
+                local max = (options and options.max and {
+                    options.max,
+                } or {
+                    math.huge,
+                })[1]
+                local current = from
+
+                return function()
+                    local delay = math.min(current, max)
+
+                    current = current * factor
+
+                    return delay
+                end
+            end
+            function Delay.fibonacci(from)
+                local base = from or 1
+                local current, following = base, base
+
+                return function()
+                    local delay = current
+
+                    current, following = following, current + following
+
+                    return delay
+                end
+            end
+            function Delay.linear(options)
+                local from = (options and options.from and {
+                    options.from,
+                } or {0})[1]
+                local step = (options and options.step and {
+                    options.step,
+                } or {1})[1]
+                local current = from
+
+                return function()
+                    local delay = current
+
+                    current = current + step
+
+                    return delay
+                end
+            end
+            function Delay.take(strategy, count)
+                local taken = 0
+
+                return function()
+                    if taken >= count then
+                        return nil
+                    end
+
+                    taken = taken + 1
+
+                    return strategy()
+                end
+            end
+            function Delay.jitter(strategy, random)
+                return function()
+                    local delay = strategy()
+
+                    if delay == nil then
+                        return nil
+                    end
+
+                    return delay * random()
+                end
+            end
+
+            return Delay
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.d()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.d
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.d = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Delay = __DARKLUA_BUNDLE_MODULES.d()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local PENDING_STATE = {
+                kind = 'Pending',
+            }
+
+            local function uncheckedWeakKeyedThreads()
+                return (setmetatable({}, {
+                    __mode = 'k',
+                }))
+            end
+
+            local asyncThreads = uncheckedWeakKeyedThreads()
+            local Task = {}
+
+            local function uncheckedResult(value)
+                return value
+            end
+            local function newPendingRecord()
+                return {
+                    state = PENDING_STATE,
+                    waiters = {},
+                }
+            end
+            local function uncheckedRecordOf(task)
+                return task
+            end
+            local function toResult(state)
+                if state.kind == 'Resolved' then
+                    return Result.ok(state.value)
+                end
+
+                return Result.err(state.reason)
+            end
+            local function settle(task, state)
+                if task.state.kind ~= 'Pending' then
+                    return
+                end
+
+                task.state = state
+
+                local waiters = task.waiters
+
+                task.waiters = {}
+
+                local result = toResult(state)
+
+                for _, waiter in ipairs(waiters)do
+                    waiter(result)
+                end
+            end
+            local function resolveRecord(task, value)
+                settle(task, {
+                    kind = 'Resolved',
+                    value = value,
+                })
+            end
+            local function rejectRecord(task, reason)
+                settle(task, {
+                    kind = 'Rejected',
+                    reason = reason,
+                })
+            end
+            local function whenRecordSettles(task, callback)
+                local inner = uncheckedRecordOf(task)
+                local state = inner.state
+
+                if state.kind == 'Pending' then
+                    table.insert(inner.waiters, callback)
+                else
+                    callback(toResult(state))
+                end
+            end
+            local function settleLike(source, target)
+                whenRecordSettles(source, function(result)
+                    if result.kind == 'Ok' then
+                        resolveRecord(target, result.value)
+                    else
+                        rejectRecord(target, result.error)
+                    end
+                end)
+            end
+
+            function Task.whenSettled(task, callback)
+                whenRecordSettles(task, callback)
+            end
+            function Task.new(executor)
+                local task = newPendingRecord()
+
+                executor(function(value)
+                    resolveRecord(task, value)
+                end, function(reason)
+                    rejectRecord(task, reason)
+                end)
+
+                return task
+            end
+            function Task.withResolvers()
+                local task = newPendingRecord()
+
+                return {
+                    task = task,
+                    resolve = function(value)
+                        resolveRecord(task, value)
+                    end,
+                    reject = function(reason)
+                        rejectRecord(task, reason)
+                    end,
+                }
+            end
+            function Task.resolve(value)
+                local task = newPendingRecord()
+
+                resolveRecord(task, value)
+
+                return task
+            end
+            function Task.reject(reason)
+                local task = newPendingRecord()
+
+                rejectRecord(task, reason)
+
+                return task
+            end
+            function Task.fromResult(result)
+                local task = newPendingRecord()
+                local r = uncheckedResult(result)
+
+                if r.kind == 'Ok' then
+                    resolveRecord(task, r.value)
+                else
+                    rejectRecord(task, r.error)
+                end
+
+                return task
+            end
+            function Task.peek(task)
+                local state = uncheckedRecordOf(task).state
+
+                if state.kind == 'Pending' then
+                    return nil
+                end
+
+                return toResult(state)
+            end
+            function Task.isPending(task)
+                return task.state.kind == 'Pending'
+            end
+            function Task.isResolved(task)
+                return task.state.kind == 'Resolved'
+            end
+            function Task.isRejected(task)
+                return task.state.kind == 'Rejected'
+            end
+            function Task.map(task, f)
+                local target = newPendingRecord()
+
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Ok' then
+                        resolveRecord(target, f(result.value))
+                    else
+                        rejectRecord(target, result.error)
+                    end
+                end)
+
+                return target
+            end
+            function Task.mapRejected(task, f)
+                local target = newPendingRecord()
+
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Ok' then
+                        resolveRecord(target, result.value)
+                    else
+                        rejectRecord(target, f(result.error))
+                    end
+                end)
+
+                return target
+            end
+            function Task.andThen(task, f)
+                local target = newPendingRecord()
+
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Ok' then
+                        settleLike(f(result.value), target)
+                    else
+                        rejectRecord(target, result.error)
+                    end
+                end)
+
+                return target
+            end
+            function Task.orElse(task, f)
+                local target = newPendingRecord()
+
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Ok' then
+                        resolveRecord(target, result.value)
+                    else
+                        settleLike(f(result.error), target)
+                    end
+                end)
+
+                return target
+            end
+            function Task.and_(task, other)
+                local target = newPendingRecord()
+
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Ok' then
+                        settleLike(other, target)
+                    else
+                        rejectRecord(target, result.error)
+                    end
+                end)
+
+                return target
+            end
+            function Task.or_(task, other)
+                local target = newPendingRecord()
+
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Ok' then
+                        resolveRecord(target, result.value)
+                    else
+                        settleLike(other, target)
+                    end
+                end)
+
+                return target
+            end
+            function Task.match(task, matcher)
+                local target = newPendingRecord()
+
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Ok' then
+                        resolveRecord(target, matcher.Resolved(result.value))
+                    else
+                        resolveRecord(target, matcher.Rejected(result.error))
+                    end
+                end)
+
+                return target
+            end
+            function Task.toResult(task)
+                local target = newPendingRecord()
+
+                whenRecordSettles(task, function(result)
+                    resolveRecord(target, result)
+                end)
+
+                return target
+            end
+            function Task.inspect(task, f)
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Ok' then
+                        f(result.value)
+                    end
+                end)
+
+                return task
+            end
+            function Task.inspectRejected(task, f)
+                whenRecordSettles(task, function(result)
+                    if result.kind == 'Err' then
+                        f(result.error)
+                    end
+                end)
+
+                return task
+            end
+            function Task.all(tasks)
+                local target = newPendingRecord()
+                local values = {}
+                local remaining = #tasks
+
+                if remaining == 0 then
+                    resolveRecord(target, values)
+
+                    return target
+                end
+
+                for index, task in ipairs(tasks)do
+                    whenRecordSettles(task, function(result)
+                        if result.kind == 'Ok' then
+                            values[index] = result.value
+                            remaining = remaining - 1
+
+                            if remaining == 0 then
+                                resolveRecord(target, values)
+                            end
+                        else
+                            rejectRecord(target, result.error)
+                        end
+                    end)
+                end
+
+                return target
+            end
+            function Task.allSettled(tasks)
+                local target = newPendingRecord()
+                local results = {}
+                local remaining = #tasks
+
+                if remaining == 0 then
+                    resolveRecord(target, results)
+
+                    return target
+                end
+
+                for index, task in ipairs(tasks)do
+                    whenRecordSettles(task, function(result)
+                        results[index] = result
+                        remaining = remaining - 1
+
+                        if remaining == 0 then
+                            resolveRecord(target, results)
+                        end
+                    end)
+                end
+
+                return target
+            end
+            function Task.any(tasks)
+                local target = newPendingRecord()
+                local reasons = {}
+                local remaining = #tasks
+
+                if remaining == 0 then
+                    rejectRecord(target, reasons)
+
+                    return target
+                end
+
+                for index, task in ipairs(tasks)do
+                    whenRecordSettles(task, function(result)
+                        if result.kind == 'Ok' then
+                            resolveRecord(target, result.value)
+                        else
+                            reasons[index] = result.error
+                            remaining = remaining - 1
+
+                            if remaining == 0 then
+                                rejectRecord(target, reasons)
+                            end
+                        end
+                    end)
+                end
+
+                return target
+            end
+            function Task.race(tasks)
+                local target = newPendingRecord()
+
+                for _, task in ipairs(tasks)do
+                    settleLike(task, target)
+                end
+
+                return target
+            end
+            function Task.async(body)
+                local task = newPendingRecord()
+                local thread = coroutine.create(function()
+                    local result = uncheckedResult(body())
+
+                    if result.kind == 'Ok' then
+                        resolveRecord(task, result.value)
+                    else
+                        rejectRecord(task, result.error)
+                    end
+                end)
+
+                asyncThreads[thread] = true
+
+                local ok, raised = coroutine.resume(thread)
+
+                if not ok then
+                    error(raised, 0)
+                end
+
+                return task
+            end
+            function Task.await(task)
+                local state = uncheckedRecordOf(task).state
+
+                if state.kind ~= 'Pending' then
+                    return toResult(state)
+                end
+
+                local thread = coroutine.running()
+
+                if thread == nil or not asyncThreads[thread] then
+                    error('Task.await: called outside Task.async', 2)
+                end
+
+                local settled = nil
+
+                whenRecordSettles(task, function(result)
+                    settled = result
+
+                    local ok, raised = coroutine.resume(thread)
+
+                    if not ok then
+                        error(raised, 0)
+                    end
+                end)
+
+                while true do
+                    local result = settled
+
+                    if result ~= nil then
+                        return result
+                    end
+
+                    coroutine.yield()
+                end
+            end
+            function Task.timer(seconds, schedule)
+                local task = newPendingRecord()
+
+                schedule(seconds, function()
+                    resolveRecord(task, seconds)
+                end)
+
+                return task
+            end
+            function Task.timeout(task, seconds, schedule)
+                local target = newPendingRecord()
+
+                settleLike(task, target)
+                schedule(seconds, function()
+                    local timeout = {
+                        kind = 'Timeout',
+                        seconds = seconds,
+                    }
+
+                    rejectRecord(target, timeout)
+                end)
+
+                return target
+            end
+
+            local function delayBeforeNextAttempt(
+                reason,
+                status,
+                strategy,
+                shouldRetry
+            )
+                if shouldRetry ~= nil and not shouldRetry(reason, status) then
+                    return nil
+                end
+
+                return strategy()
+            end
+            local function waitThen(seconds, schedule, continue)
+                if seconds <= 0 then
+                    continue()
+                elseif schedule then
+                    schedule(seconds, continue)
+                else
+                    error('Task.withRetries: a delay above 0 needs options.schedule', 0)
+                end
+            end
+
+            function Task.withRetries(retryable, options)
+                local strategy = (options and options.strategy and {
+                    options.strategy,
+                } or {
+                    (Delay.take(Delay.immediate(), 3)),
+                })[1]
+                local schedule = (options and {
+                    options.schedule,
+                } or {nil})[1]
+                local shouldRetry = (options and {
+                    options.shouldRetry,
+                } or {nil})[1]
+                local target = newPendingRecord()
+                local rejections = {}
+                local elapsed = 0
+
+                local function giveUp(attempts)
+                    local failed = {
+                        kind = 'RetryFailed',
+                        tries = attempts,
+                        elapsed = elapsed,
+                        rejections = rejections,
+                    }
+
+                    rejectRecord(target, failed)
+                end
+                local function attempt(count)
+                    local status = {
+                        count = count,
+                        elapsed = elapsed,
+                    }
+
+                    whenRecordSettles(retryable(status), function(result)
+                        if result.kind == 'Ok' then
+                            resolveRecord(target, result.value)
+
+                            return
+                        end
+
+                        table.insert(rejections, result.error)
+
+                        local delay = delayBeforeNextAttempt(result.error, status, strategy, shouldRetry)
+
+                        if delay == nil then
+                            giveUp(count + 1)
+
+                            return
+                        end
+
+                        elapsed = elapsed + delay
+
+                        waitThen(delay, schedule, function()
+                            attempt(count + 1)
+                        end)
+                    end)
+                end
+
+                attempt(0)
+
+                return target
+            end
+
+            return Task
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.e()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.e
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.e = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
             local Reuse = {}
 
@@ -433,14 +1343,14 @@ do
             return Reuse
         end
 
-        function __DARKLUA_BUNDLE_MODULES.c()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.c
+        function __DARKLUA_BUNDLE_MODULES.f()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.f
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.c = v
+                __DARKLUA_BUNDLE_MODULES.cache.f = v
             end
 
             return v.c
@@ -449,7 +1359,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCurrencyIDForStore(storeFrontID)
@@ -468,14 +1378,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.d()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.d
+        function __DARKLUA_BUNDLE_MODULES.g()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.g
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.d = v
+                __DARKLUA_BUNDLE_MODULES.cache.g = v
             end
 
             return v.c
@@ -484,7 +1394,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetRewardItemID(achievementID)
@@ -497,14 +1407,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.e()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.e
+        function __DARKLUA_BUNDLE_MODULES.h()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.h
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.e = v
+                __DARKLUA_BUNDLE_MODULES.cache.h = v
             end
 
             return v.c
@@ -513,7 +1423,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.FindAssistedCombatActionButtons(setToSearch)
@@ -805,14 +1715,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.f()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.f
+        function __DARKLUA_BUNDLE_MODULES.i()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.i
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.f = v
+                __DARKLUA_BUNDLE_MODULES.cache.i = v
             end
 
             return v.c
@@ -821,7 +1731,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CheckForPerformanceMessage()
@@ -834,270 +1744,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.g()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.g
+        function __DARKLUA_BUNDLE_MODULES.j()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.j
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.g = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Show = __DARKLUA_BUNDLE_MODULES.a()
-            local Result = {}
-
-            local function uncheckedView(result)
-                return result
-            end
-
-            function Result.ok(value)
-                return {
-                    kind = 'Ok',
-                    value = value,
-                }
-            end
-            function Result.err(error)
-                return {
-                    kind = 'Err',
-                    error = error,
-                }
-            end
-            function Result.isOk(result)
-                return result.kind == 'Ok'
-            end
-            function Result.isErr(result)
-                return result.kind == 'Err'
-            end
-            function Result.map(result, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return Result.ok(f(r.value))
-                end
-
-                return r
-            end
-            function Result.mapErr(result, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Err' then
-                    return Result.err(f(r.error))
-                end
-
-                return r
-            end
-            function Result.mapOr(result, default, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return f(r.value)
-                end
-
-                return default
-            end
-            function Result.mapOrElse(result, orElse, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return f(r.value)
-                end
-
-                return orElse(r.error)
-            end
-            function Result.match(result, matcher)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return matcher.Ok(r.value)
-                end
-
-                return matcher.Err(r.error)
-            end
-            function Result.andThen(result, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return uncheckedView(f(r.value))
-                end
-
-                return r
-            end
-            function Result.and_(result, other)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return uncheckedView(other)
-                end
-
-                return r
-            end
-            function Result.or_(result, other)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return r
-                end
-
-                return uncheckedView(other)
-            end
-            function Result.orElse(result, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return r
-                end
-
-                return uncheckedView(f(r.error))
-            end
-            function Result.unwrapOr(result, default)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return r.value
-                end
-
-                return default
-            end
-            function Result.unwrapOrElse(result, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return r.value
-                end
-
-                return f(r.error)
-            end
-            function Result.flatten(result)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    return uncheckedView(r.value)
-                end
-
-                return r
-            end
-            function Result.equals(a, b)
-                if a.kind == 'Ok' and b.kind == 'Ok' then
-                    return a.value == b.value
-                elseif a.kind == 'Err' and b.kind == 'Err' then
-                    return a.error == b.error
-                end
-
-                return false
-            end
-            function Result.toString(result)
-                return Show.value(result)
-            end
-            function Result.inspect(result, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Ok' then
-                    f(r.value)
-                end
-
-                return result
-            end
-            function Result.inspectErr(result, f)
-                local r = uncheckedView(result)
-
-                if r.kind == 'Err' then
-                    f(r.error)
-                end
-
-                return result
-            end
-            function Result.all(results)
-                local values = {}
-
-                for _, result in ipairs(results)do
-                    local r = uncheckedView(result)
-
-                    if r.kind == 'Err' then
-                        return r
-                    end
-
-                    table.insert(values, r.value)
-                end
-
-                return Result.ok(values)
-            end
-            function Result.any(results)
-                local errors = {}
-
-                for _, result in ipairs(results)do
-                    local r = uncheckedView(result)
-
-                    if r.kind == 'Ok' then
-                        return r
-                    end
-
-                    table.insert(errors, r.error)
-                end
-
-                return Result.err(errors)
-            end
-            function Result.partition(results)
-                local values, errors = {}, {}
-
-                for _, result in ipairs(results)do
-                    local r = uncheckedView(result)
-
-                    if r.kind == 'Ok' then
-                        table.insert(values, r.value)
-                    else
-                        table.insert(errors, r.error)
-                    end
-                end
-
-                return values, errors
-            end
-            function Result.tryOr(error, f)
-                local ok, value = pcall(f)
-
-                if ok then
-                    return Result.ok(value)
-                end
-
-                return Result.err(error)
-            end
-            function Result.tryOrElse(onError, f)
-                local ok, value = pcall(f)
-
-                if ok then
-                    return Result.ok(value)
-                end
-
-                return Result.err(onError(value))
-            end
-            function Result.safe(f, onError)
-                return function(...)
-                    local ok, value = pcall(f, ...)
-
-                    if ok then
-                        return Result.ok(value)
-                    end
-
-                    return Result.err(onError(value))
-                end
-            end
-
-            return Result
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.h()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.h
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.h = v
+                __DARKLUA_BUNDLE_MODULES.cache.j = v
             end
 
             return v.c
@@ -1106,8 +1760,8 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAddOnInfo(name)
@@ -1174,70 +1828,6 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.i()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.i
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.i = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Wrappers = {}
-
-            function Wrappers.GetQuestPortraitInfo(questID)
-                return Maybe.of(C_AdventureMap.GetQuestPortraitInfo(questID))
-            end
-            function Wrappers.GetQuestPortraitInfoInto(reuse, questID)
-                return Reuse.maybe(reuse, C_AdventureMap.GetQuestPortraitInfo(questID))
-            end
-
-            return Wrappers
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.j()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.j
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.j = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Wrappers = {}
-
-            function Wrappers.GetAllRacialAbilitiesFromID(raceID)
-                return Maybe.of(C_AlliedRaces.GetAllRacialAbilitiesFromID(raceID))
-            end
-            function Wrappers.GetAllRacialAbilitiesFromIDInto(reuse, raceID)
-                return Reuse.maybe(reuse, C_AlliedRaces.GetAllRacialAbilitiesFromID(raceID))
-            end
-            function Wrappers.GetRaceInfoByID(raceID)
-                return Maybe.of(C_AlliedRaces.GetRaceInfoByID(raceID))
-            end
-            function Wrappers.GetRaceInfoByIDInto(reuse, raceID)
-                return Reuse.maybe(reuse, C_AlliedRaces.GetRaceInfoByID(raceID))
-            end
-
-            return Wrappers
-        end
-
         function __DARKLUA_BUNDLE_MODULES.k()
             local v = __DARKLUA_BUNDLE_MODULES.cache.k
 
@@ -1254,20 +1844,14 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
-            function Wrappers.GetAnimaDiversionNodes()
-                return Maybe.of(C_AnimaDiversion.GetAnimaDiversionNodes())
+            function Wrappers.GetQuestPortraitInfo(questID)
+                return Maybe.of(C_AdventureMap.GetQuestPortraitInfo(questID))
             end
-            function Wrappers.GetAnimaDiversionNodesInto(reuse)
-                return Reuse.maybe(reuse, C_AnimaDiversion.GetAnimaDiversionNodes())
-            end
-            function Wrappers.GetOriginPosition()
-                return Maybe.of(C_AnimaDiversion.GetOriginPosition())
-            end
-            function Wrappers.GetOriginPositionInto(reuse)
-                return Reuse.maybe(reuse, C_AnimaDiversion.GetOriginPosition())
+            function Wrappers.GetQuestPortraitInfoInto(reuse, questID)
+                return Reuse.maybe(reuse, C_AdventureMap.GetQuestPortraitInfo(questID))
             end
 
             return Wrappers
@@ -1289,7 +1873,77 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
+            local Wrappers = {}
+
+            function Wrappers.GetAllRacialAbilitiesFromID(raceID)
+                return Maybe.of(C_AlliedRaces.GetAllRacialAbilitiesFromID(raceID))
+            end
+            function Wrappers.GetAllRacialAbilitiesFromIDInto(reuse, raceID)
+                return Reuse.maybe(reuse, C_AlliedRaces.GetAllRacialAbilitiesFromID(raceID))
+            end
+            function Wrappers.GetRaceInfoByID(raceID)
+                return Maybe.of(C_AlliedRaces.GetRaceInfoByID(raceID))
+            end
+            function Wrappers.GetRaceInfoByIDInto(reuse, raceID)
+                return Reuse.maybe(reuse, C_AlliedRaces.GetRaceInfoByID(raceID))
+            end
+
+            return Wrappers
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.m()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.m
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.m = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
+            local Wrappers = {}
+
+            function Wrappers.GetAnimaDiversionNodes()
+                return Maybe.of(C_AnimaDiversion.GetAnimaDiversionNodes())
+            end
+            function Wrappers.GetAnimaDiversionNodesInto(reuse)
+                return Reuse.maybe(reuse, C_AnimaDiversion.GetAnimaDiversionNodes())
+            end
+            function Wrappers.GetOriginPosition()
+                return Maybe.of(C_AnimaDiversion.GetOriginPosition())
+            end
+            function Wrappers.GetOriginPositionInto(reuse)
+                return Reuse.maybe(reuse, C_AnimaDiversion.GetOriginPosition())
+            end
+
+            return Wrappers
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.n()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.n
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.n = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAreaPOIInfo(uiMapID, areaPoiID)
@@ -1325,14 +1979,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.m()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.m
+        function __DARKLUA_BUNDLE_MODULES.o()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.o
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.m = v
+                __DARKLUA_BUNDLE_MODULES.cache.o = v
             end
 
             return v.c
@@ -1341,7 +1995,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAppearanceInfo(
@@ -1873,14 +2527,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.n()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.n
+        function __DARKLUA_BUNDLE_MODULES.p()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.p
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.n = v
+                __DARKLUA_BUNDLE_MODULES.cache.p = v
             end
 
             return v.c
@@ -1889,7 +2543,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetActionSpell()
@@ -1928,14 +2582,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.o()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.o
+        function __DARKLUA_BUNDLE_MODULES.q()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.q
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.o = v
+                __DARKLUA_BUNDLE_MODULES.cache.q = v
             end
 
             return v.c
@@ -1944,7 +2598,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CalculateCommodityDeposit(
@@ -2237,14 +2891,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.p()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.p
+        function __DARKLUA_BUNDLE_MODULES.r()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.r
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.p = v
+                __DARKLUA_BUNDLE_MODULES.cache.r = v
             end
 
             return v.c
@@ -2253,7 +2907,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAutoCompletePresenceID(name)
@@ -2266,14 +2920,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.q()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.q
+        function __DARKLUA_BUNDLE_MODULES.s()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.s
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.q = v
+                __DARKLUA_BUNDLE_MODULES.cache.s = v
             end
 
             return v.c
@@ -2282,7 +2936,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetPowerInfo(powerID)
@@ -2316,14 +2970,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.r()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.r
+        function __DARKLUA_BUNDLE_MODULES.t()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.t
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.r = v
+                __DARKLUA_BUNDLE_MODULES.cache.t = v
             end
 
             return v.c
@@ -2332,7 +2986,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetEssenceInfo(essenceID)
@@ -2375,14 +3029,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.s()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.s
+        function __DARKLUA_BUNDLE_MODULES.u()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.u
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.s = v
+                __DARKLUA_BUNDLE_MODULES.cache.u = v
             end
 
             return v.c
@@ -2391,7 +3045,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.FindActiveAzeriteItem()
@@ -2433,14 +3087,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.t()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.t
+        function __DARKLUA_BUNDLE_MODULES.v()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.v
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.t = v
+                __DARKLUA_BUNDLE_MODULES.cache.v = v
             end
 
             return v.c
@@ -2449,7 +3103,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.BankBagTypeAndIDToInvSlot(bankType, slotIndex)
@@ -2481,14 +3135,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.u()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.u
+        function __DARKLUA_BUNDLE_MODULES.w()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.w
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.u = v
+                __DARKLUA_BUNDLE_MODULES.cache.w = v
             end
 
             return v.c
@@ -2497,7 +3151,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAvailableCustomizations()
@@ -2522,14 +3176,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.v()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.v
+        function __DARKLUA_BUNDLE_MODULES.x()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.x
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.v = v
+                __DARKLUA_BUNDLE_MODULES.cache.x = v
             end
 
             return v.c
@@ -2538,7 +3192,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAccountInfoByGUID(guid)
@@ -2628,14 +3282,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.w()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.w
+        function __DARKLUA_BUNDLE_MODULES.y()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.y
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.w = v
+                __DARKLUA_BUNDLE_MODULES.cache.y = v
             end
 
             return v.c
@@ -2644,7 +3298,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetHotItem()
@@ -2792,14 +3446,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.x()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.x
+        function __DARKLUA_BUNDLE_MODULES.z()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.z
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.x = v
+                __DARKLUA_BUNDLE_MODULES.cache.z = v
             end
 
             return v.c
@@ -2808,7 +3462,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCVar(name)
@@ -2878,14 +3532,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.y()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.y
+        function __DARKLUA_BUNDLE_MODULES.A()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.A
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.y = v
+                __DARKLUA_BUNDLE_MODULES.cache.A = v
             end
 
             return v.c
@@ -2894,7 +3548,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.ContextMenuEventGetCalendarType()
@@ -3044,14 +3698,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.z()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.z
+        function __DARKLUA_BUNDLE_MODULES.B()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.B
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.z = v
+                __DARKLUA_BUNDLE_MODULES.cache.B = v
             end
 
             return v.c
@@ -3060,7 +3714,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCampaignChapterInfo(campaignChapterID)
@@ -3100,14 +3754,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.A()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.A
+        function __DARKLUA_BUNDLE_MODULES.C()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.C
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.A = v
+                __DARKLUA_BUNDLE_MODULES.cache.C = v
             end
 
             return v.c
@@ -3116,7 +3770,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.BulkPurchaseProducts(productIDs)
@@ -3238,14 +3892,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.B()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.B
+        function __DARKLUA_BUNDLE_MODULES.D()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.D
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.B = v
+                __DARKLUA_BUNDLE_MODULES.cache.D = v
             end
 
             return v.c
@@ -3254,7 +3908,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetActiveChallengeMapID()
@@ -3443,14 +4097,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.C()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.C
+        function __DARKLUA_BUNDLE_MODULES.E()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.E
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.C = v
+                __DARKLUA_BUNDLE_MODULES.cache.E = v
             end
 
             return v.c
@@ -3459,7 +4113,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetChannelInfoFromIdentifier(channelIdentifier)
@@ -3576,67 +4230,6 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.D()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.D
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.D = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Wrappers = {}
-
-            function Wrappers.GetChromieTimeExpansionOption(expansionRecID)
-                return Maybe.of(C_ChromieTime.GetChromieTimeExpansionOption(expansionRecID))
-            end
-            function Wrappers.GetChromieTimeExpansionOptionInto(
-                reuse,
-                expansionRecID
-            )
-                return Reuse.maybe(reuse, C_ChromieTime.GetChromieTimeExpansionOption(expansionRecID))
-            end
-
-            return Wrappers
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.E()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.E
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.E = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Wrappers = {}
-
-            function Wrappers.GetClassColor(className, tintColor)
-                return Maybe.of(C_ClassColor.GetClassColor(className, tintColor))
-            end
-            function Wrappers.GetClassColorInto(reuse, className, tintColor)
-                return Reuse.maybe(reuse, C_ClassColor.GetClassColor(className, tintColor))
-            end
-
-            return Wrappers
-        end
-
         function __DARKLUA_BUNDLE_MODULES.F()
             local v = __DARKLUA_BUNDLE_MODULES.cache.F
 
@@ -3653,8 +4246,69 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
+            local Wrappers = {}
+
+            function Wrappers.GetChromieTimeExpansionOption(expansionRecID)
+                return Maybe.of(C_ChromieTime.GetChromieTimeExpansionOption(expansionRecID))
+            end
+            function Wrappers.GetChromieTimeExpansionOptionInto(
+                reuse,
+                expansionRecID
+            )
+                return Reuse.maybe(reuse, C_ChromieTime.GetChromieTimeExpansionOption(expansionRecID))
+            end
+
+            return Wrappers
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.G()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.G
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.G = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
+            local Wrappers = {}
+
+            function Wrappers.GetClassColor(className, tintColor)
+                return Maybe.of(C_ClassColor.GetClassColor(className, tintColor))
+            end
+            function Wrappers.GetClassColorInto(reuse, className, tintColor)
+                return Reuse.maybe(reuse, C_ClassColor.GetClassColor(className, tintColor))
+            end
+
+            return Wrappers
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.H()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.H
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.H = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanChangeTalents()
@@ -3832,14 +4486,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.G()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.G
+        function __DARKLUA_BUNDLE_MODULES.I()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.I
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.G = v
+                __DARKLUA_BUNDLE_MODULES.cache.I = v
             end
 
             return v.c
@@ -3848,7 +4502,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.AreMembersReady(clubId)
@@ -4236,14 +4890,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.H()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.H
+        function __DARKLUA_BUNDLE_MODULES.J()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.J
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.H = v
+                __DARKLUA_BUNDLE_MODULES.cache.J = v
             end
 
             return v.c
@@ -4252,7 +4906,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetClubFinderDisableReason()
@@ -4323,14 +4977,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.I()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.I
+        function __DARKLUA_BUNDLE_MODULES.K()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.K
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.I = v
+                __DARKLUA_BUNDLE_MODULES.cache.K = v
             end
 
             return v.c
@@ -4339,7 +4993,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetColorOverrideInfo(overrideType)
@@ -4352,14 +5006,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.J()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.J
+        function __DARKLUA_BUNDLE_MODULES.L()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.L
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.J = v
+                __DARKLUA_BUNDLE_MODULES.cache.L = v
             end
 
             return v.c
@@ -4368,7 +5022,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.ConvertHSLToHSV(hslH, hslS, hslL)
@@ -4451,14 +5105,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.K()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.K
+        function __DARKLUA_BUNDLE_MODULES.M()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.M
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.K = v
+                __DARKLUA_BUNDLE_MODULES.cache.M = v
             end
 
             return v.c
@@ -4467,7 +5121,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.AddToKnownTargetingList(unit)
@@ -4497,14 +5151,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.L()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.L
+        function __DARKLUA_BUNDLE_MODULES.N()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.N
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.L = v
+                __DARKLUA_BUNDLE_MODULES.cache.N = v
             end
 
             return v.c
@@ -4513,7 +5167,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetActiveUnit()
@@ -4526,14 +5180,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.M()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.M
+        function __DARKLUA_BUNDLE_MODULES.O()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.O
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.M = v
+                __DARKLUA_BUNDLE_MODULES.cache.O = v
             end
 
             return v.c
@@ -4542,7 +5196,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.FindSpectatedUnit(unitToken)
@@ -5370,14 +6024,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.N()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.N
+        function __DARKLUA_BUNDLE_MODULES.P()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.P
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.N = v
+                __DARKLUA_BUNDLE_MODULES.cache.P = v
             end
 
             return v.c
@@ -5386,7 +6040,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCollectionDataByID(collectionID)
@@ -5405,14 +6059,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.O()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.O
+        function __DARKLUA_BUNDLE_MODULES.Q()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.Q
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.O = v
+                __DARKLUA_BUNDLE_MODULES.cache.Q = v
             end
 
             return v.c
@@ -5421,7 +6075,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.ContainerIDToInventoryID(containerID)
@@ -5643,14 +6297,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.P()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.P
+        function __DARKLUA_BUNDLE_MODULES.R()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.R
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.P = v
+                __DARKLUA_BUNDLE_MODULES.cache.R = v
             end
 
             return v.c
@@ -5659,7 +6313,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBestMapForTrackable(
@@ -5847,14 +6501,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.Q()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.Q
+        function __DARKLUA_BUNDLE_MODULES.S()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.S
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.Q = v
+                __DARKLUA_BUNDLE_MODULES.cache.S = v
             end
 
             return v.c
@@ -5863,7 +6517,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetContributionAppearance(
@@ -5962,14 +6616,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.R()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.R
+        function __DARKLUA_BUNDLE_MODULES.T()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.T
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.R = v
+                __DARKLUA_BUNDLE_MODULES.cache.T = v
             end
 
             return v.c
@@ -5978,7 +6632,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCooldownViewerCooldownInfo(cooldownID)
@@ -6011,14 +6665,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.S()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.S
+        function __DARKLUA_BUNDLE_MODULES.U()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.U
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.S = v
+                __DARKLUA_BUNDLE_MODULES.cache.U = v
             end
 
             return v.c
@@ -6027,7 +6681,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCovenantInfoForPlayerChoiceResponseID(
@@ -6045,14 +6699,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.T()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.T
+        function __DARKLUA_BUNDLE_MODULES.V()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.V
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.T = v
+                __DARKLUA_BUNDLE_MODULES.cache.V = v
             end
 
             return v.c
@@ -6061,7 +6715,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAnimaInfo()
@@ -6097,14 +6751,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.U()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.U
+        function __DARKLUA_BUNDLE_MODULES.W()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.W
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.U = v
+                __DARKLUA_BUNDLE_MODULES.cache.W = v
             end
 
             return v.c
@@ -6113,7 +6767,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCovenantData(covenantID)
@@ -6126,14 +6780,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.V()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.V
+        function __DARKLUA_BUNDLE_MODULES.X()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.X
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.V = v
+                __DARKLUA_BUNDLE_MODULES.cache.X = v
             end
 
             return v.c
@@ -6142,7 +6796,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetClaimedOrder()
@@ -6161,14 +6815,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.W()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.W
+        function __DARKLUA_BUNDLE_MODULES.Y()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.Y
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.W = v
+                __DARKLUA_BUNDLE_MODULES.cache.Y = v
             end
 
             return v.c
@@ -6177,7 +6831,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetClassInfo(classID)
@@ -6223,14 +6877,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.X()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.X
+        function __DARKLUA_BUNDLE_MODULES.Z()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.Z
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.X = v
+                __DARKLUA_BUNDLE_MODULES.cache.Z = v
             end
 
             return v.c
@@ -6239,7 +6893,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanTransferCurrency(currencyID)
@@ -6367,14 +7021,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.Y()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.Y
+        function __DARKLUA_BUNDLE_MODULES._()
+            local v = __DARKLUA_BUNDLE_MODULES.cache._
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.Y = v
+                __DARKLUA_BUNDLE_MODULES.cache._ = v
             end
 
             return v.c
@@ -6383,7 +7037,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCursorItem()
@@ -6396,14 +7050,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.Z()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.Z
+        function __DARKLUA_BUNDLE_MODULES.aa()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aa
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.Z = v
+                __DARKLUA_BUNDLE_MODULES.cache.aa = v
             end
 
             return v.c
@@ -6412,7 +7066,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetSessionDurationSeconds(sessionType)
@@ -6442,14 +7096,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES._()
-            local v = __DARKLUA_BUNDLE_MODULES.cache._
+        function __DARKLUA_BUNDLE_MODULES.ab()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ab
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache._ = v
+                __DARKLUA_BUNDLE_MODULES.cache.ab = v
             end
 
             return v.c
@@ -6458,7 +7112,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCorpseMapPosition(uiMapID)
@@ -6483,14 +7137,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aa()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aa
+        function __DARKLUA_BUNDLE_MODULES.ac()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ac
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aa = v
+                __DARKLUA_BUNDLE_MODULES.cache.ac = v
             end
 
             return v.c
@@ -6499,7 +7153,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDelveEntranceDescriptionString()
@@ -6561,14 +7215,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ab()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ab
+        function __DARKLUA_BUNDLE_MODULES.ad()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ad
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ab = v
+                __DARKLUA_BUNDLE_MODULES.cache.ad = v
             end
 
             return v.c
@@ -6577,7 +7231,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDiscordChannelName(serverIndex, channelIndex)
@@ -6696,14 +7350,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ac()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ac
+        function __DARKLUA_BUNDLE_MODULES.ae()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ae
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ac = v
+                __DARKLUA_BUNDLE_MODULES.cache.ae = v
             end
 
             return v.c
@@ -6712,7 +7366,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDyeColorCategoryInfo(dyeColorCategoryID)
@@ -6734,14 +7388,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ad()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ad
+        function __DARKLUA_BUNDLE_MODULES.af()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.af
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ad = v
+                __DARKLUA_BUNDLE_MODULES.cache.af = v
             end
 
             return v.c
@@ -6750,7 +7404,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.ConvertStringToLayoutInfo(layoutInfoAsString)
@@ -6766,14 +7420,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ae()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ae
+        function __DARKLUA_BUNDLE_MODULES.ag()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ag
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ae = v
+                __DARKLUA_BUNDLE_MODULES.cache.ag = v
             end
 
             return v.c
@@ -6782,7 +7436,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CompressString(source, method, level)
@@ -6837,14 +7491,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.af()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.af
+        function __DARKLUA_BUNDLE_MODULES.ah()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ah
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.af = v
+                __DARKLUA_BUNDLE_MODULES.cache.ah = v
             end
 
             return v.c
@@ -6853,7 +7507,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetEventColor(encounterEventID, trigger)
@@ -6886,14 +7540,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ag()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ag
+        function __DARKLUA_BUNDLE_MODULES.ai()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ai
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ag = v
+                __DARKLUA_BUNDLE_MODULES.cache.ai = v
             end
 
             return v.c
@@ -6902,7 +7556,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetInstanceForGameMap(mapID)
@@ -6937,14 +7591,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ah()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ah
+        function __DARKLUA_BUNDLE_MODULES.aj()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aj
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ah = v
+                __DARKLUA_BUNDLE_MODULES.cache.aj = v
             end
 
             return v.c
@@ -6953,7 +7607,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetEventColor(eventID, overrideTrigger)
@@ -7032,64 +7686,6 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ai()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ai
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.ai = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Wrappers = {}
-
-            function Wrappers.PlaySound(severity)
-                return Maybe.of(C_EncounterWarnings.PlaySound(severity))
-            end
-            function Wrappers.PlaySoundInto(reuse, severity)
-                return Reuse.maybe(reuse, C_EncounterWarnings.PlaySound(severity))
-            end
-
-            return Wrappers
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.aj()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aj
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.aj = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Wrappers = {}
-
-            function Wrappers.GetEndOfMatchDetails()
-                return Maybe.of(C_EndOfMatchUI.GetEndOfMatchDetails())
-            end
-            function Wrappers.GetEndOfMatchDetailsInto(reuse)
-                return Reuse.maybe(reuse, C_EndOfMatchUI.GetEndOfMatchDetails())
-            end
-
-            return Wrappers
-        end
-
         function __DARKLUA_BUNDLE_MODULES.ak()
             local v = __DARKLUA_BUNDLE_MODULES.cache.ak
 
@@ -7106,7 +7702,65 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
+            local Wrappers = {}
+
+            function Wrappers.PlaySound(severity)
+                return Maybe.of(C_EncounterWarnings.PlaySound(severity))
+            end
+            function Wrappers.PlaySoundInto(reuse, severity)
+                return Reuse.maybe(reuse, C_EncounterWarnings.PlaySound(severity))
+            end
+
+            return Wrappers
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.al()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.al
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.al = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
+            local Wrappers = {}
+
+            function Wrappers.GetEndOfMatchDetails()
+                return Maybe.of(C_EndOfMatchUI.GetEndOfMatchDetails())
+            end
+            function Wrappers.GetEndOfMatchDetailsInto(reuse)
+                return Reuse.maybe(reuse, C_EndOfMatchUI.GetEndOfMatchDetails())
+            end
+
+            return Wrappers
+        end
+
+        function __DARKLUA_BUNDLE_MODULES.am()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.am
+
+            if not v then
+                v = {
+                    c = __modImpl(),
+                }
+                __DARKLUA_BUNDLE_MODULES.cache.am = v
+            end
+
+            return v.c
+        end
+    end
+    do
+        local function __modImpl()
+            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetEquipmentSetAssignedSpec(equipmentSetID)
@@ -7192,14 +7846,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.al()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.al
+        function __DARKLUA_BUNDLE_MODULES.an()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.an
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.al = v
+                __DARKLUA_BUNDLE_MODULES.cache.an = v
             end
 
             return v.c
@@ -7208,7 +7862,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetActiveContinentName()
@@ -7245,14 +7899,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.am()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.am
+        function __DARKLUA_BUNDLE_MODULES.ao()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ao
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.am = v
+                __DARKLUA_BUNDLE_MODULES.cache.ao = v
             end
 
             return v.c
@@ -7261,7 +7915,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetLevelUpDisplayToastsFromLevel(level)
@@ -7283,14 +7937,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.an()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.an
+        function __DARKLUA_BUNDLE_MODULES.ap()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ap
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.an = v
+                __DARKLUA_BUNDLE_MODULES.cache.ap = v
             end
 
             return v.c
@@ -7299,7 +7953,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.FlyoutHasSpell(flyoutID, spellID)
@@ -7336,14 +7990,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ao()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ao
+        function __DARKLUA_BUNDLE_MODULES.aq()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aq
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ao = v
+                __DARKLUA_BUNDLE_MODULES.cache.aq = v
             end
 
             return v.c
@@ -7352,7 +8006,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFogOfWarForMap(uiMapID)
@@ -7371,14 +8025,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ap()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ap
+        function __DARKLUA_BUNDLE_MODULES.ar()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ar
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ap = v
+                __DARKLUA_BUNDLE_MODULES.cache.ar = v
             end
 
             return v.c
@@ -7387,7 +8041,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.AddIgnore(name)
@@ -7534,14 +8188,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aq()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aq
+        function __DARKLUA_BUNDLE_MODULES.as()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.as
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aq = v
+                __DARKLUA_BUNDLE_MODULES.cache.as = v
             end
 
             return v.c
@@ -7550,7 +8204,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.AddSDLMapping(platform, mapping)
@@ -7611,14 +8265,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ar()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ar
+        function __DARKLUA_BUNDLE_MODULES.at()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.at
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ar = v
+                __DARKLUA_BUNDLE_MODULES.cache.at = v
             end
 
             return v.c
@@ -7627,7 +8281,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCurrentGameModeDisplayInfo()
@@ -7657,14 +8311,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.as()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.as
+        function __DARKLUA_BUNDLE_MODULES.au()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.au
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.as = v
+                __DARKLUA_BUNDLE_MODULES.cache.au = v
             end
 
             return v.c
@@ -7673,7 +8327,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFirstGamepadActionBarStorageSlotIndexForActiveStance(
@@ -7689,14 +8343,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.at()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.at
+        function __DARKLUA_BUNDLE_MODULES.av()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.av
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.at = v
+                __DARKLUA_BUNDLE_MODULES.cache.av = v
             end
 
             return v.c
@@ -7705,7 +8359,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAutoMissionEnvironmentEffect(missionID)
@@ -8110,14 +8764,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.au()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.au
+        function __DARKLUA_BUNDLE_MODULES.aw()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aw
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.au = v
+                __DARKLUA_BUNDLE_MODULES.cache.aw = v
             end
 
             return v.c
@@ -8126,7 +8780,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCompletedOptionDescriptionString()
@@ -8177,14 +8831,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.av()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.av
+        function __DARKLUA_BUNDLE_MODULES.ax()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ax
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.av = v
+                __DARKLUA_BUNDLE_MODULES.cache.ax = v
             end
 
             return v.c
@@ -8193,7 +8847,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetGuildNewsInfo(index)
@@ -8281,14 +8935,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aw()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aw
+        function __DARKLUA_BUNDLE_MODULES.ay()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.ay
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aw = v
+                __DARKLUA_BUNDLE_MODULES.cache.ay = v
             end
 
             return v.c
@@ -8297,7 +8951,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetHeirloomInfo(itemID)
@@ -8337,14 +8991,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ax()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ax
+        function __DARKLUA_BUNDLE_MODULES.az()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.az
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ax = v
+                __DARKLUA_BUNDLE_MODULES.cache.az = v
             end
 
             return v.c
@@ -8353,7 +9007,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCoreFixtureOptionsInfo(coreFixtureType)
@@ -8410,14 +9064,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.ay()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.ay
+        function __DARKLUA_BUNDLE_MODULES.aA()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aA
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.ay = v
+                __DARKLUA_BUNDLE_MODULES.cache.aA = v
             end
 
             return v.c
@@ -8426,7 +9080,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCurrentHouseInfo()
@@ -8466,14 +9120,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.az()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.az
+        function __DARKLUA_BUNDLE_MODULES.aB()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aB
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.az = v
+                __DARKLUA_BUNDLE_MODULES.cache.aB = v
             end
 
             return v.c
@@ -8482,7 +9136,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetHoveredDecorInfo()
@@ -8501,14 +9155,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aA()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aA
+        function __DARKLUA_BUNDLE_MODULES.aC()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aC
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aA = v
+                __DARKLUA_BUNDLE_MODULES.cache.aC = v
             end
 
             return v.c
@@ -8517,7 +9171,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBlueprintHyperlink(blueprintShareCode)
@@ -8542,14 +9196,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aB()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aB
+        function __DARKLUA_BUNDLE_MODULES.aD()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aD
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aB = v
+                __DARKLUA_BUNDLE_MODULES.cache.aD = v
             end
 
             return v.c
@@ -8558,7 +9212,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBundleInfo(bundleCatalogShopProductID)
@@ -8690,14 +9344,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aC()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aC
+        function __DARKLUA_BUNDLE_MODULES.aE()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aE
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aC = v
+                __DARKLUA_BUNDLE_MODULES.cache.aE = v
             end
 
             return v.c
@@ -8706,7 +9360,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetHoveredDecorInfo()
@@ -8719,14 +9373,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aD()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aD
+        function __DARKLUA_BUNDLE_MODULES.aF()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aF
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aD = v
+                __DARKLUA_BUNDLE_MODULES.cache.aF = v
             end
 
             return v.c
@@ -8735,7 +9389,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetHoveredDecorInfo()
@@ -8789,14 +9443,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aE()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aE
+        function __DARKLUA_BUNDLE_MODULES.aG()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aG
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aE = v
+                __DARKLUA_BUNDLE_MODULES.cache.aG = v
             end
 
             return v.c
@@ -8805,7 +9459,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAllMaxPlacementBudgets()
@@ -8918,14 +9572,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aF()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aF
+        function __DARKLUA_BUNDLE_MODULES.aH()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aH
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aF = v
+                __DARKLUA_BUNDLE_MODULES.cache.aH = v
             end
 
             return v.c
@@ -8934,7 +9588,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetHoveredDecorInfo()
@@ -8959,14 +9613,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aG()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aG
+        function __DARKLUA_BUNDLE_MODULES.aI()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aI
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aG = v
+                __DARKLUA_BUNDLE_MODULES.cache.aI = v
             end
 
             return v.c
@@ -8975,7 +9629,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetRoomPlacementBudget()
@@ -9081,14 +9735,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aH()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aH
+        function __DARKLUA_BUNDLE_MODULES.aJ()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aJ
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aH = v
+                __DARKLUA_BUNDLE_MODULES.cache.aJ = v
             end
 
             return v.c
@@ -9097,7 +9751,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetInterfaceArtFiles()
@@ -9110,14 +9764,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aI()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aI
+        function __DARKLUA_BUNDLE_MODULES.aK()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aK
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aI = v
+                __DARKLUA_BUNDLE_MODULES.cache.aK = v
             end
 
             return v.c
@@ -9126,7 +9780,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CompareStrings(left, right, strength)
@@ -9310,14 +9964,14 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aJ()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aJ
+        function __DARKLUA_BUNDLE_MODULES.aL()
+            local v = __DARKLUA_BUNDLE_MODULES.cache.aL
 
             if not v then
                 v = {
                     c = __modImpl(),
                 }
-                __DARKLUA_BUNDLE_MODULES.cache.aJ = v
+                __DARKLUA_BUNDLE_MODULES.cache.aL = v
             end
 
             return v.c
@@ -9326,7 +9980,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetInvasionForUiMapID(uiMapID)
@@ -9351,144 +10005,6 @@ do
             return Wrappers
         end
 
-        function __DARKLUA_BUNDLE_MODULES.aK()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aK
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.aK = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Wrappers = {}
-
-            function Wrappers.GetIslandsWeeklyQuestID()
-                return Maybe.of(C_IslandsQueue.GetIslandsWeeklyQuestID())
-            end
-            function Wrappers.GetIslandsWeeklyQuestIDInto(reuse)
-                return Reuse.maybe(reuse, C_IslandsQueue.GetIslandsWeeklyQuestID())
-            end
-
-            return Wrappers
-        end
-
-        function __DARKLUA_BUNDLE_MODULES.aL()
-            local v = __DARKLUA_BUNDLE_MODULES.cache.aL
-
-            if not v then
-                v = {
-                    c = __modImpl(),
-                }
-                __DARKLUA_BUNDLE_MODULES.cache.aL = v
-            end
-
-            return v.c
-        end
-    end
-    do
-        local function __modImpl()
-            local Delay = {}
-
-            function Delay.fixed(seconds)
-                return function()
-                    return seconds
-                end
-            end
-            function Delay.immediate()
-                return Delay.fixed(0)
-            end
-            function Delay.none()
-                return function()
-                    return nil
-                end
-            end
-            function Delay.exponential(options)
-                local from = (options and options.from and {
-                    options.from,
-                } or {1})[1]
-                local factor = (options and options.factor and {
-                    options.factor,
-                } or {2})[1]
-                local max = (options and options.max and {
-                    options.max,
-                } or {
-                    math.huge,
-                })[1]
-                local current = from
-
-                return function()
-                    local delay = math.min(current, max)
-
-                    current = current * factor
-
-                    return delay
-                end
-            end
-            function Delay.fibonacci(from)
-                local base = from or 1
-                local current, following = base, base
-
-                return function()
-                    local delay = current
-
-                    current, following = following, current + following
-
-                    return delay
-                end
-            end
-            function Delay.linear(options)
-                local from = (options and options.from and {
-                    options.from,
-                } or {0})[1]
-                local step = (options and options.step and {
-                    options.step,
-                } or {1})[1]
-                local current = from
-
-                return function()
-                    local delay = current
-
-                    current = current + step
-
-                    return delay
-                end
-            end
-            function Delay.take(strategy, count)
-                local taken = 0
-
-                return function()
-                    if taken >= count then
-                        return nil
-                    end
-
-                    taken = taken + 1
-
-                    return strategy()
-                end
-            end
-            function Delay.jitter(strategy, random)
-                return function()
-                    local delay = strategy()
-
-                    if delay == nil then
-                        return nil
-                    end
-
-                    return delay * random()
-                end
-            end
-
-            return Delay
-        end
-
         function __DARKLUA_BUNDLE_MODULES.aM()
             local v = __DARKLUA_BUNDLE_MODULES.cache.aM
 
@@ -9504,534 +10020,18 @@ do
     end
     do
         local function __modImpl()
-            local Delay = __DARKLUA_BUNDLE_MODULES.aM()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local PENDING_STATE = {
-                kind = 'Pending',
-            }
+            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
+            local Wrappers = {}
 
-            local function uncheckedWeakKeyedThreads()
-                return (setmetatable({}, {
-                    __mode = 'k',
-                }))
+            function Wrappers.GetIslandsWeeklyQuestID()
+                return Maybe.of(C_IslandsQueue.GetIslandsWeeklyQuestID())
+            end
+            function Wrappers.GetIslandsWeeklyQuestIDInto(reuse)
+                return Reuse.maybe(reuse, C_IslandsQueue.GetIslandsWeeklyQuestID())
             end
 
-            local asyncThreads = uncheckedWeakKeyedThreads()
-            local Task = {}
-
-            local function uncheckedResult(value)
-                return value
-            end
-            local function newPendingRecord()
-                return {
-                    state = PENDING_STATE,
-                    waiters = {},
-                }
-            end
-            local function uncheckedRecordOf(task)
-                return task
-            end
-            local function toResult(state)
-                if state.kind == 'Resolved' then
-                    return Result.ok(state.value)
-                end
-
-                return Result.err(state.reason)
-            end
-            local function settle(task, state)
-                if task.state.kind ~= 'Pending' then
-                    return
-                end
-
-                task.state = state
-
-                local waiters = task.waiters
-
-                task.waiters = {}
-
-                local result = toResult(state)
-
-                for _, waiter in ipairs(waiters)do
-                    waiter(result)
-                end
-            end
-            local function resolveRecord(task, value)
-                settle(task, {
-                    kind = 'Resolved',
-                    value = value,
-                })
-            end
-            local function rejectRecord(task, reason)
-                settle(task, {
-                    kind = 'Rejected',
-                    reason = reason,
-                })
-            end
-            local function whenRecordSettles(task, callback)
-                local inner = uncheckedRecordOf(task)
-                local state = inner.state
-
-                if state.kind == 'Pending' then
-                    table.insert(inner.waiters, callback)
-                else
-                    callback(toResult(state))
-                end
-            end
-            local function settleLike(source, target)
-                whenRecordSettles(source, function(result)
-                    if result.kind == 'Ok' then
-                        resolveRecord(target, result.value)
-                    else
-                        rejectRecord(target, result.error)
-                    end
-                end)
-            end
-
-            function Task.whenSettled(task, callback)
-                whenRecordSettles(task, callback)
-            end
-            function Task.new(executor)
-                local task = newPendingRecord()
-
-                executor(function(value)
-                    resolveRecord(task, value)
-                end, function(reason)
-                    rejectRecord(task, reason)
-                end)
-
-                return task
-            end
-            function Task.withResolvers()
-                local task = newPendingRecord()
-
-                return {
-                    task = task,
-                    resolve = function(value)
-                        resolveRecord(task, value)
-                    end,
-                    reject = function(reason)
-                        rejectRecord(task, reason)
-                    end,
-                }
-            end
-            function Task.resolve(value)
-                local task = newPendingRecord()
-
-                resolveRecord(task, value)
-
-                return task
-            end
-            function Task.reject(reason)
-                local task = newPendingRecord()
-
-                rejectRecord(task, reason)
-
-                return task
-            end
-            function Task.fromResult(result)
-                local task = newPendingRecord()
-                local r = uncheckedResult(result)
-
-                if r.kind == 'Ok' then
-                    resolveRecord(task, r.value)
-                else
-                    rejectRecord(task, r.error)
-                end
-
-                return task
-            end
-            function Task.peek(task)
-                local state = uncheckedRecordOf(task).state
-
-                if state.kind == 'Pending' then
-                    return nil
-                end
-
-                return toResult(state)
-            end
-            function Task.isPending(task)
-                return task.state.kind == 'Pending'
-            end
-            function Task.isResolved(task)
-                return task.state.kind == 'Resolved'
-            end
-            function Task.isRejected(task)
-                return task.state.kind == 'Rejected'
-            end
-            function Task.map(task, f)
-                local target = newPendingRecord()
-
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Ok' then
-                        resolveRecord(target, f(result.value))
-                    else
-                        rejectRecord(target, result.error)
-                    end
-                end)
-
-                return target
-            end
-            function Task.mapRejected(task, f)
-                local target = newPendingRecord()
-
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Ok' then
-                        resolveRecord(target, result.value)
-                    else
-                        rejectRecord(target, f(result.error))
-                    end
-                end)
-
-                return target
-            end
-            function Task.andThen(task, f)
-                local target = newPendingRecord()
-
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Ok' then
-                        settleLike(f(result.value), target)
-                    else
-                        rejectRecord(target, result.error)
-                    end
-                end)
-
-                return target
-            end
-            function Task.orElse(task, f)
-                local target = newPendingRecord()
-
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Ok' then
-                        resolveRecord(target, result.value)
-                    else
-                        settleLike(f(result.error), target)
-                    end
-                end)
-
-                return target
-            end
-            function Task.and_(task, other)
-                local target = newPendingRecord()
-
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Ok' then
-                        settleLike(other, target)
-                    else
-                        rejectRecord(target, result.error)
-                    end
-                end)
-
-                return target
-            end
-            function Task.or_(task, other)
-                local target = newPendingRecord()
-
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Ok' then
-                        resolveRecord(target, result.value)
-                    else
-                        settleLike(other, target)
-                    end
-                end)
-
-                return target
-            end
-            function Task.match(task, matcher)
-                local target = newPendingRecord()
-
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Ok' then
-                        resolveRecord(target, matcher.Resolved(result.value))
-                    else
-                        resolveRecord(target, matcher.Rejected(result.error))
-                    end
-                end)
-
-                return target
-            end
-            function Task.toResult(task)
-                local target = newPendingRecord()
-
-                whenRecordSettles(task, function(result)
-                    resolveRecord(target, result)
-                end)
-
-                return target
-            end
-            function Task.inspect(task, f)
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Ok' then
-                        f(result.value)
-                    end
-                end)
-
-                return task
-            end
-            function Task.inspectRejected(task, f)
-                whenRecordSettles(task, function(result)
-                    if result.kind == 'Err' then
-                        f(result.error)
-                    end
-                end)
-
-                return task
-            end
-            function Task.all(tasks)
-                local target = newPendingRecord()
-                local values = {}
-                local remaining = #tasks
-
-                if remaining == 0 then
-                    resolveRecord(target, values)
-
-                    return target
-                end
-
-                for index, task in ipairs(tasks)do
-                    whenRecordSettles(task, function(result)
-                        if result.kind == 'Ok' then
-                            values[index] = result.value
-                            remaining = remaining - 1
-
-                            if remaining == 0 then
-                                resolveRecord(target, values)
-                            end
-                        else
-                            rejectRecord(target, result.error)
-                        end
-                    end)
-                end
-
-                return target
-            end
-            function Task.allSettled(tasks)
-                local target = newPendingRecord()
-                local results = {}
-                local remaining = #tasks
-
-                if remaining == 0 then
-                    resolveRecord(target, results)
-
-                    return target
-                end
-
-                for index, task in ipairs(tasks)do
-                    whenRecordSettles(task, function(result)
-                        results[index] = result
-                        remaining = remaining - 1
-
-                        if remaining == 0 then
-                            resolveRecord(target, results)
-                        end
-                    end)
-                end
-
-                return target
-            end
-            function Task.any(tasks)
-                local target = newPendingRecord()
-                local reasons = {}
-                local remaining = #tasks
-
-                if remaining == 0 then
-                    rejectRecord(target, reasons)
-
-                    return target
-                end
-
-                for index, task in ipairs(tasks)do
-                    whenRecordSettles(task, function(result)
-                        if result.kind == 'Ok' then
-                            resolveRecord(target, result.value)
-                        else
-                            reasons[index] = result.error
-                            remaining = remaining - 1
-
-                            if remaining == 0 then
-                                rejectRecord(target, reasons)
-                            end
-                        end
-                    end)
-                end
-
-                return target
-            end
-            function Task.race(tasks)
-                local target = newPendingRecord()
-
-                for _, task in ipairs(tasks)do
-                    settleLike(task, target)
-                end
-
-                return target
-            end
-            function Task.async(body)
-                local task = newPendingRecord()
-                local thread = coroutine.create(function()
-                    local result = uncheckedResult(body())
-
-                    if result.kind == 'Ok' then
-                        resolveRecord(task, result.value)
-                    else
-                        rejectRecord(task, result.error)
-                    end
-                end)
-
-                asyncThreads[thread] = true
-
-                local ok, raised = coroutine.resume(thread)
-
-                if not ok then
-                    error(raised, 0)
-                end
-
-                return task
-            end
-            function Task.await(task)
-                local state = uncheckedRecordOf(task).state
-
-                if state.kind ~= 'Pending' then
-                    return toResult(state)
-                end
-
-                local thread = coroutine.running()
-
-                if thread == nil or not asyncThreads[thread] then
-                    error('Task.await: called outside Task.async', 2)
-                end
-
-                local settled = nil
-
-                whenRecordSettles(task, function(result)
-                    settled = result
-
-                    local ok, raised = coroutine.resume(thread)
-
-                    if not ok then
-                        error(raised, 0)
-                    end
-                end)
-
-                while true do
-                    local result = settled
-
-                    if result ~= nil then
-                        return result
-                    end
-
-                    coroutine.yield()
-                end
-            end
-            function Task.timer(seconds, schedule)
-                local task = newPendingRecord()
-
-                schedule(seconds, function()
-                    resolveRecord(task, seconds)
-                end)
-
-                return task
-            end
-            function Task.timeout(task, seconds, schedule)
-                local target = newPendingRecord()
-
-                settleLike(task, target)
-                schedule(seconds, function()
-                    local timeout = {
-                        kind = 'Timeout',
-                        seconds = seconds,
-                    }
-
-                    rejectRecord(target, timeout)
-                end)
-
-                return target
-            end
-
-            local function delayBeforeNextAttempt(
-                reason,
-                status,
-                strategy,
-                shouldRetry
-            )
-                if shouldRetry ~= nil and not shouldRetry(reason, status) then
-                    return nil
-                end
-
-                return strategy()
-            end
-            local function waitThen(seconds, schedule, continue)
-                if seconds <= 0 then
-                    continue()
-                elseif schedule then
-                    schedule(seconds, continue)
-                else
-                    error('Task.withRetries: a delay above 0 needs options.schedule', 0)
-                end
-            end
-
-            function Task.withRetries(retryable, options)
-                local strategy = (options and options.strategy and {
-                    options.strategy,
-                } or {
-                    (Delay.take(Delay.immediate(), 3)),
-                })[1]
-                local schedule = (options and {
-                    options.schedule,
-                } or {nil})[1]
-                local shouldRetry = (options and {
-                    options.shouldRetry,
-                } or {nil})[1]
-                local target = newPendingRecord()
-                local rejections = {}
-                local elapsed = 0
-
-                local function giveUp(attempts)
-                    local failed = {
-                        kind = 'RetryFailed',
-                        tries = attempts,
-                        elapsed = elapsed,
-                        rejections = rejections,
-                    }
-
-                    rejectRecord(target, failed)
-                end
-                local function attempt(count)
-                    local status = {
-                        count = count,
-                        elapsed = elapsed,
-                    }
-
-                    whenRecordSettles(retryable(status), function(result)
-                        if result.kind == 'Ok' then
-                            resolveRecord(target, result.value)
-
-                            return
-                        end
-
-                        table.insert(rejections, result.error)
-
-                        local delay = delayBeforeNextAttempt(result.error, status, strategy, shouldRetry)
-
-                        if delay == nil then
-                            giveUp(count + 1)
-
-                            return
-                        end
-
-                        elapsed = elapsed + delay
-
-                        waitThen(delay, schedule, function()
-                            attempt(count + 1)
-                        end)
-                    end)
-                end
-
-                attempt(0)
-
-                return target
-            end
-
-            return Task
+            return Wrappers
         end
 
         function __DARKLUA_BUNDLE_MODULES.aN()
@@ -10050,7 +10050,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Task = __DARKLUA_BUNDLE_MODULES.aN()
+            local Task = __DARKLUA_BUNDLE_MODULES.e()
             local Loads = {}
             local waiting = {}
             local listener = nil
@@ -10183,10 +10183,10 @@ do
     end
     do
         local function __modImpl()
-            local Loads = __DARKLUA_BUNDLE_MODULES.aO()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Task = __DARKLUA_BUNDLE_MODULES.aN()
+            local Task = __DARKLUA_BUNDLE_MODULES.e()
+            local Loads = __DARKLUA_BUNDLE_MODULES.aO()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanItemTransmogAppearance(itemLoc)
@@ -10842,7 +10842,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetItemInteractionInfo()
@@ -10871,7 +10871,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetExistingSocketInfo(index)
@@ -10969,7 +10969,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetHighWatermarkForItem(itemInfo)
@@ -11155,7 +11155,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBindingContextForAction(action)
@@ -11202,8 +11202,8 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanPlayerUseGroupFinder()
@@ -11303,7 +11303,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CreateListing(createData)
@@ -11630,7 +11630,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetRoles()
@@ -11665,7 +11665,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetRuneforgeItemPreviewInfo(
@@ -11748,7 +11748,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetLootRollDuration(rollID)
@@ -11777,7 +11777,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetInfoForEncounter(encounterID)
@@ -11825,7 +11825,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetItemSetItems(setID)
@@ -11860,7 +11860,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetActiveLossOfControlData(index)
@@ -11912,7 +11912,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetMacroName(macroId)
@@ -11941,7 +11941,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanCheckInbox()
@@ -11987,7 +11987,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetMajorFactionData(majorFactionID)
@@ -12034,7 +12034,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBestMapForUnit(unitToken)
@@ -12401,7 +12401,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetExploredAreaIDsAtPosition(
@@ -12443,7 +12443,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBuybackItemID(buybackSlotIndex)
@@ -12484,7 +12484,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetPOITextureCoords(index)
@@ -12540,7 +12540,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetModelSceneActorDisplayInfoByID(
@@ -12622,7 +12622,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetModifiedInstanceInfoFromMapID(mapID)
@@ -12654,8 +12654,8 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAppliedMountEquipmentID()
@@ -12924,7 +12924,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCurrentAffixes()
@@ -13197,7 +13197,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetNamePlateSize()
@@ -13237,7 +13237,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetNamePlateHitTestInsets(type)
@@ -13281,7 +13281,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFrame()
@@ -13344,7 +13344,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetInitiativeActivityLogInfo()
@@ -13388,7 +13388,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetArmorEffectivenessAgainstTarget(armor)
@@ -13544,7 +13544,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.DoCountdown(seconds)
@@ -13751,7 +13751,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetPartyPoseInfoByID(mapID)
@@ -13786,7 +13786,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetPerksActivityInfo(perksActivityID)
@@ -13815,7 +13815,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFrozenPerksVendorItemInfo()
@@ -13844,7 +13844,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAbilityInfo(petOwner, petIndex, abilityIndex)
@@ -14082,7 +14082,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetPetHappiness()
@@ -14168,7 +14168,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.FindPetIDByName(petName)
@@ -14624,7 +14624,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCurrentPlayerChoiceInfo()
@@ -14659,8 +14659,8 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanPlayerUseMountEquipment()
@@ -14830,7 +14830,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.InteractUnit(unit, exactMatch, looseTargeting)
@@ -14864,7 +14864,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetMentorLevelRequirement()
@@ -14912,7 +14912,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDefaultSpecSkillLine()
@@ -14971,8 +14971,8 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanPlayerUseRatedPVPUI()
@@ -15569,7 +15569,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetQuestRewardCurrencies(questID)
@@ -15614,7 +15614,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetQuestLineInfo(
@@ -15651,10 +15651,10 @@ do
     end
     do
         local function __modImpl()
-            local Loads = __DARKLUA_BUNDLE_MODULES.aO()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
-            local Task = __DARKLUA_BUNDLE_MODULES.aN()
+            local Task = __DARKLUA_BUNDLE_MODULES.e()
+            local Loads = __DARKLUA_BUNDLE_MODULES.aO()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAbandonQuestItems()
@@ -16098,7 +16098,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetQuestOfferMajorFactionReputationRewards()
@@ -16151,7 +16151,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetSessionBeginDetails()
@@ -16186,7 +16186,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanSetRecentAllyNote(characterGUID)
@@ -16269,7 +16269,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanSummonFriend(guid)
@@ -16388,7 +16388,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAppearanceInfoByID(artifactAppearanceID)
@@ -16500,7 +16500,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFactionDataByID(factionID)
@@ -16590,7 +16590,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetProvingGroundsInfo()
@@ -16634,7 +16634,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCriteriaInfo(criteriaIndex)
@@ -16737,7 +16737,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCurrentPendingScrapItemLocationByIndex(index)
@@ -16775,7 +16775,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCurrentDisplaySeasonExpansion()
@@ -16804,7 +16804,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetSkillLineInfo(index)
@@ -16839,7 +16839,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetConfig()
@@ -16944,7 +16944,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.IsAgeVerificationRestrictedMinor()
@@ -16973,7 +16973,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanActivateSoulbind(soulbindID)
@@ -17051,7 +17051,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.PlaySound(
@@ -17141,8 +17141,8 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanPlayerUsePVPTalentUI()
@@ -17320,7 +17320,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CancelAutoRepeatSpell()
@@ -17687,7 +17687,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.FindBaseSpellByID(spellID)
@@ -18127,7 +18127,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAllSpellDiminishCategories(ruleset)
@@ -18175,7 +18175,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetStablePetInfo(index)
@@ -18204,7 +18204,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetSummonConfirmSummoner()
@@ -18233,7 +18233,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetHighestPrioritySuperTrackingType()
@@ -18352,7 +18352,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.IsTargetWithinSwingRange(swingType)
@@ -18381,7 +18381,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetQuestInfoByQuestID(questID)
@@ -18500,7 +18500,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAtlasInfo(atlas)
@@ -18528,7 +18528,7 @@ do
     end
     do
         local function __modImpl()
-            local Task = __DARKLUA_BUNDLE_MODULES.aN()
+            local Task = __DARKLUA_BUNDLE_MODULES.e()
             local Wrappers = {}
 
             function Wrappers.AfterAsync(seconds)
@@ -18560,7 +18560,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetItemComparisonDelta(
@@ -18606,7 +18606,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAchievementByID(achievementID)
@@ -19356,7 +19356,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetToyInfo(itemID)
@@ -19410,7 +19410,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCraftingOperationInfo(
@@ -19660,8 +19660,8 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CanEditConfig(configID)
@@ -19838,7 +19838,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAllSetAppearancesByID(setID)
@@ -19888,7 +19888,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.AccountCanCollectSource(sourceID)
@@ -20307,7 +20307,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAllSlotLocationInfo()
@@ -20566,7 +20566,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetAllSourceIDs(transmogSetID)
@@ -20762,7 +20762,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetTopLeftNotchSafeRegion()
@@ -20827,7 +20827,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFileID(asset)
@@ -20856,7 +20856,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBulletTextListWidgetVisualizationInfo(
@@ -21200,7 +21200,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.AddAuraSound(trigger, sound)
@@ -21426,7 +21426,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.FindBestUniqueVignette(vignetteGUIDs)
@@ -21523,7 +21523,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetActiveChannelID()
@@ -21724,7 +21724,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetWarbandSceneEntry(warbandSceneID)
@@ -21753,7 +21753,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetActivityEncounterInfo(type, index)
@@ -21889,7 +21889,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetWorldLootObjectDistanceSquared(unitToken)
@@ -21936,7 +21936,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetTemplateInfo(name)
@@ -21965,7 +21965,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetZoneAbilityIcon(zoneAbilitySpellID)
@@ -21994,7 +21994,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.BNGetFOFInfo(mutual, nonMutual, index)
@@ -28686,7 +28686,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CreateButtonContextMenu(ownerRegion, ...)
@@ -28771,93 +28771,93 @@ do
     end
     do
         local function __modImpl()
-            local C_AccountStore = __DARKLUA_BUNDLE_MODULES.d()
-            local C_AchievementInfo = __DARKLUA_BUNDLE_MODULES.e()
-            local C_ActionBar = __DARKLUA_BUNDLE_MODULES.f()
-            local C_AddOnProfiler = __DARKLUA_BUNDLE_MODULES.g()
-            local C_AddOns = __DARKLUA_BUNDLE_MODULES.i()
-            local C_AdventureMap = __DARKLUA_BUNDLE_MODULES.j()
-            local C_AlliedRaces = __DARKLUA_BUNDLE_MODULES.k()
-            local C_AnimaDiversion = __DARKLUA_BUNDLE_MODULES.l()
-            local C_AreaPoiInfo = __DARKLUA_BUNDLE_MODULES.m()
-            local C_ArtifactUI = __DARKLUA_BUNDLE_MODULES.n()
-            local C_AssistedCombat = __DARKLUA_BUNDLE_MODULES.o()
-            local C_AuctionHouse = __DARKLUA_BUNDLE_MODULES.p()
-            local C_AutoComplete = __DARKLUA_BUNDLE_MODULES.q()
-            local C_AzeriteEmpoweredItem = __DARKLUA_BUNDLE_MODULES.r()
-            local C_AzeriteEssence = __DARKLUA_BUNDLE_MODULES.s()
-            local C_AzeriteItem = __DARKLUA_BUNDLE_MODULES.t()
-            local C_Bank = __DARKLUA_BUNDLE_MODULES.u()
-            local C_BarberShop = __DARKLUA_BUNDLE_MODULES.v()
-            local C_BattleNet = __DARKLUA_BUNDLE_MODULES.w()
-            local C_BlackMarket = __DARKLUA_BUNDLE_MODULES.x()
-            local C_CVar = __DARKLUA_BUNDLE_MODULES.y()
-            local C_Calendar = __DARKLUA_BUNDLE_MODULES.z()
-            local C_CampaignInfo = __DARKLUA_BUNDLE_MODULES.A()
-            local C_CatalogShop = __DARKLUA_BUNDLE_MODULES.B()
-            local C_ChallengeMode = __DARKLUA_BUNDLE_MODULES.C()
-            local C_ChatInfo = __DARKLUA_BUNDLE_MODULES.D()
-            local C_ChromieTime = __DARKLUA_BUNDLE_MODULES.E()
-            local C_ClassColor = __DARKLUA_BUNDLE_MODULES.F()
-            local C_ClassTalents = __DARKLUA_BUNDLE_MODULES.G()
-            local C_Club = __DARKLUA_BUNDLE_MODULES.H()
-            local C_ClubFinder = __DARKLUA_BUNDLE_MODULES.I()
-            local C_ColorOverrides = __DARKLUA_BUNDLE_MODULES.J()
-            local C_ColorUtil = __DARKLUA_BUNDLE_MODULES.K()
-            local C_CombatAudioAlert = __DARKLUA_BUNDLE_MODULES.L()
-            local C_CombatText = __DARKLUA_BUNDLE_MODULES.M()
-            local C_Commentator = __DARKLUA_BUNDLE_MODULES.N()
-            local C_ConsoleScriptCollection = __DARKLUA_BUNDLE_MODULES.O()
-            local C_Container = __DARKLUA_BUNDLE_MODULES.P()
-            local C_ContentTracking = __DARKLUA_BUNDLE_MODULES.Q()
-            local C_ContributionCollector = __DARKLUA_BUNDLE_MODULES.R()
-            local C_CooldownViewer = __DARKLUA_BUNDLE_MODULES.S()
-            local C_CovenantPreview = __DARKLUA_BUNDLE_MODULES.T()
-            local C_CovenantSanctumUI = __DARKLUA_BUNDLE_MODULES.U()
-            local C_Covenants = __DARKLUA_BUNDLE_MODULES.V()
-            local C_CraftingOrders = __DARKLUA_BUNDLE_MODULES.W()
-            local C_CreatureInfo = __DARKLUA_BUNDLE_MODULES.X()
-            local C_CurrencyInfo = __DARKLUA_BUNDLE_MODULES.Y()
-            local C_Cursor = __DARKLUA_BUNDLE_MODULES.Z()
-            local C_DamageMeter = __DARKLUA_BUNDLE_MODULES._()
-            local C_DeathInfo = __DARKLUA_BUNDLE_MODULES.aa()
-            local C_DelvesUI = __DARKLUA_BUNDLE_MODULES.ab()
-            local C_Discord = __DARKLUA_BUNDLE_MODULES.ac()
-            local C_DyeColor = __DARKLUA_BUNDLE_MODULES.ad()
-            local C_EditMode = __DARKLUA_BUNDLE_MODULES.ae()
-            local C_EncodingUtil = __DARKLUA_BUNDLE_MODULES.af()
-            local C_EncounterEvents = __DARKLUA_BUNDLE_MODULES.ag()
-            local C_EncounterJournal = __DARKLUA_BUNDLE_MODULES.ah()
-            local C_EncounterTimeline = __DARKLUA_BUNDLE_MODULES.ai()
-            local C_EncounterWarnings = __DARKLUA_BUNDLE_MODULES.aj()
-            local C_EndOfMatchUI = __DARKLUA_BUNDLE_MODULES.ak()
-            local C_EquipmentSet = __DARKLUA_BUNDLE_MODULES.al()
-            local C_EventScheduler = __DARKLUA_BUNDLE_MODULES.am()
-            local C_EventToastManager = __DARKLUA_BUNDLE_MODULES.an()
-            local C_Flyout = __DARKLUA_BUNDLE_MODULES.ao()
-            local C_FogOfWar = __DARKLUA_BUNDLE_MODULES.ap()
-            local C_FriendList = __DARKLUA_BUNDLE_MODULES.aq()
-            local C_GamePad = __DARKLUA_BUNDLE_MODULES.ar()
-            local C_GameRules = __DARKLUA_BUNDLE_MODULES.as()
-            local C_GamepadUI = __DARKLUA_BUNDLE_MODULES.at()
-            local C_Garrison = __DARKLUA_BUNDLE_MODULES.au()
-            local C_GossipInfo = __DARKLUA_BUNDLE_MODULES.av()
-            local C_GuildInfo = __DARKLUA_BUNDLE_MODULES.aw()
-            local C_Heirloom = __DARKLUA_BUNDLE_MODULES.ax()
-            local C_HouseExterior = __DARKLUA_BUNDLE_MODULES.ay()
-            local C_Housing = __DARKLUA_BUNDLE_MODULES.az()
-            local C_HousingBasicMode = __DARKLUA_BUNDLE_MODULES.aA()
-            local C_HousingBlueprint = __DARKLUA_BUNDLE_MODULES.aB()
-            local C_HousingCatalog = __DARKLUA_BUNDLE_MODULES.aC()
-            local C_HousingCleanupMode = __DARKLUA_BUNDLE_MODULES.aD()
-            local C_HousingCustomizeMode = __DARKLUA_BUNDLE_MODULES.aE()
-            local C_HousingDecor = __DARKLUA_BUNDLE_MODULES.aF()
-            local C_HousingExpertMode = __DARKLUA_BUNDLE_MODULES.aG()
-            local C_HousingLayout = __DARKLUA_BUNDLE_MODULES.aH()
-            local C_InterfaceFileManifest = __DARKLUA_BUNDLE_MODULES.aI()
-            local C_Intl = __DARKLUA_BUNDLE_MODULES.aJ()
-            local C_InvasionInfo = __DARKLUA_BUNDLE_MODULES.aK()
-            local C_IslandsQueue = __DARKLUA_BUNDLE_MODULES.aL()
+            local C_AccountStore = __DARKLUA_BUNDLE_MODULES.g()
+            local C_AchievementInfo = __DARKLUA_BUNDLE_MODULES.h()
+            local C_ActionBar = __DARKLUA_BUNDLE_MODULES.i()
+            local C_AddOnProfiler = __DARKLUA_BUNDLE_MODULES.j()
+            local C_AddOns = __DARKLUA_BUNDLE_MODULES.k()
+            local C_AdventureMap = __DARKLUA_BUNDLE_MODULES.l()
+            local C_AlliedRaces = __DARKLUA_BUNDLE_MODULES.m()
+            local C_AnimaDiversion = __DARKLUA_BUNDLE_MODULES.n()
+            local C_AreaPoiInfo = __DARKLUA_BUNDLE_MODULES.o()
+            local C_ArtifactUI = __DARKLUA_BUNDLE_MODULES.p()
+            local C_AssistedCombat = __DARKLUA_BUNDLE_MODULES.q()
+            local C_AuctionHouse = __DARKLUA_BUNDLE_MODULES.r()
+            local C_AutoComplete = __DARKLUA_BUNDLE_MODULES.s()
+            local C_AzeriteEmpoweredItem = __DARKLUA_BUNDLE_MODULES.t()
+            local C_AzeriteEssence = __DARKLUA_BUNDLE_MODULES.u()
+            local C_AzeriteItem = __DARKLUA_BUNDLE_MODULES.v()
+            local C_Bank = __DARKLUA_BUNDLE_MODULES.w()
+            local C_BarberShop = __DARKLUA_BUNDLE_MODULES.x()
+            local C_BattleNet = __DARKLUA_BUNDLE_MODULES.y()
+            local C_BlackMarket = __DARKLUA_BUNDLE_MODULES.z()
+            local C_CVar = __DARKLUA_BUNDLE_MODULES.A()
+            local C_Calendar = __DARKLUA_BUNDLE_MODULES.B()
+            local C_CampaignInfo = __DARKLUA_BUNDLE_MODULES.C()
+            local C_CatalogShop = __DARKLUA_BUNDLE_MODULES.D()
+            local C_ChallengeMode = __DARKLUA_BUNDLE_MODULES.E()
+            local C_ChatInfo = __DARKLUA_BUNDLE_MODULES.F()
+            local C_ChromieTime = __DARKLUA_BUNDLE_MODULES.G()
+            local C_ClassColor = __DARKLUA_BUNDLE_MODULES.H()
+            local C_ClassTalents = __DARKLUA_BUNDLE_MODULES.I()
+            local C_Club = __DARKLUA_BUNDLE_MODULES.J()
+            local C_ClubFinder = __DARKLUA_BUNDLE_MODULES.K()
+            local C_ColorOverrides = __DARKLUA_BUNDLE_MODULES.L()
+            local C_ColorUtil = __DARKLUA_BUNDLE_MODULES.M()
+            local C_CombatAudioAlert = __DARKLUA_BUNDLE_MODULES.N()
+            local C_CombatText = __DARKLUA_BUNDLE_MODULES.O()
+            local C_Commentator = __DARKLUA_BUNDLE_MODULES.P()
+            local C_ConsoleScriptCollection = __DARKLUA_BUNDLE_MODULES.Q()
+            local C_Container = __DARKLUA_BUNDLE_MODULES.R()
+            local C_ContentTracking = __DARKLUA_BUNDLE_MODULES.S()
+            local C_ContributionCollector = __DARKLUA_BUNDLE_MODULES.T()
+            local C_CooldownViewer = __DARKLUA_BUNDLE_MODULES.U()
+            local C_CovenantPreview = __DARKLUA_BUNDLE_MODULES.V()
+            local C_CovenantSanctumUI = __DARKLUA_BUNDLE_MODULES.W()
+            local C_Covenants = __DARKLUA_BUNDLE_MODULES.X()
+            local C_CraftingOrders = __DARKLUA_BUNDLE_MODULES.Y()
+            local C_CreatureInfo = __DARKLUA_BUNDLE_MODULES.Z()
+            local C_CurrencyInfo = __DARKLUA_BUNDLE_MODULES._()
+            local C_Cursor = __DARKLUA_BUNDLE_MODULES.aa()
+            local C_DamageMeter = __DARKLUA_BUNDLE_MODULES.ab()
+            local C_DeathInfo = __DARKLUA_BUNDLE_MODULES.ac()
+            local C_DelvesUI = __DARKLUA_BUNDLE_MODULES.ad()
+            local C_Discord = __DARKLUA_BUNDLE_MODULES.ae()
+            local C_DyeColor = __DARKLUA_BUNDLE_MODULES.af()
+            local C_EditMode = __DARKLUA_BUNDLE_MODULES.ag()
+            local C_EncodingUtil = __DARKLUA_BUNDLE_MODULES.ah()
+            local C_EncounterEvents = __DARKLUA_BUNDLE_MODULES.ai()
+            local C_EncounterJournal = __DARKLUA_BUNDLE_MODULES.aj()
+            local C_EncounterTimeline = __DARKLUA_BUNDLE_MODULES.ak()
+            local C_EncounterWarnings = __DARKLUA_BUNDLE_MODULES.al()
+            local C_EndOfMatchUI = __DARKLUA_BUNDLE_MODULES.am()
+            local C_EquipmentSet = __DARKLUA_BUNDLE_MODULES.an()
+            local C_EventScheduler = __DARKLUA_BUNDLE_MODULES.ao()
+            local C_EventToastManager = __DARKLUA_BUNDLE_MODULES.ap()
+            local C_Flyout = __DARKLUA_BUNDLE_MODULES.aq()
+            local C_FogOfWar = __DARKLUA_BUNDLE_MODULES.ar()
+            local C_FriendList = __DARKLUA_BUNDLE_MODULES.as()
+            local C_GamePad = __DARKLUA_BUNDLE_MODULES.at()
+            local C_GameRules = __DARKLUA_BUNDLE_MODULES.au()
+            local C_GamepadUI = __DARKLUA_BUNDLE_MODULES.av()
+            local C_Garrison = __DARKLUA_BUNDLE_MODULES.aw()
+            local C_GossipInfo = __DARKLUA_BUNDLE_MODULES.ax()
+            local C_GuildInfo = __DARKLUA_BUNDLE_MODULES.ay()
+            local C_Heirloom = __DARKLUA_BUNDLE_MODULES.az()
+            local C_HouseExterior = __DARKLUA_BUNDLE_MODULES.aA()
+            local C_Housing = __DARKLUA_BUNDLE_MODULES.aB()
+            local C_HousingBasicMode = __DARKLUA_BUNDLE_MODULES.aC()
+            local C_HousingBlueprint = __DARKLUA_BUNDLE_MODULES.aD()
+            local C_HousingCatalog = __DARKLUA_BUNDLE_MODULES.aE()
+            local C_HousingCleanupMode = __DARKLUA_BUNDLE_MODULES.aF()
+            local C_HousingCustomizeMode = __DARKLUA_BUNDLE_MODULES.aG()
+            local C_HousingDecor = __DARKLUA_BUNDLE_MODULES.aH()
+            local C_HousingExpertMode = __DARKLUA_BUNDLE_MODULES.aI()
+            local C_HousingLayout = __DARKLUA_BUNDLE_MODULES.aJ()
+            local C_InterfaceFileManifest = __DARKLUA_BUNDLE_MODULES.aK()
+            local C_Intl = __DARKLUA_BUNDLE_MODULES.aL()
+            local C_InvasionInfo = __DARKLUA_BUNDLE_MODULES.aM()
+            local C_IslandsQueue = __DARKLUA_BUNDLE_MODULES.aN()
             local C_Item = __DARKLUA_BUNDLE_MODULES.aP()
             local C_ItemInteraction = __DARKLUA_BUNDLE_MODULES.aQ()
             local C_ItemSocketInfo = __DARKLUA_BUNDLE_MODULES.aR()
@@ -29934,8 +29934,8 @@ do
     end
     do
         local function __modImpl()
+            local Task = __DARKLUA_BUNDLE_MODULES.e()
             local Listener = __DARKLUA_BUNDLE_MODULES.cj()
-            local Task = __DARKLUA_BUNDLE_MODULES.aN()
             local Combat = {}
 
             local function uncheckedDeferred(deferred)
@@ -29982,8 +29982,8 @@ do
     end
     do
         local function __modImpl()
+            local Task = __DARKLUA_BUNDLE_MODULES.e()
             local Listener = __DARKLUA_BUNDLE_MODULES.cj()
-            local Task = __DARKLUA_BUNDLE_MODULES.aN()
             local Events = {}
 
             local function uncheckedRead(read)
@@ -30055,7 +30055,7 @@ do
     end
     do
         local function __modImpl()
-            local Task = __DARKLUA_BUNDLE_MODULES.aN()
+            local Task = __DARKLUA_BUNDLE_MODULES.e()
             local Timing = {}
 
             local function uncheckedRun(run)
@@ -30176,7 +30176,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetPushedTextOffset(object)
@@ -30216,7 +30216,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.OpenCheckout(object, checkoutID)
@@ -30245,7 +30245,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetColorHSV(object)
@@ -30306,7 +30306,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetOffset(object)
@@ -30346,7 +30346,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCooldownTimes(object)
@@ -30392,7 +30392,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetItemTransmogInfo(object, inventorySlot)
@@ -30442,7 +30442,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDuration(object)
@@ -30521,7 +30521,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDisplayText(object)
@@ -30682,7 +30682,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFogOfWarBackgroundTexture(object)
@@ -30717,7 +30717,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFont(object)
@@ -30818,7 +30818,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFont(object)
@@ -30919,7 +30919,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CalculateScreenAreaFromCharacterSpan(
@@ -31092,7 +31092,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBoundsRect(object)
@@ -31199,7 +31199,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetMinimumWidth(object)
@@ -31260,7 +31260,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetEditorModeContext(object)
@@ -31307,7 +31307,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetEndPoint(object)
@@ -31372,7 +31372,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetOrigin(object)
@@ -31465,7 +31465,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetOffset(object)
@@ -31505,7 +31505,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.EvaluateUnpacked(object, x)
@@ -31555,7 +31555,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetPoint(object, index)
@@ -31584,7 +31584,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetClock(object)
@@ -31613,7 +31613,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.CompareStrings(object, left, right, strength)
@@ -31823,7 +31823,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFont(object)
@@ -31924,7 +31924,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetPingPosition(object)
@@ -31964,7 +31964,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCameraPosition(object)
@@ -32137,7 +32137,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetCameraForward(object)
@@ -32410,7 +32410,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetActiveBoundingBox(object)
@@ -32555,7 +32555,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.StartMovie(object, movieID, looping)
@@ -32623,7 +32623,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.TakeSnapshot(object)
@@ -32658,7 +32658,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.UpdateMouseOverTooltip(object, x, y)
@@ -32698,7 +32698,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDrawLayer(object)
@@ -32768,7 +32768,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetOrigin(object)
@@ -32810,7 +32810,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetOrigin(object)
@@ -32903,7 +32903,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetScenarioTooltipText(object)
@@ -32932,7 +32932,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetBottom(object)
@@ -33173,7 +33173,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDefaultAbbreviation(object)
@@ -33238,7 +33238,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetFont(object, textType)
@@ -33339,7 +33339,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetMinMaxValues(object)
@@ -33379,7 +33379,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetMinMaxValues(object)
@@ -33440,7 +33440,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetTexCoord(object)
@@ -33557,7 +33557,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetOffset(object)
@@ -33597,7 +33597,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetNextSignal(object)
@@ -33643,7 +33643,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetOffset(object)
@@ -33683,7 +33683,7 @@ do
     do
         local function __modImpl()
             local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Reuse = __DARKLUA_BUNDLE_MODULES.c()
+            local Reuse = __DARKLUA_BUNDLE_MODULES.f()
             local Wrappers = {}
 
             function Wrappers.GetDamageAbsorbs(object)
@@ -33868,13 +33868,13 @@ do
     end
     do
         local function __modImpl()
+            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
+            local Result = __DARKLUA_BUNDLE_MODULES.c()
+            local Task = __DARKLUA_BUNDLE_MODULES.e()
             local Api = __DARKLUA_BUNDLE_MODULES.ci()
             local Combat = __DARKLUA_BUNDLE_MODULES.ck()
             local Events = __DARKLUA_BUNDLE_MODULES.cl()
             local Loads = __DARKLUA_BUNDLE_MODULES.aO()
-            local Maybe = __DARKLUA_BUNDLE_MODULES.b()
-            local Result = __DARKLUA_BUNDLE_MODULES.h()
-            local Task = __DARKLUA_BUNDLE_MODULES.aN()
             local Timing = __DARKLUA_BUNDLE_MODULES.cm()
             local Widgets = __DARKLUA_BUNDLE_MODULES.c4()
 

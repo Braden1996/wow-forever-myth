@@ -1,0 +1,106 @@
+---
+title: wow-forever-myth
+description: The World of Warcraft Forever API as Maybe, Result and Task, generated from Blizzard's documentation for strict Luau addons.
+template: splash
+hero:
+  tagline: The World of Warcraft Forever API as Maybe, Result and Task. Every wrapper is generated from Blizzard's own documentation, strictly typed, and compiles to Lua 5.1.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Introduction
+      link: introduction/
+      icon: right-arrow
+    - text: Tour
+      link: getting-started/tour/
+      variant: secondary
+    - text: API reference
+      link: reference/
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/Braden1996/wow-forever-myth
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import { Badge } from "starlight-warcraft/react";
+
+import { countOf, facts, formatCount } from "../../lib/facts.ts";
+
+## What it gives you
+
+<CardGrid>
+  <Card title="Maybe instead of nil" icon="approve-check">
+    Where Blizzard documents that a result can be missing, the wrapper returns a `Maybe`, and the type checker makes you
+    handle the empty case.
+  </Card>
+  <Card title="Records instead of tuples" icon="list-format">
+    Calls with several results return a read-only record named the way Blizzard names them: `info.itemLevel`, not the
+    fourth of seventeen returns.
+  </Card>
+  <Card title="Result and Task where they fit" icon="rocket">
+    Reviewed overrides turn success flags into `Result` and "not cached yet" into a `Task` that waits for the game's
+    load event.
+  </Card>
+  <Card title="Made for the game" icon="puzzle">
+    Opt-in per call, allocation-free variants for every-frame code, never a protected function, and a Lua 5.1 bundle
+    tested outside the game.
+  </Card>
+</CardGrid>
+
+<div class="wow-shapes">
+  <Badge>{formatCount(facts.wrapped)} APIs wrapped</Badge>
+  <Badge>{formatCount(facts.modules)} modules</Badge>
+  <Badge>{formatCount(facts.reviewed)} reviewed overrides</Badge>
+  <Badge>{countOf("protected")} protected, never wrapped</Badge>
+</div>
+
+## A taste
+
+Hover any name to see the type Luau inferred for it. Every example on this site is type-checked against the library
+and the WoW: Forever definitions when the site is built.
+
+```luau check
+local function questTitle(questID: number): string
+	return Maybe.unwrapOr(Api.C_QuestLog.GetTitleForQuestID(questID), "an unknown quest")
+end
+
+local function playerPosition(): string
+	local position = Api.UnitPosition("player")
+	return string.format("%.1f, %.1f on map %d", position.positionX, position.positionY, position.mapID)
+end
+
+local loaded = Result.match(Api.C_AddOns.LoadAddOn("MyAddon_Data"), {
+	Ok = function(_loaded: true): string
+		return "loaded"
+	end,
+	Err = function(reason: string): string
+		return "not loaded: " .. reason
+	end,
+})
+```
+
+## Next steps
+
+<CardGrid>
+  <LinkCard
+    title="Introduction"
+    description="What the wrappers are, why they are generated, and what they are careful about."
+    href="/wow-forever-myth/introduction/"
+  />
+  <LinkCard
+    title="Install"
+    description="Add the library to an addon and build it to Lua 5.1."
+    href="/wow-forever-myth/getting-started/install/"
+  />
+  <LinkCard
+    title="Tour"
+    description="One example of each kind of wrapper: Maybe, records, Result, Task and the hot paths."
+    href="/wow-forever-myth/getting-started/tour/"
+  />
+  <LinkCard
+    title="API reference"
+    description="Every wrapped namespace, global and widget, generated from the library's own types."
+    href="/wow-forever-myth/reference/"
+  />
+</CardGrid>

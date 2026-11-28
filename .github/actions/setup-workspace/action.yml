@@ -1,0 +1,21 @@
+name: Set up workspace dependencies
+description: Install the workspace tool pins and stage the Sergeant presets for Bun.
+
+runs:
+  using: composite
+  steps:
+    - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+      with:
+        install_args: bun node github:seaofvoices/darklua aqua:rhysd/actionlint aqua:zizmorcore/zizmor aqua:lycheeverse/lychee aqua:gitleaks/gitleaks
+    - name: Stage Sergeant preset tarballs
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p ../sergeant/dist/npm
+        npm pack --ignore-scripts --pack-destination ../sergeant/dist/npm \
+          @sgt-build/tsconfig@0.15.0 \
+          @sgt-build/oxlint-config@0.15.0 \
+          @sgt-build/oxlint-config-react@0.15.0
+    - name: Install Lune type definitions
+      shell: bash
+      run: lune setup
