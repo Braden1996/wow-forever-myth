@@ -5,9 +5,9 @@
     "": {
       "name": "wow-forever-myth",
       "devDependencies": {
-        "@sgt-build/oxlint-config": "file:../sergeant/dist/npm/sgt-build-oxlint-config-0.15.0.tgz",
-        "@sgt-build/oxlint-config-react": "file:../sergeant/dist/npm/sgt-build-oxlint-config-react-0.15.0.tgz",
-        "@sgt-build/tsconfig": "file:../sergeant/dist/npm/sgt-build-tsconfig-0.15.0.tgz",
+        "@sgt-build/oxlint-config": "0.15.0",
+        "@sgt-build/oxlint-config-react": "0.15.0",
+        "@sgt-build/tsconfig": "0.15.0",
         "oxlint": "1.93.0",
         "oxlint-tsgolint": "7.0.2007",
         "typescript": "6.0.3",
@@ -36,9 +36,6 @@
         "react-dom": "catalog:",
       },
     },
-  },
-  "overrides": {
-    "@sgt-build/oxlint-config": "file:../sergeant/dist/npm/sgt-build-oxlint-config-0.15.0.tgz",
   },
   "catalog": {
     "@astrojs/check": "0.9.12",
@@ -344,11 +341,11 @@
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.1.1", "", {}, "sha512-glFIJDvLNDtJhT9qrMFWLPbvS+skxgt4L0K8Ei2YtnhPysAJnsI7nyxSJxKj4ADeKX0OLjC4ntRkwpLOoS3rwA=="],
 
-    "@sgt-build/oxlint-config": ["@sgt-build/oxlint-config@../sergeant/dist/npm/sgt-build-oxlint-config-0.15.0.tgz", { "peerDependencies": { "oxlint": ">=1.0.0", "oxlint-tsgolint": ">=0.16.0" } }, "sha512-NyKcm40e2dzbZ+rvmQIHIDoDPisBqTdjmxmrac3QJxduT8Is43NhtQ/alePOguyi4Re22nDZg/wAvtA3Denn9A=="],
+    "@sgt-build/oxlint-config": ["@sgt-build/oxlint-config@0.15.0", "", { "peerDependencies": { "oxlint": ">=1.0.0", "oxlint-tsgolint": ">=0.16.0" } }, "sha512-Psi+3GkFqi0q1NIYdW7eAbAkgXwCzKB28MFC2iKZr3AZzxtR87eMAZ5o00qWlvl9OTY5PUPoxvr+3ygmJJMrVw=="],
 
-    "@sgt-build/oxlint-config-react": ["@sgt-build/oxlint-config-react@../sergeant/dist/npm/sgt-build-oxlint-config-react-0.15.0.tgz", { "dependencies": { "@sgt-build/oxlint-config": "^0.15.0" }, "peerDependencies": { "oxlint": ">=1.0.0" } }, "sha512-vIzrdK3yKpm9LpMrTXqZftxV76Axc+r/YCuMGAiwHQYH8bENkcEUdsHc1tdcpXtxeS4GwY/8kZA56WyX2F6knA=="],
+    "@sgt-build/oxlint-config-react": ["@sgt-build/oxlint-config-react@0.15.0", "", { "dependencies": { "@sgt-build/oxlint-config": "^0.15.0" }, "peerDependencies": { "oxlint": ">=1.0.0" } }, "sha512-En12380yrfaDxgd/mPkkFSFgLJ+MGlQP05xtIQkWaMuwyWGvOhbH/DG+o9nytatVVgyZm68hekWtoTPYfawuEQ=="],
 
-    "@sgt-build/tsconfig": ["@sgt-build/tsconfig@../sergeant/dist/npm/sgt-build-tsconfig-0.15.0.tgz", {}, "sha512-scgFkQLUFL3xwr4qlQjgxHLZv2SDlODzXlZVtIa0AzYbhYUHQ/2bKNTg6fUzrojc/DacGxiyDofk/DP0Qrqwcg=="],
+    "@sgt-build/tsconfig": ["@sgt-build/tsconfig@0.15.0", "", {}, "sha512-scgFkQLUFL3xwr4qlQjgxHLZv2SDlODzXlZVtIa0AzYbhYUHQ/2bKNTg6fUzrojc/DacGxiyDofk/DP0Qrqwcg=="],
 
     "@shikijs/core": ["@shikijs/core@4.6.0", "", { "dependencies": { "@shikijs/primitive": "4.6.0", "@shikijs/types": "4.6.0", "@shikijs/vscode-textmate": "^10.1.0", "@types/hast": "^3.0.5", "hast-util-to-html": "^9.0.6" } }, "sha512-bfd4OKgvoyXYiYmMRuleA656P4V7M/Du9lcTl38Ngm6KszMj7bq4J1IGZwSYR4c95Tv5UQALtYNWUwaI9UT3xw=="],
 
